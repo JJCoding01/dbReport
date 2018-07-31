@@ -2,6 +2,8 @@
 
 html {
     height: 100%;
+    background-color: #cecece;
+
 }
 body {
     /*for positioning footer*/
@@ -28,6 +30,8 @@ h1 {
     font-variant: small-caps;
     background-color: #808080;
     text-align: center;
+    font-family: Arial;
+    font-variant: small-caps;
 }
 
 p {
@@ -38,6 +42,10 @@ p {
 p.right {
     text-align: right;
     line-height: 100%;
+}
+
+p.description{
+    text-decoration: underline;
 }
 
 table, th, td {
@@ -76,8 +84,9 @@ tr:nth-child(odd) {
 /* Navbar container */
 .navbar {
   overflow: hidden;
-  background-color: #808080;
-  font-family: Arial;
+  background-color: #686666;
+  /*font-family: Arial;*/
+  /*font-variant-caps: small-caps;*/
 }
 
 /* Links inside the navbar */
@@ -88,6 +97,7 @@ tr:nth-child(odd) {
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
+  /*font-variant: small-caps;*/
 }
 
 /* The dropdown container */
@@ -106,11 +116,12 @@ tr:nth-child(odd) {
   background-color: inherit;
   font-family: inherit; /* Important for vertical align on mobile phones */
   margin: 0; /* Important for vertical align on mobile phones */
+  font-variant: small-caps;
 }
 
 /* Add a background color to navbar links on hover */
 .navbar a:hover, .dropdown:hover .dropbtn {
-  background-color: #000080;
+  background-color: #a5a5a5;
 }
 
 /* Dropdown content (hidden by default) */

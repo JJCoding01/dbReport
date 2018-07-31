@@ -25,7 +25,8 @@
 
 "paths": {
     "database": ".\\Forklifts.db",
-    "template": ".\\reports\\templates\\view_template.html.j2",
+    "template_dir": ".\\reports\\templates",
+    "template": "view_template.html.j2",
     "css_styles": ".\\templates\\styles.css",
     "javascript": ".\\templates\\javascript\\timeago\\timeago.js",
     "SQL": ".\\reports\\SQL",
