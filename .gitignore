@@ -1,0 +1,14 @@
+# database files
+*.db
+
+# all temp directories
+*temp/
+
+# all html files
+*.html
+
+# all javascript scripts
+*javascript
+
+# python build files
+__pycache__/

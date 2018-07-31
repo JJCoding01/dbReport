@@ -1,0 +1,73 @@
+{
+"categories": {
+    "Forks": ["ListForks", "ListForkModels"],
+    "Cylinders": ["ListCylinders", "ListCylinderModels"],
+    "Masts": ["ExplodeMastLayouts"],
+    "Wheels & Tires": ["ExplodeWheelGroups", "ListWheels", "ListTires", "ListTireOptions"],
+    "Axles": ["ListAxles", "ListAxleModels"]
+    },
+"titles": {
+    "DriveModelOptions": "Drive Model Options",
+    "ExplodeMastLayouts": "Explode Mast Layouts",
+    "ExplodeWheelGroups": "Explode Wheel Groups",
+    "ListCarriages": "List Carriages",
+    "ListChains": "List Chains",
+    "ListCircuits": "List Circuits",
+    "ListCylinderModels": "List Cylinder Models",
+    "ListCylinders": "List Cylinders",
+    "ListForkModels": "List Fork Models",
+    "ListForks": "List Forks",
+    "ListTireOptions": "List Type Options",
+    "ListTires": "List Tires",
+    "ListWheels": "List Wheels",
+    "SpecDrawings": "Spec Drawings"
+    },
+
+"paths": {
+    "database": ".\\Forklifts.db",
+    "template": ".\\reports\\templates\\view_template.html.j2",
+    "css_styles": ".\\templates\\styles.css",
+    "javascript": ".\\templates\\javascript\\timeago\\timeago.js",
+    "SQL": ".\\reports\\SQL",
+    "reports": ".\\reports"
+    },
+"captions": {
+    "DriveModelOptions": "caption for this view DriveModelOptions",
+    "ExplodeMastLayouts": "caption for this view ExplodeMastLayouts",
+    "ExplodeWheelGroups": "caption for this view ExplodeWheelGroups",
+    "ListCarriages": "caption for this view ListCarriages",
+    "ListChains": "caption for this view ListChains",
+    "ListCircuits": "caption for this view ListCircuits",
+    "ListCylinderModels": "caption for this view ListCylinderModels",
+    "ListCylinders": "caption for this view ListCylinders",
+    "ListForkModels": "caption for this view ListForkModels",
+    "ListForks": "caption for this view ListForks",
+    "ListTireOptions": "caption for this view ListTireOptions",
+    "ListTires": "caption for this view ListTires",
+    "ListWheels": "caption for this view ListWheels",
+    "SpecDrawings": "caption for this view SpecDrawings",
+    "explodeAxles": "caption for this view explodeAxles",
+    "explodeWheelGroupsSummary": "caption for this view explodeWheelGroupsSummary",
+    "listAxleModels": "caption for this view listAxleModels"
+    },
+
+"descriptions": {
+        "DriveModelOptions": "Page description for this view DriveModelOptions",
+        "ExplodeMastLayouts": "Page description for this view ExplodeMastLayouts",
+        "ExplodeWheelGroups": "Page description for this view ExplodeWheelGroups",
+        "ListCarriages": "Page description for this view ListCarriages",
+        "ListChains": "Page description for this view ListChains",
+        "ListCircuits": "Page description for this view ListCircuits",
+        "ListCylinderModels": "Page description for this view ListCylinderModels",
+        "ListCylinders": "Page description for this view ListCylinders",
+        "ListForkModels": "Page description for this view ListForkModels",
+        "ListForks": "Page description for this view ListForks",
+        "ListTireOptions": "Page description for this view ListTireOptions",
+        "ListTires": "Page description for this view ListTires",
+        "ListWheels": "Page description for this view ListWheels",
+        "SpecDrawings": "Page description for this view SpecDrawings",
+        "explodeAxles": "Page description for this view explodeAxles",
+        "explodeWheelGroupsSummary": "Page description for this view explodeWheelGroupsSummary",
+        "listAxleModels": "Page description for this view listAxleModels"
+        }
+}
