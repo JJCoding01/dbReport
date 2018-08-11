@@ -3,10 +3,17 @@ import os
 from jinja2 import Template, Environment, FileSystemLoader
 from datetime import datetime
 import json
+from link import link
 
 
 class Report(object):
     """Object that will define a report"""
+    # class Decorators(object):
+    #     """class to contain all decorators for Report class"""
+    #     @classmethod
+    #     def link_data(decorated):
+    #         """link data"""
+    #         print("link data here")
 
     def __init__(self, layout_path):
         with open(layout_path, 'r') as f:
@@ -35,7 +42,27 @@ class Report(object):
         sql = self.__read_file(filename)
         return self.cursor.execute(sql)
 
-    def __get_all_data(self):
+    # def link_data(cls, func):
+    #     def wrapper():
+    #         # func = self.get_all_data
+    #         print('get all data')
+    #         # data = func()
+    #         # print(data)
+    #         # linked = {}
+    #         # for view in data:
+    #         #     linked_rows = []
+    #         #     for row in data[view]:
+    #         #         linked_row = []
+    #         #         for cell in row:
+    #         #             # item = (cell, link(cell, self.paths['search_paths']))
+    #         #             # linked_row.append(item)
+    #         #         # linked_rows.append(linked_row)
+    #         #     # linked.setdefault(view, linked_rows)
+    #         # # return linked
+    #     return wrapper
+
+    # @Decorators.link_data
+    def get_all_data(self):
         """return a dictionary containing all the data for all views"""
         views = self.get_views()
         data = {}
@@ -96,9 +123,9 @@ class Report(object):
         css_style = self.paths['css_styles']
         js = self.paths['javascript']
         headers = self.__get_columns(view_name)
-        caption = self.layout['captions'][view_name]
+        caption = self.layout['captions'].get(view_name, "")
         title = self.__get_title(view_name)
-        description = self.layout['descriptions'][view_name]
+        description = self.layout['descriptions'].get(view_name, "")
         categories = self.categories
 
 
@@ -133,7 +160,9 @@ class Report(object):
 def main():
     path = os.path.join('reports', 'templates', 'layout.json')
     R = Report(path)
-    R.render_all()
+    # R.render_all()
+    # R.link_data()
+    R.get_all_data()
 
 if __name__ == '__main__':
     main()

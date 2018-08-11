@@ -1,10 +1,11 @@
 {
 "categories": {
-    "Forks": ["ListForks", "ListForkModels"],
-    "Cylinders": ["ListCylinders", "ListCylinderModels"],
+    "Forks": ["ListForks"],
+    "Cylinders": ["ListCylinders"],
     "Masts": ["ExplodeMastLayouts"],
-    "Wheels & Tires": ["ExplodeWheelGroups", "ListWheels", "ListTires", "ListTireOptions"],
-    "Axles": ["ListAxles", "ListAxleModels"]
+    "Wheels & Tires": ["ExplodeWheelGroups", "ListWheels", "ListTires", "ListTireOptions", "listDrives"],
+    "Axles": ["ListAxles", "ListAxleModels"],
+    "Chains": ["listChains", "listChainBase"]
     },
 "titles": {
     "DriveModelOptions": "Drive Model Options",
@@ -30,7 +31,8 @@
     "css_styles": ".\\templates\\styles.css",
     "javascript": ".\\templates\\javascript\\timeago\\timeago.js",
     "SQL": ".\\reports\\SQL",
-    "reports": ".\\reports"
+    "reports": ".\\reports",
+    "search_paths": "..\\drawings\\PDF"
     },
 "captions": {
     "DriveModelOptions": "caption for this view DriveModelOptions",
