@@ -3,47 +3,45 @@
 <head>
     <meta charset = "UTF-8">
     <title>{{title}}</title>
-    <link
-        rel = "stylesheet"
-        type = "text/css"
-        href = "{{css_style}}">
-    </link>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="{{js}}" type="text/javascript"></script>
+    {% for style in css_styles %}
+    <link rel = "stylesheet" type = "text/css" href = "{{style}}"></link>
+    {% endfor %}
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    {% for js in javascripts %}
+    <script src="{{js}}" type="text/javascript"></script>
+    {% endfor %}
     <script>
-        jQuery(document).ready(function() {
-            jQuery("time.timeago").timeago();
-        });
+        jQuery(document).ready(function() {jQuery("time.timeago").timeago();});
     </script>
 </head>
 
 <body>
-    <div class="content">
-        <h1>{{title}}</h1>
-        <div class="navbar">
+    <div class="content theme-l5">
+        <h1 id="page_title" class="theme-d1">{{title}}</h1>
+        <div id="navbar" class="theme-d5">
         {% for category in categories %}
             <div class="dropdown">
-                <button class="dropbtn">{{category}}</button>
+                <button class="dropbtn theme-d5 hover-theme">{{category}}</button>
                 <div class="dropdown-content">
                 {% for k in range(categories[category][0]|length) %}
-                    <a href="{{categories[category][1][k]}}">{{categories[category][0][k]}}</a>
+                    <a class=" theme-d4 hover-theme" href="{{categories[category][1][k]}}">{{categories[category][0][k]}}</a>
                 {% endfor %}
                 </div>
             </div>
         {% endfor %}
         </div>
+        <h2>Description</h2>
         <p class="description">{{description}}</p>
-        <p>This page was last updated <time class="timeago" datetime={{updated}} title="time last updated: {{updated}}"></time></p>
             <table>
-                <caption>table caption: {{caption}}</caption>
+                <caption class="caption theme-l3">Table Caption: {{caption}}</caption>
                 <tr>{% for header in headers %}<th>{{header}}</th>{% endfor %}</tr>
                 {% for row in rows %}
                 <tr>{% for cell in row %}{% if cell is not none %}<td>{{cell}}</td>{% else %}<td></td>{% endif %}{% endfor %}</tr>
                 {% endfor %}
             </table>
     </div>
-    <footer class="footer">
+    <footer id="footer" class="theme-d5">
         <p class="right">Last updated: {{updated}}<br>
         <time class="timeago" datetime={{updated}} title="{{updated}}"></time>
           </p>

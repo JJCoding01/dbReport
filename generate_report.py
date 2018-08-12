@@ -23,6 +23,7 @@ class Report(object):
         self.categories = self.__get_categries()
         self.env = Environment(trim_blocks=True, lstrip_blocks=True,
                   loader=FileSystemLoader(self.paths['template_dir']))
+        # print(self.categories)
 
     @staticmethod
     def __read_file(filename):
@@ -90,8 +91,7 @@ class Report(object):
             for view in view_names:
                 titles.append(map_names.get(view, view))
         else:
-            titles =map_names.get(view_names, view_names)
-
+            titles = map_names.get(view_names, view_names)
         return titles
 
     def __get_categries(self):
@@ -101,12 +101,14 @@ class Report(object):
         the report for that view
         """
         cat_list = self.layout['categories']
+        print(cat_list)
         categories = {}
         report = self.paths['reports']
         report = os.path.abspath(report)
         for key in cat_list:
             paths = []
             titles = self.__get_title(cat_list[key])
+            print(titles)
             for link in cat_list[key]:
                 path = os.path.join(report, link + '.html')
                 paths.append(path)
@@ -114,13 +116,14 @@ class Report(object):
             categories.setdefault(key, val)
 
         return categories
+
     def render_report(self, view_name):
         """render an output report"""
 
         # Set up basic constants for this report
         update = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         report_dir = self.paths['reports']
-        css_style = self.paths['css_styles']
+        css_styles = self.paths['css_styles']
         js = self.paths['javascript']
         headers = self.__get_columns(view_name)
         caption = self.layout['captions'].get(view_name, "")
@@ -128,9 +131,8 @@ class Report(object):
         description = self.layout['descriptions'].get(view_name, "")
         categories = self.categories
 
-
         # Query database for all rows for view given by input
-        data = self.__get_all_data()
+        data = self.get_all_data()
         rows = [row for row in data[view_name]]
 
         # Get the template for reports and render
@@ -140,8 +142,8 @@ class Report(object):
                            categories=categories,
                            updated=update,
                            caption=caption,
-                           css_style=css_style,
-                           js=js,
+                           css_styles=css_styles,
+                           javascripts=js,
                            headers=headers,
                            rows=rows)
 
@@ -160,9 +162,9 @@ class Report(object):
 def main():
     path = os.path.join('reports', 'templates', 'layout.json')
     R = Report(path)
-    # R.render_all()
+    R.render_all()
     # R.link_data()
-    R.get_all_data()
+    # R.get_all_data()
 
 if __name__ == '__main__':
     main()
