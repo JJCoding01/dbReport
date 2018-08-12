@@ -9,10 +9,13 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     {% for js in javascripts %}
-    <script src="{{js}}" type="text/javascript"></script>
+    <script type="text/javascript" src="{{js}}"></script>
     {% endfor %}
     <script>
-        jQuery(document).ready(function() {jQuery("time.timeago").timeago();});
+        jQuery(document).ready(function() {
+            jQuery("time.timeago").timeago();
+            jQuery("#table").tablesorter();
+            });
     </script>
 </head>
 
@@ -33,12 +36,16 @@
         </div>
         <h2>Description</h2>
         <p class="description">{{description}}</p>
-            <table>
+            <table id="table">
                 <caption class="caption theme-l3">Table Caption: {{caption}}</caption>
-                <tr>{% for header in headers %}<th>{{header}}</th>{% endfor %}</tr>
-                {% for row in rows %}
-                <tr>{% for cell in row %}{% if cell is not none %}<td>{{cell}}</td>{% else %}<td></td>{% endif %}{% endfor %}</tr>
-                {% endfor %}
+                <thead>
+                    <tr>{% for header in headers %}<th>{{header}}</th>{% endfor %}</tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>{% for cell in row %}{% if cell is not none %}<td>{{cell}}</td>{% else %}<td></td>{% endif %}{% endfor %}</tr>
+                    {% endfor %}
+                </tbody>
             </table>
     </div>
     <footer id="footer" class="theme-d5">

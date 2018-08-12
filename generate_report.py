@@ -101,14 +101,12 @@ class Report(object):
         the report for that view
         """
         cat_list = self.layout['categories']
-        print(cat_list)
         categories = {}
         report = self.paths['reports']
         report = os.path.abspath(report)
         for key in cat_list:
             paths = []
             titles = self.__get_title(cat_list[key])
-            print(titles)
             for link in cat_list[key]:
                 path = os.path.join(report, link + '.html')
                 paths.append(path)
