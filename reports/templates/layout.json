@@ -32,7 +32,7 @@
     "database": ".\\Forklifts.db",
     "template_dir": ".\\reports\\templates",
     "template": "view_template.html.j2",
-    "css_styles": [".\\templates\\styles.css", ".\\templates\\color-theme.css"],
+    "css_styles": [".\\templates\\styles.css", ".\\templates\\color-theme.css", ".\\templates\\navigation-bar-styles.css"],
     "javascript": [".\\templates\\javascript\\timeago\\timeago.js", ".\\templates\\javascript\\tablesorter\\jquery.tablesorter.js", ".\\templates\\javascript\\multifilter\\multifilter.js"],
     "SQL": ".\\reports\\SQL",
     "reports": ".\\reports",
