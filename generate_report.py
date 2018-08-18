@@ -3,18 +3,10 @@ import os
 from jinja2 import Template, Environment, FileSystemLoader
 from datetime import datetime
 import json
-from link import link
 
 
 class Report(object):
     """Object that will define a report"""
-    # class Decorators(object):
-    #     """class to contain all decorators for Report class"""
-    #     @classmethod
-    #     def link_data(decorated):
-    #         """link data"""
-    #         print("link data here")
-
     def __init__(self, layout_path):
         with open(layout_path, 'r') as f:
             self.layout = json.loads(f.read())
@@ -23,7 +15,6 @@ class Report(object):
         self.categories = self.__get_categries()
         self.env = Environment(trim_blocks=True, lstrip_blocks=True,
                   loader=FileSystemLoader(self.paths['template_dir']))
-        # print(self.categories)
 
     @staticmethod
     def __read_file(filename):
@@ -43,26 +34,6 @@ class Report(object):
         sql = self.__read_file(filename)
         return self.cursor.execute(sql)
 
-    # def link_data(cls, func):
-    #     def wrapper():
-    #         # func = self.get_all_data
-    #         print('get all data')
-    #         # data = func()
-    #         # print(data)
-    #         # linked = {}
-    #         # for view in data:
-    #         #     linked_rows = []
-    #         #     for row in data[view]:
-    #         #         linked_row = []
-    #         #         for cell in row:
-    #         #             # item = (cell, link(cell, self.paths['search_paths']))
-    #         #             # linked_row.append(item)
-    #         #         # linked_rows.append(linked_row)
-    #         #     # linked.setdefault(view, linked_rows)
-    #         # # return linked
-    #     return wrapper
-
-    # @Decorators.link_data
     def get_all_data(self):
         """return a dictionary containing all the data for all views"""
         views = self.get_views()
@@ -161,7 +132,6 @@ def main():
     path = os.path.join('reports', 'templates', 'layout.json')
     R = Report(path)
     R.render_all()
-    # R.link_data()
     # R.get_all_data()
 
 if __name__ == '__main__':
