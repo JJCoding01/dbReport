@@ -8,6 +8,9 @@
     {% endfor %}
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!--use for filter plug-in-->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     {% for js in javascripts %}
     <script type="text/javascript" src="{{js}}"></script>
     {% endfor %}
@@ -15,6 +18,7 @@
         jQuery(document).ready(function() {
             jQuery("time.timeago").timeago();
             jQuery("#table").tablesorter();
+            jQuery(".filter").multifilter();
             });
     </script>
 </head>
@@ -36,6 +40,13 @@
         </div>
         <h2>Description</h2>
         <p class="description">{{description}}</p>
+        <div class="containter">
+        {% for header in headers %}
+        <label for="{{header}}" class="labels">{{header}}</label>
+        <input type="search" id="{{header}}" autocomplete="off" class="filter" name="{{header}}" placeholder="{{header}}" data-col="{{header}}"/>
+        {% endfor %}
+        </div>
+        <div class="containter">
             <table id="table">
                 <caption class="caption theme-l3">Table Caption: {{caption}}</caption>
                 <thead>
@@ -47,6 +58,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
     </div>
     <footer id="footer" class="theme-d5">
         <p class="right">Last updated: {{updated}}<br>
