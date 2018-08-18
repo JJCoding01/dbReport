@@ -33,7 +33,7 @@
     "template_dir": ".\\reports\\templates",
     "template": "view_template.html.j2",
     "css_styles": [".\\templates\\styles.css", ".\\templates\\color-theme.css"],
-    "javascript": [".\\templates\\javascript\\timeago\\timeago.js", ".\\templates\\javascript\\tablesorter\\jquery.tablesorter.js"],
+    "javascript": [".\\templates\\javascript\\timeago\\timeago.js", ".\\templates\\javascript\\tablesorter\\jquery.tablesorter.js", ".\\templates\\javascript\\multifilter\\multifilter.js"],
     "SQL": ".\\reports\\SQL",
     "reports": ".\\reports",
     "search_paths": "..\\drawings\\PDF"

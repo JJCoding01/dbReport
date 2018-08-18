@@ -30,6 +30,17 @@ body {
     font-weight: bold;
 }
 
+.filter {
+  font-weight: lighter;
+  border-radius: 2px;
+  border: none;
+  border-bottom: 1px solid black;
+}
+
+.labels {
+  font-size: 8pt;
+}
+
 p {
     text-align: left;
 }
