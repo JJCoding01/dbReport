@@ -65,13 +65,30 @@ class Report(object):
             titles = map_names.get(view_names, view_names)
         return titles
 
+    def __get_misc(self):
+        """
+        Update the categories to include a Misc category that will
+        include all views in the database that is not specified in
+        another category. This will ensure that there will be a
+        convenient way to access all reports from the navigation bar
+        in each report.
+        """
+        categories = self.layout['categories']
+        views = self.get_views()
+        for category in categories:
+            for view in categories[category]:
+                if view in views:
+                    views.remove(view)
+        categories.setdefault('Misc', views)
+        return categories
+
     def __get_categries(self):
         """
         Given the category name and list of view names, return
         a dictionary with category name and list of relative paths to
         the report for that view
         """
-        cat_list = self.layout['categories']
+        cat_list = self.__get_misc()
         categories = {}
         report = self.paths['reports']
         report = os.path.abspath(report)
@@ -132,7 +149,7 @@ def main():
     path = os.path.join('reports', 'templates', 'layout.json')
     R = Report(path)
     R.render_all()
-    # R.get_all_data()
+
 
 if __name__ == '__main__':
     main()
