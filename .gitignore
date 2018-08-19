@@ -1,9 +1,3 @@
-# database files
-*.db
-
-# all temp directories
-*temp/
-
 # all html files
 *.html
 
@@ -12,3 +6,6 @@
 
 # python build files
 __pycache__/
+
+# python environment
+env/
