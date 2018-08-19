@@ -27,6 +27,13 @@ class Report(object):
         filename = os.path.join(self.paths['SQL'], 'get_views.sql')
         data = self.__get_data(filename)
         views = [view[0] for view in data]
+
+        # Remove any views that are in the ingore list in the layout
+        # file
+        ignore_views = self.layout['ignore_views']
+        for ignore_view in ignore_views:
+            if ignore_view in views:
+                views.remove(ignore_view)
         return views
 
     def __get_data(self, filename):

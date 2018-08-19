@@ -7,6 +7,7 @@
             "Axles": ["explodeAxles"],
             "Chains": ["listChains", "listChainBase"]
     },
+"ignore_views": [""],
 "titles": {
             "explodeAxles": "Axles",
             "explodeMasts": "Masts",
