@@ -2,30 +2,37 @@
 <html lang = "en-US">
 <head>
     <meta charset = "UTF-8">
+
     <title>{{title}}</title>
+    <!--link to css files-->
     {% for style in css_styles %}
     <link rel = "stylesheet" type = "text/css" href = "{{style}}"></link>
     {% endfor %}
 
+    <!--connect to jquery engine to run plug-ins-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
     <!--use for filter plug-in-->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+
+    <!--add connection to javascript plug-ins-->
     {% for js in javascripts %}
     <script type="text/javascript" src="{{js}}"></script>
     {% endfor %}
+
+    <!--Add script to start plug-ins here. These will be run whenever
+        the document is loaded/read-->
     <script>
         jQuery(document).ready(function() {
-            jQuery("time.timeago").timeago();
-            jQuery("#table").tablesorter();
-            jQuery(".filter").multifilter();
+            jQuery("time.timeago").timeago(); // used to show relative times/dates
+            jQuery("#table").tablesorter();   // used to sort table by a single column
+            jQuery(".filter").multifilter();  // used to filter table on multiple inputs
             });
     </script>
 </head>
 
 <body>
     <div class="content theme-l5">
-        <h1 id="page_title" class="theme-d1">{{title}}</h1>
+        <h1 id="page-title" class="theme-d1">{{title}}</h1>
         <div id="navbar" class="theme-d5">
         {% for category in categories %}
             <div class="dropdown">
@@ -38,19 +45,25 @@
             </div>
         {% endfor %}
         </div>
-        <h2>Description</h2>
+        <h2 class="header2">Description</h2>
         <p class="description">{{description}}</p>
-        <div class="containter">
-        {% for header in headers %}
-        <label for="{{header}}" class="labels">{{header}}</label>
-        <input type="search" id="{{header}}" autocomplete="off" class="filter" name="{{header}}" placeholder="{{header}}" data-col="{{header}}"/>
-        {% endfor %}
-        </div>
-        <div class="containter">
+        <form class="filter-form">
+            <fieldset class=filter-group>
+                <legend class="filter-legend">Filters</legend>
+                {% for header in headers %}
+                <div class="filter-containter">
+                    <label class="labels" for="{{header}}">{{header}}</label>
+                    <input type="search" id="{{header}}" class="filter" name="{{header}}" autocomplete="off" placeholder="{{header}}" data-col="{{header}}"/>
+                </div>
+                {% endfor %}
+            </fieldset>
+        </form>
+        <div class="table-containter">
             <table id="table">
-                <caption class="caption theme-l3">Table Caption: {{caption}}</caption>
-                <thead>
-                    <tr>{% for header in headers %}<th>{{header}}</th>{% endfor %}</tr>
+                {# <caption class="caption">{{caption}}</caption> #}
+                <caption>Click any header to sort table by that column</caption>
+                <thead class="header-row">
+                    <tr>{% for header in headers %}<th class="header-row">{{header}}</th>{% endfor %}</tr>
                 </thead>
                 <tbody>
                     {% for row in rows %}

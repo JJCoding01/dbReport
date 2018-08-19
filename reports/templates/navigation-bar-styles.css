@@ -1,6 +1,4 @@
 
-/*----------NAV BAR STYLES--------------------*/
-
 .topnav {
     overflow: hidden;
 }
@@ -33,17 +31,14 @@
   border: none;
   outline: none;
   padding: 14px 16px;
-  /*padding: 14px;*/
-  /*background-color: inherit;*/
-  /*font-family: inherit;  Important for vertical align on mobile phones */
-  /*margin: 0;  Important for vertical align on mobile phones */
   font-variant: small-caps;
 }
 
 /* Add a background color to navbar links on hover */
-.navbar a:hover, .dropdown:hover .dropbtn {
-  /*background-color: #a5a5a5;*/
+/*.navbar a:hover, .dropdown:hover .dropbtn {
+  /*background-color: #a5a5a5;
 }
+*/
 
 /* Dropdown content (hidden by default) */
 .dropdown-content {
@@ -51,7 +46,6 @@
   position: absolute;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
 }
 
 /* Links inside the dropdown */
@@ -61,6 +55,7 @@
   text-decoration: none;
   display: block;
   text-align: left;
+  font-family: sans-serif;
 }
 
 /* Show the dropdown menu on hover */
