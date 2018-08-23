@@ -17,7 +17,6 @@ class Report(object):
         self.categories = self.__get_categries()
         self.env = Environment(trim_blocks=True, lstrip_blocks=True,
                   loader=FileSystemLoader(self.paths['template_dir']))
-        print(self.layout)
 
     @staticmethod
     def __read_file(filename):
@@ -100,13 +99,12 @@ class Report(object):
         """
         cat_list = self.__get_misc()
         categories = {}
-        report = self.paths['report_dir']
-        report = os.path.abspath(report)
         for key in cat_list:
             paths = []
             titles = self.__get_title(cat_list[key])
             for link in cat_list[key]:
-                path = os.path.join(report, link + '.html')
+                # Note all the reports are all in the same folder
+                path = os.path.join('.', link + '.html')
                 paths.append(path)
                 val = [titles, paths]
             categories.setdefault(key, val)
@@ -118,7 +116,7 @@ class Report(object):
 
         # Set up basic constants for this report
         update = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-        report_dir = self.paths['reports']
+        report_dir = self.paths['report_dir']
         css_styles = self.paths['css_styles']
         js = self.paths['javascript']
         headers = self.__get_columns(view_name)
@@ -160,8 +158,6 @@ class Report(object):
             new.setdefault(key, default[key])
             if type(default[key]) == type({}):
                 new[key] = self.__set_settings(default[key], new[key])
-                # print('\tDefault:{}\n{}'.format(key, default[key]))
-                # print('\tNew:{}\n{}'.format(key, new[key]))
         return new
 
     def __set_defaults(self):
@@ -179,7 +175,8 @@ class Report(object):
 
         # expand paths in default layout to be absolulte
         template_dir = os.path.join(package_path,
-                                    default['paths']['template_dir'])
+                                    default['paths']['template_dir'][0])
+        default['paths']['template_dir'] = template_dir
         for p in ['css_styles', 'javascript', 'sql']:
             paths = []
             for path in default['paths'][p]:
@@ -193,22 +190,6 @@ class Report(object):
 
 
 def main():
-    # default_path = os.path.join('..', 'templates', 'layout.json')
-    # default_path = os.path.abspath(default_path)
-    # path = os.path.join(r'D:\Users\Joey\Documents\Scripts\Python\MTI\Forklift Databases\templates', 'layout.json')
-    # with open(default_path, 'r') as f:
-    #     default_layout = json.loads(f.read())
-    # with open(path, 'r') as f:
-    #     layout = json.loads(f.read())
-
-    #
-    # default_path = os.path.join('..', 'templates', 'layout.json')
-    # R = Report(path)
-    # R.render_all()
-    # print("this is the main method")
-    # print(os.path.abspath(__file__))
-    # R.set_defaults()
-    # R.report(path)
     print('this is the main function')
 
 

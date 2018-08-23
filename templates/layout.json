@@ -3,7 +3,7 @@
 "ignore_views": [""],
 "paths": {
     "database": null,
-    "template_dir": "templates",
+    "template_dir": ["templates"],
     "template": "base.html.j2",
     "css_styles": ["styles.css", "color-theme.css", "navigation-bar-styles.css"],
     "javascript": ["javascript\\timeago\\timeago.js", "javascript\\tablesorter\\jquery.tablesorter.js", "javascript\\multifilter\\multifilter.js"],
