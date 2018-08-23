@@ -8,13 +8,16 @@ import json
 class Report(object):
     """Object that will define a report"""
     def __init__(self, layout_path):
+        self.path = layout_path
         with open(layout_path, 'r') as f:
             self.layout = json.loads(f.read())
+        self.layout = self.__set_defaults()
         self.paths = self.layout['paths']
         self.cursor = sq3.connect(self.paths['database']).cursor()
         self.categories = self.__get_categries()
         self.env = Environment(trim_blocks=True, lstrip_blocks=True,
                   loader=FileSystemLoader(self.paths['template_dir']))
+        print(self.layout)
 
     @staticmethod
     def __read_file(filename):
@@ -24,7 +27,7 @@ class Report(object):
 
     def get_views(self):
         """return a list of view names from database"""
-        filename = os.path.join(self.paths['SQL'], 'get_views.sql')
+        filename = os.path.join(self.paths['sql'][0], 'get_views.sql')
         data = self.__get_data(filename)
         views = [view[0] for view in data]
 
@@ -97,7 +100,7 @@ class Report(object):
         """
         cat_list = self.__get_misc()
         categories = {}
-        report = self.paths['reports']
+        report = self.paths['report_dir']
         report = os.path.abspath(report)
         for key in cat_list:
             paths = []
@@ -151,11 +154,62 @@ class Report(object):
         for view in views:
             self.render_report(view)
 
+    def __set_settings(self, default, new):
+
+        for key in default:
+            new.setdefault(key, default[key])
+            if type(default[key]) == type({}):
+                new[key] = self.__set_settings(default[key], new[key])
+                # print('\tDefault:{}\n{}'.format(key, default[key]))
+                # print('\tNew:{}\n{}'.format(key, new[key]))
+        return new
+
+    def __set_defaults(self):
+        """get default paths. If the path is in the specified layout
+        file, that path should be used, otherwise fall back and use the
+        default"""
+        # Get default path to the package layout file
+        package_path = __file__
+        for i in range(2):
+            package_path = os.path.dirname(package_path)
+        default_path = os.path.join(package_path,
+                                    'templates', 'layout.json')
+        with open(default_path, 'r') as f:
+            default = json.loads(f.read())
+
+        # expand paths in default layout to be absolulte
+        template_dir = os.path.join(package_path,
+                                    default['paths']['template_dir'])
+        for p in ['css_styles', 'javascript', 'sql']:
+            paths = []
+            for path in default['paths'][p]:
+                paths.append(os.path.join(template_dir, path))
+            default['paths'][p] = paths
+
+        # Set layout file to use defaults and have user specified file
+        # overwrite any settings.
+        layout = self.__set_settings(default, self.layout)
+        return layout
+
 
 def main():
-    path = os.path.join('reports', 'templates', 'layout.json')
-    R = Report(path)
-    R.render_all()
+    # default_path = os.path.join('..', 'templates', 'layout.json')
+    # default_path = os.path.abspath(default_path)
+    # path = os.path.join(r'D:\Users\Joey\Documents\Scripts\Python\MTI\Forklift Databases\templates', 'layout.json')
+    # with open(default_path, 'r') as f:
+    #     default_layout = json.loads(f.read())
+    # with open(path, 'r') as f:
+    #     layout = json.loads(f.read())
+
+    #
+    # default_path = os.path.join('..', 'templates', 'layout.json')
+    # R = Report(path)
+    # R.render_all()
+    # print("this is the main method")
+    # print(os.path.abspath(__file__))
+    # R.set_defaults()
+    # R.report(path)
+    print('this is the main function')
 
 
 if __name__ == '__main__':

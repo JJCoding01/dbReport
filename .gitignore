@@ -9,3 +9,9 @@ __pycache__/
 
 # python environment
 env/
+
+# build related files
+*egg*
+
+# Sublime related project files
+*sublime*
