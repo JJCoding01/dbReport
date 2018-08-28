@@ -19,4 +19,7 @@ setup(
     keywords=keywords,
     install_requires=['jinja2'],
     entry_points={'console_scripts': ['report=dbreport:cli']},
+    # package_data={'dbreport': ['README.md']},
+    package_data={'dbreport': ['templates/*.css'], '':['*.html']},
+    include_package_data=True,
     license='MIT')
