@@ -7,16 +7,17 @@ import json
 
 class Report(object):
     """Object that will define a report"""
+
     def __init__(self, layout_path):
         self.path = layout_path
         with open(layout_path, 'r') as f:
-            self.layout = json.loads(f.read())
-        self.layout = self.__set_defaults()
+            user_layout = json.loads(f.read())
+        self.layout = self.__set_default_settings(user_layout)
         self.paths = self.layout['paths']
         self.cursor = sq3.connect(self.paths['database']).cursor()
         self.categories = self.__get_categries()
         self.env = Environment(trim_blocks=True, lstrip_blocks=True,
-                  loader=FileSystemLoader(self.paths['template_dir']))
+                    loader=FileSystemLoader(self.paths['template_dir']))
 
     @staticmethod
     def __read_file(filename):
@@ -152,41 +153,48 @@ class Report(object):
         for view in views:
             self.render_report(view)
 
-    def __set_settings(self, default, new):
-
-        for key in default:
-            new.setdefault(key, default[key])
-            if type(default[key]) == type({}):
-                new[key] = self.__set_settings(default[key], new[key])
-        return new
-
-    def __set_defaults(self):
+    def __set_default_paths(self):
         """get default paths. If the path is in the specified layout
         file, that path should be used, otherwise fall back and use the
         default"""
-        # Get default path to the package layout file
-        package_path = __file__
-        for i in range(2):
-            package_path = os.path.dirname(package_path)
-        default_path = os.path.join(package_path,
-                                    'templates', 'layout.json')
-        with open(default_path, 'r') as f:
-            default = json.loads(f.read())
 
-        # expand paths in default layout to be absolulte
+        # Read the default layout file provided by the package
+        package_path = os.path.dirname(__file__)
+        path = os.path.join(package_path, 'templates', 'layout.json')
+        with open(path, 'r') as f:
+            def_layout = json.loads(f.read())
+
+        # expand paths in default layout to be absolute
         template_dir = os.path.join(package_path,
-                                    default['paths']['template_dir'][0])
-        default['paths']['template_dir'] = template_dir
+                       def_layout['paths']['template_dir'][0])
+        def_layout['paths']['template_dir'] = template_dir
+
+        # iterate over path lists and update them be an absolute path
+        # pointing to the package defaults
         for p in ['css_styles', 'javascript', 'sql']:
             paths = []
-            for path in default['paths'][p]:
+            for path in def_layout['paths'][p]:
                 paths.append(os.path.join(template_dir, path))
-            default['paths'][p] = paths
+            def_layout['paths'][p] = paths
+        return def_layout
 
-        # Set layout file to use defaults and have user specified file
-        # overwrite any settings.
-        layout = self.__set_settings(default, self.layout)
-        return layout
+    def __set_default_settings(self, user_layout, default_layout=None):
+        """set the default settings that are not set in the user
+        layout file"""
+
+        if default_layout is None:
+            # Set the paths to the layout file distributed
+            # with the package
+            default_layout = self.__set_default_paths()
+        # Iterate over keys and set to default if not specified in user
+        # layout file
+        for key in default_layout:
+            user_layout.setdefault(key, default_layout[key])
+            if isinstance(default_layout[key], dict):
+                user_layout[key] = self.__set_default_settings(
+                    user_layout[key], default_layout[key])
+
+        return user_layout
 
 
 def cli1():
