@@ -1,6 +1,6 @@
 import sqlite3 as sq3
 import os
-from jinja2 import Template, Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader
 from datetime import datetime
 import json
 
@@ -25,13 +25,13 @@ class Report(object):
         with open(filename, 'r') as f:
             return f.read()
 
-    def get_views(self):
+    def __get_views(self):
         """return a list of view names from database"""
         filename = os.path.join(self.paths['sql'][0], 'get_views.sql')
         data = self.__get_data(filename)
         views = [view[0] for view in data]
 
-        # Remove any views that are in the ingore list in the layout
+        # Remove any views that are in the ignore list in the layout
         # file
         ignore_views = self.layout['ignore_views']
         for ignore_view in ignore_views:
@@ -44,9 +44,9 @@ class Report(object):
         sql = self.__read_file(filename)
         return self.cursor.execute(sql)
 
-    def get_all_data(self):
+    def __get_all_data(self):
         """return a dictionary containing all the data for all views"""
-        views = self.get_views()
+        views = self.__get_views()
         data = {}
         for view in views:
             sql = '''SELECT * FROM {}'''.format(view)
@@ -60,7 +60,6 @@ class Report(object):
         sql = '''PRAGMA table_info("{}")'''
         sql = sql.format(table_name)
         c = self.cursor.execute(sql)
-        cols = []
         cols = [col[1] for col in c]
         return cols
 
@@ -84,7 +83,7 @@ class Report(object):
         in each report.
         """
         categories = self.layout['categories']
-        views = self.get_views()
+        views = self.__get_views()
         for category in categories:
             for view in categories[category]:
                 if view in views:
@@ -112,7 +111,7 @@ class Report(object):
 
         return categories
 
-    def render_report(self, view_name):
+    def __render_report(self, view_name, parse=True):
         """render an output report"""
 
         # Set up basic constants for this report
@@ -127,7 +126,11 @@ class Report(object):
         categories = self.categories
 
         # Query database for all rows for view given by input
-        data = self.get_all_data()
+        data = self.__get_all_data()
+        if parse:
+            # call the parse function that may be overloaded
+            data = self.parse(data)
+
         rows = [row for row in data[view_name]]
 
         # Get the template for reports and render
@@ -147,11 +150,37 @@ class Report(object):
         with open(os.path.join(report_dir, filename), 'w') as f:
             f.write(html)
 
-    def render_all(self):
-        """render report for all views in database"""
-        views = self.get_views()
+    def render(self, views=None, parse=True):
+        """
+        Primary method for rendering method. This will call the
+        appropriate internal methods to render the reports.
+        This function will allow for the following options
+
+            1. Render specified views only
+            2. Render all views
+            3. Enable/disable parsing data
+        """
+        if isinstance(views, str):
+            # views is a single view name and not a list.
+            # convert it to a list
+            views = [views]
+        elif views is None:
+            # since no views where explicitly given, render all views
+            views = self.__get_views()
+
         for view in views:
-            self.render_report(view)
+            self.__render_report(view, parse)
+
+        return len(views)
+
+    def parse(self, data):
+        """
+        This parse method will be called before rendering the report.
+        It should be used to verify, clean up, or add hyper-links to
+        data and return a data dictionary with keys as the view name,
+        and a tuple for each row.
+        """
+        return data
 
     def __set_default_paths(self):
         """get default paths. If the path is in the specified layout
@@ -195,15 +224,3 @@ class Report(object):
                     user_layout[key], default_layout[key])
 
         return user_layout
-
-
-def cli1():
-    print('this is the cli in dbreport file')
-
-
-def main():
-    print('this is the main function')
-
-
-if __name__ == '__main__':
-    main()
