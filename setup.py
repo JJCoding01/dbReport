@@ -5,6 +5,15 @@ with open('README.md', 'r') as f:
 description = 'Generate html reports of views in a sqlite3 database'
 keywords = 'report sqlite sqlite3 html'
 
+paths = ['*',                            # html template and CSS files
+         'SQL/*',                        # directory for SQL files
+         'javascript/multifilter/*.js',  # multifilter js plugin
+         'javascript/tablesorter/*.js',  # tablesorter js plugin
+         'javascript/timeago/*.js',      # timeago js plugin
+         ]
+paths = ['templates/' + p for p in paths]
+
+print(paths)
 setup(
     name='dbreport',
     version='0.1dev',
@@ -19,7 +28,7 @@ setup(
     keywords=keywords,
     install_requires=['jinja2'],
     entry_points={'console_scripts': ['report=dbreport:cli']},
-    # package_data={'dbreport': ['README.md']},
-    package_data={'dbreport': ['templates/*.css'], '':['*.html']},
+    package_data={'dbreport': paths,
+                  '': ['License.txt']},
     include_package_data=True,
     license='MIT')
