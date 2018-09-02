@@ -4,8 +4,7 @@ Readme
 ## Description
 This module will generate HTML reports of each view defined in the specified sqlite3 database.
 
-View specific properties, such as a description and friendly name be predefined and in a
-`layout.json` file.
+View specific properties, such as a description and friendly name can be predefined and in a `layout.json` file.
 
 Each report is a single file, with links to all other reports through the navigation bar.
 
@@ -65,11 +64,11 @@ The `paths` key in the layout file defines all paths required for running the pr
  - `template` `HTML/jinja2` template, the base template that all reports will be created from
  - `css_styles` a list of CSS files
  - `javascript` a list of Javascript plugins to be connected to the reports. By default, the following plugins are included
- - `sql` the directory where sql files are stored
- - `report_dir` directory where generated reports are to be stored
   + [timeago](https://timeago.yarp.com/) for showing a relative time for when the report was created
   + [tablesorter](https://github.com/christianbach/tablesorter) for quickly sorting the table by any column
   + [multifilter](https://github.com/tommyp/multifilter) for filtering the table based inputs for each column
+ - `sql` the directory where sql files are stored
+ - `report_dir` directory where generated reports are to be stored
 
   See below for the default paths set as the defaults.
 ```json
