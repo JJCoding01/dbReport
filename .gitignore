@@ -15,6 +15,3 @@ env/
 
 # Sublime related project files
 *sublime*
-
-# Pycharm project related files
-.idea/
