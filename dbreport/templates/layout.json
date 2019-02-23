@@ -2,17 +2,19 @@
 "categories": {},
 "ignore_views": [""],
 "paths": {
-    "database": null,
-    "template_dir": ["templates"],
-    "template": "base.html.j2",
-    "css_styles": ["styles.css", "color-theme.css", "navigation-bar-styles.css"],
-    "javascript": ["javascript\\timeago\\timeago.js", "javascript\\tablesorter\\jquery.tablesorter.js", "javascript\\multifilter\\multifilter.js"],
-    "sql": ["SQL"],
-    "report_dir": null,
-    "search_paths": null
+  "database": "",
+  "template": "templates/base.html.j2",
+  "css_styles": "templates/css",
+  "javascript": [
+    "templates/javascript/jquery-timeago/jquery.timeago.js",
+    "templates/javascript/multifilter/multifilter.js",
+    "templates/javascript/tablesorter/jquery.tablesorter.js"
+  ],
+  "sql": "templates/sql",
+  "report_dir": "reports",
+  "search_paths": ""
     },
 "titles": {},
 "captions": {},
-"descriptions": {},
-"somekey": {}
+  "descriptions": {}
 }

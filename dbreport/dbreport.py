@@ -1,8 +1,9 @@
-import sqlite3 as sq3
-import os
-from jinja2 import Environment, FileSystemLoader
-from datetime import datetime
 import json
+import os
+import sqlite3 as sq3
+from datetime import datetime
+
+from jinja2 import Environment, FileSystemLoader
 
 
 class Report(object):
@@ -10,63 +11,103 @@ class Report(object):
 
     def __init__(self, layout_path):
         self.path = layout_path
-        with open(layout_path, 'r') as f:
-            user_layout = json.loads(f.read())
-        self.layout = self.__set_default_settings(user_layout)
+        self.layout = self.__get_layout(layout_path)
         self.paths = self.layout['paths']
         self.cursor = sq3.connect(self.paths['database']).cursor()
         self.categories = self.__get_categories()
         self.env = Environment(
             trim_blocks=True, lstrip_blocks=True,
-            loader=FileSystemLoader(self.paths['template_dir']))
+            loader=FileSystemLoader(os.path.dirname(self.layout['paths']['template'])))
 
-    def __set_default_settings(self, user_layout, default_layout=None):
+    def __set_defaults(self, default_layout, user_layout=None):
         """
-        Set the default settings that are not set in the user
-        layout file
+        Set the values in the user_layout to override the defaults
+
+        This will recursively navigate through the default layout dictionary
+        to ensure the user specified layout has all the required keys.
+
+        :return: dict: user_layout
+        :param default_layout: dict: default layout
+        :param user_layout: dict: user layout (defaults to None)
         """
+        if user_layout is None:
+            user_layout = {}
 
-        def set_default_paths():
-            """
-            Get default paths. If the path is in the specified layout
-            file, that path should be used, otherwise fall back and use
-            the default
-            """
-            # Read the default layout file provided by the package
-            package_path = os.path.dirname(__file__)
-            path = os.path.join(package_path, 'templates', 'layout.json')
-            with open(path, 'r') as f:
-                def_layout = json.loads(f.read())
-
-            # expand paths in default layout to be absolute
-            template_dir = os.path.join(package_path,
-                                        def_layout['paths']['template_dir'][0])
-            def_layout['paths']['template_dir'] = template_dir
-
-            # iterate over path lists and update them be an absolute path
-            # pointing to the package defaults
-            for p in ['css_styles', 'javascript', 'sql']:
-                paths = []
-                for path in def_layout['paths'][p]:
-                    paths.append(os.path.join(template_dir, path))
-                def_layout['paths'][p] = paths
-            return def_layout
-
-        if default_layout is None:
-            # Set the paths to the layout file distributed
-            # with the package
-            default_layout = set_default_paths()
-        # Iterate over keys and set to default if not specified in user
-        # layout file
-        for key in default_layout:
-            user_layout.setdefault(key, default_layout[key])
-            if isinstance(default_layout[key], dict):
-                user_layout[key] = self.__set_default_settings(
-                    user_layout[key], default_layout[key])
-
+        for k, v in default_layout.items():
+            user_layout.setdefault(k, v)
+            if isinstance(v, dict):
+                self.__set_defaults(v, user_layout[k])
         return user_layout
 
-    def __add_misc_category(self, categories, views):
+    @staticmethod
+    def __expand_paths(input_paths, base_path):
+        """
+        Expand the paths attribute of the layout file to use absolute paths
+
+        :input
+        :param input_paths: dict: paths given in a layout file
+        :param base_path: str: root path to be pre-pended to each of the paths
+
+        :return:
+        layout_paths: dict: drop in replacement for the layout['paths'] key
+                            with relative paths converted to absolute paths
+        """
+        layout_paths = {}
+        for key in input_paths:
+            if input_paths[key] == "":
+                layout_paths.setdefault(key, '')
+                continue
+
+            if isinstance(input_paths[key], list):
+                layout_paths[key] = []
+                for k, path in enumerate(input_paths[key]):
+                    dirs = path.split('/')
+                    layout_paths[key].append(os.path.abspath(os.path.join(base_path, *dirs)))
+                continue
+
+            dirs = input_paths[key].split('/')
+            full_path = os.path.abspath(os.path.join(base_path, *dirs))
+
+            layout_paths.setdefault(key, full_path)
+            # layout_paths.setdefault(key, paths[key])
+            if os.path.isdir(full_path) and key != 'report_dir':
+                files = []
+                for file in os.listdir(full_path):
+                    files.append(os.path.join(full_path, file))
+                if len(files) == 0:
+                    layout_paths[key] = full_path
+                else:
+                    layout_paths[key] = files
+        return layout_paths
+
+    def __get_layout(self, user_path):
+        """
+        Return the user layout, with all defaults set, given the path to the
+        user-specified layout file.
+        """
+
+        # get the base paths that will be used to convert the relative paths
+        # in the layout files to absolute
+        bases = [os.path.dirname(__file__),  # default layout base path
+                 os.path.dirname(self.path)]  # user layout base path
+
+        # full path to default and user specified layout files [default, user]
+        layout_paths = [os.path.join(bases[0], 'templates', 'layout.json'),
+                        user_path]
+
+        layouts = []
+        for path in layout_paths:
+            with open(path, 'r') as f:
+                layouts.append(json.load(f))
+
+        # paths for layouts to be absolute
+        for layout, base in zip(layouts, bases):
+            layout['paths'] = self.__expand_paths(layout['paths'], base)
+
+        return self.__set_defaults(*layouts)
+
+    @staticmethod
+    def __add_misc_category(categories, views):
         """
         Return a dictionary with the categories defined in the layout
         file, as well as an additional 'Misc' category that contains
@@ -92,7 +133,6 @@ class Report(object):
         the report for that view
         """
 
-        categories = self.layout['categories']
         cat_list = self.__add_misc_category(
             categories=self.layout['categories'],
             views=self.__get_views())
@@ -105,14 +145,13 @@ class Report(object):
                 # Note all the reports are all in the same folder
                 path = os.path.join('.', link + '.html')
                 paths.append(path)
-                val = (titles, paths)
-            categories.setdefault(key, val)
+            categories.setdefault(key, (titles, paths))
 
         return categories
 
     def __get_views(self):
         """return a list of view names from database"""
-        filename = os.path.join(self.paths['sql'][0], 'get_views.sql')
+        filename = self.paths['sql'][0]
         with open(filename, 'r') as f:
             sql = f.read()
         data = self.cursor.execute(sql)
@@ -186,7 +225,7 @@ class Report(object):
         rows = [row for row in data[view_name]]
 
         # Get the template for reports and render
-        temp = self.env.get_template(self.paths['template'])
+        temp = self.env.get_template(os.path.basename(self.paths['template']))
         html = temp.render(title=title,
                            description=description,
                            categories=categories,
