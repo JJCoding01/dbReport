@@ -1,9 +1,6 @@
 # all html files
 *.html
 
-# all javascript scripts
-*javascript
-
 # python build files
 __pycache__/
 
