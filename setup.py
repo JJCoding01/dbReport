@@ -1,19 +1,18 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 with open('README.md', 'r') as f:
     long_description = f.read()
 description = 'Generate html reports of views in a sqlite3 database'
 keywords = 'report sqlite sqlite3 html'
 
-paths = ['*',                            # html template and CSS files
-         'SQL/*',                        # directory for SQL files
+paths = ['*',  # html template and CSS files
+         'SQL/*',  # directory for SQL files
          'javascript/multifilter/*.js',  # multifilter js plugin
          'javascript/tablesorter/*.js',  # tablesorter js plugin
-         'javascript/timeago/*.js',      # timeago js plugin
+         'javascript/jquery-timeago/*.js',  # timeago js plugin
          ]
 paths = ['templates/' + p for p in paths]
 
-print(paths)
 setup(
     name='dbreport',
     version='0.1dev',
