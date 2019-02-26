@@ -7,6 +7,7 @@ keywords = 'report sqlite sqlite3 html'
 
 paths = ['*',  # html template and CSS files
          'SQL/*',  # directory for SQL files
+         'css/*.css',  # all css files
          'javascript/multifilter/*.js',  # multifilter js plugin
          'javascript/tablesorter/*.js',  # tablesorter js plugin
          'javascript/jquery-timeago/*.js',  # timeago js plugin
@@ -15,7 +16,7 @@ paths = ['templates/' + p for p in paths]
 
 setup(
     name='dbreport',
-    version='0.1dev',
+    version='0.2dev',
     description=description,
     long_description=long_description,
     long_description_content_type='text/markdown',
