@@ -17,7 +17,8 @@ class Report(object):
         self.categories = self.__get_categories()
         self.env = Environment(
             trim_blocks=True, lstrip_blocks=True,
-            loader=FileSystemLoader(os.path.dirname(self.layout['paths']['template'])))
+            loader=FileSystemLoader(os.path.dirname(self.paths['template'])))
+        self.env.filters['has_link'] = lambda value: isinstance(value, tuple)
 
     def __set_defaults(self, default_layout, user_layout=None):
         """

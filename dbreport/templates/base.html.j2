@@ -67,7 +67,25 @@
                 </thead>
                 <tbody>
                     {% for row in rows %}
-                    <tr>{% for cell in row %}{% if cell is not none %}<td>{{cell}}</td>{% else %}<td></td>{% endif %}{% endfor %}</tr>
+                        <tr>{% for cell in row %}
+                            {% if cell|has_link %}
+                                {% if cell[0] is none %}
+                                    <td></td>
+                                {% else %}
+                                    {% if cell[1] is none %}
+                                        <td>{{cell[0]}}</td>
+                                    {% else %}
+                                        <td><a href="{{cell[1]}}">{{cell[0]}}</a></td>
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                {% if cell is not none %}
+                                    <td>{{cell}}</td>
+                                {% else %}
+                                    <td></td>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}</tr>
                     {% endfor %}
                 </tbody>
             </table>
