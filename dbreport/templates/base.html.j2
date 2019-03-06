@@ -51,14 +51,14 @@
             <fieldset class=filter-group>
                 <legend class="filter-legend">Filters</legend>
                 {% for header in headers %}
-                <div class="filter-containter">
+                <div class="filter-container">
                     <label class="labels" for="{{header}}">{{header}}</label>
                     <input type="search" id="{{header}}" class="filter" name="{{header}}" autocomplete="off" placeholder="{{header}}" data-col="{{header}}"/>
                 </div>
                 {% endfor %}
             </fieldset>
         </form>
-        <div class="table-containter">
+        <div class="table-container">
             <table id="table">
                 {# <caption class="caption">{{caption}}</caption> #}
                 <caption>Click any header to sort table by that column</caption>
@@ -75,7 +75,7 @@
                                     {% if cell[1] is none %}
                                         <td>{{cell[0]}}</td>
                                     {% else %}
-                                        <td><a href="{{cell[1]}}">{{cell[0]}}</a></td>
+                                        <td><a class="link" href="{{cell[1]}}">{{cell[0]}}</a></td>
                                     {% endif %}
                                 {% endif %}
                             {% else %}
