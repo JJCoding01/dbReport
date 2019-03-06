@@ -1,5 +1,5 @@
 /*This CSS file will be used for defining how the various elements
-will behave and where they will be located. There will be a seperate
+will behave and where they will be located. There will be a separate
 CSS file that will define all the colors.
 This will allow the color theme to be changed easily. */
 
@@ -51,6 +51,15 @@ p.description{
     margin-left: 10px;
 }
 
+a.link:link{
+    color: #2715D6FF;
+    text-decoration: none;
+}
+a.link:hover {
+    font-size: 105%;
+    text-decoration: underline;
+}
+
 /*--------------Style Filter and filter containers--------------------*/
 .filter-form {
   margin-left: auto;
@@ -83,7 +92,7 @@ p.description{
   font-family: sans-serif;
 }
 
-.filter-containter {
+.filter-container {
   display: inline-block;
   padding-bottom: 8px;
   padding-right: 10px;
