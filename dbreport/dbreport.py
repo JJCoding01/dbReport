@@ -10,6 +10,11 @@ class Report(object):
     """Object that will define a report"""
 
     def __init__(self, layout_path):
+
+        if not layout_path.lower().endswith('.json'):
+            # the layout path is not a json file type
+            raise TypeError('layout must be a json file!')
+
         self.path = layout_path
         self.layout = self.__get_layout(layout_path)
         self.paths = self.layout['paths']
