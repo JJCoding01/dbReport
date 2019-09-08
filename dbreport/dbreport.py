@@ -191,7 +191,7 @@ class Report(object):
 
         data = {}
         for view in views:
-            sql = "SELECT * FROM {}".format(view)
+            sql = "SELECT * FROM '{}'".format(view)
             results = self.cursor.execute(sql)
             rows = [result for result in results]
             data.setdefault(view, rows)
