@@ -12,13 +12,15 @@ class Report(object):
     def __init__(self, layout_path):
         self.path = layout_path
         self.layout = self.__get_layout(layout_path)
-        self.paths = self.layout['paths']
-        self.cursor = sq3.connect(self.paths['database']).cursor()
+        self.paths = self.layout["paths"]
+        self.cursor = sq3.connect(self.paths["database"]).cursor()
         self.categories = self.__get_categories()
         self.env = Environment(
-            trim_blocks=True, lstrip_blocks=True,
-            loader=FileSystemLoader(os.path.dirname(self.paths['template'])))
-        self.env.filters['has_link'] = lambda value: isinstance(value, tuple)
+            trim_blocks=True,
+            lstrip_blocks=True,
+            loader=FileSystemLoader(os.path.dirname(self.paths["template"])),
+        )
+        self.env.filters["has_link"] = lambda value: isinstance(value, tuple)
 
     def __set_defaults(self, default_layout, user_layout=None):
         """
@@ -56,22 +58,24 @@ class Report(object):
         layout_paths = {}
         for key in input_paths:
             if input_paths[key] == "":
-                layout_paths.setdefault(key, '')
+                layout_paths.setdefault(key, "")
                 continue
 
             if isinstance(input_paths[key], list):
                 layout_paths[key] = []
                 for k, path in enumerate(input_paths[key]):
-                    dirs = path.split('/')
-                    layout_paths[key].append(os.path.abspath(os.path.join(base_path, *dirs)))
+                    dirs = path.split("/")
+                    layout_paths[key].append(
+                        os.path.abspath(os.path.join(base_path, *dirs))
+                    )
                 continue
 
-            dirs = input_paths[key].split('/')
+            dirs = input_paths[key].split("/")
             full_path = os.path.abspath(os.path.join(base_path, *dirs))
 
             layout_paths.setdefault(key, full_path)
             # layout_paths.setdefault(key, paths[key])
-            if os.path.isdir(full_path) and key != 'report_dir':
+            if os.path.isdir(full_path) and key != "report_dir":
                 files = []
                 for file in os.listdir(full_path):
                     files.append(os.path.join(full_path, file))
@@ -89,21 +93,25 @@ class Report(object):
 
         # get the base paths that will be used to convert the relative paths
         # in the layout files to absolute
-        bases = [os.path.dirname(__file__),  # default layout base path
-                 os.path.dirname(self.path)]  # user layout base path
+        bases = [
+            os.path.dirname(__file__),  # default layout base path
+            os.path.dirname(self.path),
+        ]  # user layout base path
 
         # full path to default and user specified layout files [default, user]
-        layout_paths = [os.path.join(bases[0], 'templates', 'layout.json'),
-                        user_path]
+        layout_paths = [
+            os.path.join(bases[0], "templates", "layout.json"),
+            user_path,
+        ]
 
         layouts = []
         for path in layout_paths:
-            with open(path, 'r') as f:
+            with open(path, "r") as f:
                 layouts.append(json.load(f))
 
         # paths for layouts to be absolute
         for layout, base in zip(layouts, bases):
-            layout['paths'] = self.__expand_paths(layout['paths'], base)
+            layout["paths"] = self.__expand_paths(layout["paths"], base)
 
         return self.__set_defaults(*layouts)
 
@@ -124,7 +132,7 @@ class Report(object):
             for view in categories[category]:
                 if view in views:
                     views.remove(view)
-        categories.setdefault('Misc', views)
+        categories.setdefault("Misc", views)
         return categories
 
     def __get_categories(self):
@@ -135,8 +143,8 @@ class Report(object):
         """
 
         cat_list = self.__add_misc_category(
-            categories=self.layout['categories'],
-            views=self.__get_views())
+            categories=self.layout["categories"], views=self.__get_views()
+        )
 
         categories = {}
         for key in cat_list:
@@ -144,7 +152,7 @@ class Report(object):
             titles = self.__get_title(cat_list[key])
             for link in cat_list[key]:
                 # Note all the reports are all in the same folder
-                path = os.path.join('.', link + '.html')
+                path = os.path.join(".", link + ".html")
                 paths.append(path)
             categories.setdefault(key, (titles, paths))
 
@@ -152,15 +160,15 @@ class Report(object):
 
     def __get_views(self):
         """return a list of view names from database"""
-        filename = self.paths['sql'][0]
-        with open(filename, 'r') as f:
+        filename = self.paths["sql"][0]
+        with open(filename, "r") as f:
             sql = f.read()
         data = self.cursor.execute(sql)
         views = [view[0] for view in data]
 
         # Remove any views that are in the ignore list in the layout
         # file
-        ignore_views = self.layout['ignore_views']
+        ignore_views = self.layout["ignore_views"]
         for ignore_view in ignore_views:
             if ignore_view in views:
                 views.remove(ignore_view)
@@ -187,7 +195,7 @@ class Report(object):
 
     def __get_columns(self, table_name):
         """return a list of columns for the given table"""
-        sql = '''PRAGMA table_info("{}")'''
+        sql = """PRAGMA table_info("{}")"""
         sql = sql.format(table_name)
         c = self.cursor.execute(sql)
         cols = [col[1] for col in c]
@@ -195,7 +203,7 @@ class Report(object):
 
     def __get_title(self, view_names):
         """return the name/title to be used as the page title"""
-        map_names = self.layout['titles']
+        map_names = self.layout["titles"]
         titles = []
         if isinstance(view_names, list):
             for view in view_names:
@@ -208,13 +216,13 @@ class Report(object):
         """render an output report"""
         # Set up basic constants for this report
         update = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-        report_dir = self.paths['report_dir']
-        css_styles = self.paths['css_styles']
-        js = self.paths['javascript']
+        report_dir = self.paths["report_dir"]
+        css_styles = self.paths["css_styles"]
+        js = self.paths["javascript"]
         headers = self.__get_columns(view_name)
-        caption = self.layout['captions'].get(view_name, "")
+        caption = self.layout["captions"].get(view_name, "")
         title = self.__get_title(view_name)
-        description = self.layout['descriptions'].get(view_name, "")
+        description = self.layout["descriptions"].get(view_name, "")
         categories = self.categories
 
         # Query database for all rows for view given by input
@@ -226,20 +234,22 @@ class Report(object):
         rows = [row for row in data[view_name]]
 
         # Get the template for reports and render
-        temp = self.env.get_template(os.path.basename(self.paths['template']))
-        html = temp.render(title=title,
-                           description=description,
-                           categories=categories,
-                           updated=update,
-                           caption=caption,
-                           css_styles=css_styles,
-                           javascripts=js,
-                           headers=headers,
-                           rows=rows)
+        temp = self.env.get_template(os.path.basename(self.paths["template"]))
+        html = temp.render(
+            title=title,
+            description=description,
+            categories=categories,
+            updated=update,
+            caption=caption,
+            css_styles=css_styles,
+            javascripts=js,
+            headers=headers,
+            rows=rows,
+        )
 
         # Write rendered template to file in reports directory
-        filename = '{}.html'.format(view_name)
-        with open(os.path.join(report_dir, filename), 'w') as f:
+        filename = "{}.html".format(view_name)
+        with open(os.path.join(report_dir, filename), "w") as f:
             f.write(html)
 
     def render(self, views=None, parse=True):
