@@ -16,7 +16,7 @@ paths = ['templates/' + p for p in paths]
 
 setup(
     name='dbreport',
-    version='0.3.1dev',
+    version='0.3.2dev',
     description=description,
     long_description=long_description,
     long_description_content_type='text/markdown',
