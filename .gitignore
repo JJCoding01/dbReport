@@ -15,3 +15,6 @@ env/
 
 # pycharm project files
 .idea/
+
+# documentation builds
+docs/build/*
