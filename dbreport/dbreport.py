@@ -1,3 +1,7 @@
+"""
+This module will will generate HTML reports for the views in a sqlite database.
+"""
+
 import json
 import os
 import sqlite3 as sq3
@@ -7,7 +11,13 @@ from jinja2 import Environment, FileSystemLoader
 
 
 class Report(object):
-    """Object that will define a report"""
+    """
+    The Report will handle querying the database and generating the reports
+
+    Parameters:
+        layout_path (:obj:`str`): path to the layout file
+
+    """
 
     def __init__(self, layout_path):
 
@@ -259,13 +269,17 @@ class Report(object):
 
     def render(self, views=None, parse=True):
         """
-        Primary method for rendering method. This will call the
-        appropriate internal methods to render the reports.
-        This function will allow for the following options
+        renders a report of each of the view names in :obj:`views`
 
-            1. Render specified views only
-            2. Render all views
-            3. Enable/disable parsing data
+        Parameters:
+            views (:obj:`list` | :obj:`None`): list of view names to to render,
+                defaults to :obj:`None`, all views
+            parse (:obj:`bool`): whether the parse function is called on
+                query results.
+
+        Returns:
+            :obj:`None`: No return value
+
         """
         if isinstance(views, str):
             # views is a single view name and not a list.
@@ -279,13 +293,52 @@ class Report(object):
             data = self.__get_data(view)
             self.__render_report(view, data, parse)
 
-        return len(views)
-
     def parse(self, data):
         """
-        This parse method will be called before rendering the report.
-        It should be used to verify, clean up, or add hyper-links to
-        data and return a data dictionary with keys as the view name,
-        and a tuple for each row.
+        The parse function may be called to intercept data before rendering
+
+        This is useful to filter, format, add hyperlinks, or otherwise
+        manipulate raw data queried from database before it gets rendered in
+        report.
+
+        To be sure the parse function is called, inherit from the base `Report`
+        class and overload the `parse` function in the custom class. Then
+        render the reports with `render(parse=True)`. If you try to parse data
+        without overloading the default parse function, it will raise a
+        `NotImplimentedError`.
+
+        Notes:
+            The data format for both :obj:`data` parameter and the returned
+            value are defined below.
+
+            - :obj:`key`: view names where the data was queried from
+            - :obj:`values`: list of tuples, each tuple is a row of data
+               - (:obj:`list`): list of rows, with each row defined as a tuple
+               - (:obj:`tuple`): each element in :obj:`values` is a tuple.
+                                 The elements of the tuple are the values from
+                                 the database, and/or the values that will be
+                                 shown in the report.
+
+            .. note::
+                The elements of each row must be a single item (:obj:`str`,
+                :obj:`bool`, :obj:`int`, etc) or a tuple in the form
+                (:obj:`value`, :obj:`href`), where :obj:`href` is where the
+                generated hyperlink for that value is directed to.
+
+        Parameters:
+            data (:obj:`dict`): data as queried from database.
+                            The keys are view names from database, and
+                            values are a list of queried results.
+
+        Returns:
+            :obj:`dict`: data as it should be rendered by report.
+                     The keys are view names as used in `layout` file, and
+                     values are a list of results to be included in reports.
+
+        Raises:
+            :obj:`NotImplementedError`: When the default parse function is used.
+                This must be overloaded by a custom parse function before use.
+
         """
-        return data
+
+        raise NotImplementedError('parse function must be overloaded before use')

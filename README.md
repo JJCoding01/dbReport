@@ -1,6 +1,8 @@
 Readme
 =======
 
+[![Documentation Status](https://readthedocs.org/projects/dbreport/badge/?version=latest)](https://dbreport.readthedocs.io/en/latest/?badge=latest)
+
 ## Description
 This module will generate HTML reports of each view defined in the specified sqlite3 database.
 
