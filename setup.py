@@ -22,7 +22,7 @@ setup(
     long_description_content_type='text/markdown',
     author='Joseph Contreras',
     author_email='26684136+JosephJContreras@users.noreply.github.com',
-    url='https://github.com/JosephJContreras/dbreport.git',
+    url='https://dbreport.readthedocs.io/en/latest/index.html',
     packages=find_packages(),
     classifiers=['Development Status::3 - Alpha'],
     keywords=keywords,

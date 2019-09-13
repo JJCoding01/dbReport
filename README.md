@@ -10,6 +10,8 @@ View specific properties, such as a description and friendly name can be predefi
 
 Each report is a single file, with links to all other reports through the navigation bar.
 
+For the complete documentation, see [Read the Docs](https://dbreport.readthedocs.io/en/latest/index.html)
+
 ## Installation
 
 Since this module has several sub-modules, to clone, perform the following steps
