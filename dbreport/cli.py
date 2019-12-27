@@ -1,20 +1,23 @@
-from dbreport import Report
+"""
+Define the CLI for the dbreport module.
+"""
 import argparse
+from dbreport import Report
 
 
 def cli():
     """define a CLI for dbreport"""
-    PARSER = argparse.ArgumentParser(
+    parser = argparse.ArgumentParser(
         description="generate reports from db views"
     )
 
-    PARSER.add_argument(
+    parser.add_argument(
         "path", nargs="?", help="path to layout file", default=None, type=str
     )
 
-    ARGS = PARSER.parse_args()
-    r = Report(ARGS.path)
-    r.render_all()
+    args = parser.parse_args()
+    report = Report(args.path)
+    report.render_all()
 
 
 if __name__ == "__main__":

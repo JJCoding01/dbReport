@@ -10,7 +10,7 @@ from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
 
 
-class Report(object):
+class Report:
     """
     The Report will handle querying the database and generating the reports
 
@@ -23,7 +23,9 @@ class Report(object):
 
         if not layout_path.lower().endswith(".json"):
             # the layout path is not a json file type
-            raise TypeError("layout must be a json file!")
+            raise ValueError("layout must be a json file!")
+        if not os.path.isfile(layout_path):
+            raise ValueError(f"{layout_path} does not exist!")
 
         self.path = layout_path
         self.layout = self.__get_layout(layout_path)
@@ -78,7 +80,7 @@ class Report(object):
 
             if isinstance(input_paths[key], list):
                 layout_paths[key] = []
-                for k, path in enumerate(input_paths[key]):
+                for path in input_paths[key]:
                     dirs = path.split("/")
                     layout_paths[key].append(
                         os.path.abspath(os.path.join(base_path, *dirs))
@@ -94,7 +96,7 @@ class Report(object):
                 files = []
                 for file in os.listdir(full_path):
                     files.append(os.path.join(full_path, file))
-                if len(files) == 0:
+                if files == []:
                     layout_paths[key] = full_path
                 else:
                     layout_paths[key] = files
@@ -341,4 +343,6 @@ class Report(object):
 
         """
 
-        raise NotImplementedError('parse function must be overloaded before use')
+        raise NotImplementedError(
+            "parse function must be overloaded before use"
+        )

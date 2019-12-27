@@ -1,20 +1,12 @@
-# all html files
 *.html
-
-# python build files
 __pycache__/
-
-# python environment
 env/
-
-# build related files
 *egg*
-
-# Sublime related project files
 *sublime*
-
-# pycharm project files
 .idea/
-
-# documentation builds
 docs/build/*
+htmlcov/*
+.coverage
+
+tests/data/reports/*
+tests/**/*.db
