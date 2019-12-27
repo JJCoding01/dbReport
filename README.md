@@ -133,6 +133,7 @@ MIT license.
  - jQuery plugin `timeago` by Ryan McGeary [www.timeago.yarp.com](https://timeago.yarp.com/) licensed under the MIT license
  - jQuery plugin `tablesorter` by Christian Bach [github.com/christianbach/tablesorter](https://github.com/christianbach/tablesorter) licensed under the MIT license
  - jQuery plugin `multifilter` by Tommy Palmer [github.com/tommyp/multifilter](https://github.com/tommyp/multifilter) licensed under the MIT license
+ - Test database by [sqlitetutorial.net](https://www.sqlitetutorial.net/sqlite-sample-database/)
 
 ## Notes
 This is a project that I needed for a personal project, and is currently under active development. I hope you get some use out of it. Suggestions for improvements are welcome.
