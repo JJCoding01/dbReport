@@ -40,6 +40,15 @@ class Report:
         self.env.filters["has_link"] = lambda value: isinstance(value, tuple)
 
     def __set_defaults(self, default_layout, user_layout=None):
+    def __del__(self):
+        """
+        Deconstruct method to disconnect/close database connection
+        """
+        try:
+            self.cursor.close()
+        except AttributeError:
+            pass
+
         """
         Set the values in the user_layout to override the defaults
 
