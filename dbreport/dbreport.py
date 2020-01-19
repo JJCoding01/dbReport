@@ -243,7 +243,6 @@ class Report:
         """render an output report"""
         # Set up basic constants for this report
         update = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-        report_dir = self.paths["report_dir"]
         css_styles = self.paths["css_styles"]
         js = self.paths["javascript"]
         headers = self.__get_columns(view_name)
@@ -273,10 +272,7 @@ class Report:
             rows=rows,
         )
 
-        # Write rendered template to file in reports directory
-        filename = "{}.html".format(view_name)
-        with open(os.path.join(report_dir, filename), "w") as f:
-            f.write(html)
+        return html
 
     def render(self, views=None, parse=True):
         """
@@ -300,9 +296,12 @@ class Report:
             # since no views where explicitly given, render all views
             views = self.__get_views()
 
+        reports = {}
         for view in views:
             data = self.__get_data(view)
-            self.__render_report(view, data, parse)
+            html = self.__render_report(view, data, parse)
+            reports.setdefault(view, html)
+        return reports
 
     def parse(self, data):
         """
