@@ -1,14 +1,17 @@
 import os
+import sqlite3 as sq3
 
 import pytest
-import sqlite3 as sq3
+
 from dbreport import Report
-from tests.data.db_setup import load_dump, add_views
-from tests.data.db_setup import TEST_PATH, DUMP_PATH, VIEW_DIR
+from tests.data.db_setup import DUMP_PATH, TEST_PATH, VIEW_DIR, add_views, load_dump
 
 
 @pytest.fixture(scope="session")
 def db_connection():
+    print('test path value (db_connection)', TEST_PATH)
+    print('dump path value (db_connection)', DUMP_PATH)
+
     load_dump(TEST_PATH, DUMP_PATH)
     add_views(TEST_PATH, VIEW_DIR)
 
@@ -24,6 +27,8 @@ def db_connection():
 
 @pytest.fixture(scope="session")
 def db_no_views():
+    print('test path value (db_no_views)', TEST_PATH)
+
     load_dump(TEST_PATH, DUMP_PATH)
 
     cursor = sq3.connect(TEST_PATH).cursor()
@@ -38,6 +43,8 @@ def db_no_views():
 
 @pytest.fixture()
 def report(db_connection):
+    print('test path value (report)', TEST_PATH)
+
     report = Report(paths={"database": TEST_PATH})
     yield report
     print("close report fixture")
