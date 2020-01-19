@@ -187,9 +187,10 @@ class Report:
 
     def __get_views(self):
         """return a list of view names from database"""
-        filename = self.paths["sql"][0]
-        with open(filename, "r") as f:
-            sql = f.read()
+        sql = """SELECT name
+                 FROM sqlite_master
+                 WHERE TYPE = "view"
+                 ORDER BY name"""
         data = self.cursor.execute(sql)
         views = [view[0] for view in data]
 
