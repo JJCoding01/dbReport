@@ -7,8 +7,9 @@ starting point for testing the package.
 """
 
 import os
-import sys
 import sqlite3 as sq3
+import sys
+
 from text_unidecode import unidecode
 
 # set up paths for where to find original database
@@ -35,11 +36,7 @@ def extract_dump(db_path, dump_path):
         with open(dump_path, "w", newline="") as f:
             # noinspection PyTypeChecker
             for line in conn.iterdump():
-                try:
-                    f.write(line)
-                except UnicodeEncodeError:
-                    # for the current row, ensure all strings are ascii
-                    f.write(unidecode(line))
+                f.write(unidecode(line))
 
 
 def load_dump(db_path, dump_path):
