@@ -87,13 +87,13 @@ class Report:
             if isinstance(input_paths[key], list):
                 layout_paths[key] = []
                 for path in input_paths[key]:
-                    dirs = path.split("/")
+                    dirs = path.split(os.pathsep)
                     layout_paths[key].append(
                         os.path.abspath(os.path.join(base_path, *dirs))
                     )
                 continue
 
-            dirs = input_paths[key].split("/")
+            dirs = input_paths[key].split(os.pathsep)
             full_path = os.path.abspath(os.path.join(base_path, *dirs))
 
             layout_paths.setdefault(key, full_path)

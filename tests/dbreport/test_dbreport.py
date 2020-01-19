@@ -2,9 +2,10 @@ import os
 
 import pytest
 from bs4 import BeautifulSoup
-from dbreport.dbreport import Report
-from tests.data.db_setup import TEST_PATH, VIEW_DIR
 from conftest import get_columns
+
+from dbreport.dbreport import Report
+from tests.data.db_setup import VIEW_DIR
 
 
 def test_init():
@@ -17,7 +18,7 @@ def test_init():
         # The remaining parameters are parameters from the layout file given as
         # keyword arguments. If any keyword arguments are given, the path to
         # the layout file must be None
-        Report("layout_path.json", path="any/keyword/argument/db.db")
+        Report("layout_path.json", path="any_keyword_argument_db.db")
 
 
 def test_database_connection(db_connection):
