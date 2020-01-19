@@ -2,7 +2,8 @@
 Define the CLI for the dbreport module.
 """
 import argparse
-from dbreport import Report
+
+from dbreport.dbreport import Report
 
 
 def cli():
@@ -17,7 +18,7 @@ def cli():
 
     args = parser.parse_args()
     report = Report(args.path)
-    report.render_all()
+    report.render(parse=False)
 
 
 if __name__ == "__main__":

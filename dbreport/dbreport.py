@@ -140,7 +140,7 @@ class Report:
         for layout, base in zip(layouts, bases):
             layout["paths"] = self.__expand_paths(layout["paths"], base)
 
-        return self.__set_defaults(*layouts)
+        return self.__set_defaults(layouts[0], layouts[1])
 
     @staticmethod
     def __add_misc_category(categories, views):
@@ -215,18 +215,16 @@ class Report:
         data = {}
         for view in views:
             sql = "SELECT * FROM '{}'".format(view)
-            results = self.cursor.execute(sql)
-            rows = [result for result in results]
-            data.setdefault(view, rows)
-
+            results = self.cursor.execute(sql).fetchall()
+            data.setdefault(view, results)
         return data
 
     def __get_columns(self, table_name):
         """return a list of columns for the given table"""
         sql = """PRAGMA table_info("{}")"""
         sql = sql.format(table_name)
-        c = self.cursor.execute(sql)
-        cols = [col[1] for col in c]
+        results = self.cursor.execute(sql)
+        cols = [col[1] for col in results]
         return cols
 
     def __get_title(self, view_names):
@@ -256,8 +254,7 @@ class Report:
         if parse:  # pragma: no cover
             # call the parse function that may be overloaded
             data = self.parse(data)
-
-        rows = [row for row in data[view_name]]
+        rows = data.get(view_name, [])
 
         # Get the template for reports and render
         temp = self.env.get_template(os.path.basename(self.paths["template"]))
