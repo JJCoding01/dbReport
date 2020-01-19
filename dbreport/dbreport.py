@@ -97,7 +97,6 @@ class Report:
             full_path = os.path.abspath(os.path.join(base_path, *dirs))
 
             layout_paths.setdefault(key, full_path)
-            # layout_paths.setdefault(key, paths[key])
             if os.path.isdir(full_path) and key != "report_dir":
                 files = []
                 for file in os.listdir(full_path):
@@ -254,8 +253,7 @@ class Report:
         categories = self.categories
 
         # Query database for all rows for view given by input
-        # data = self.__get_all_data()
-        if parse:
+        if parse:  # pragma: no cover
             # call the parse function that may be overloaded
             data = self.parse(data)
 
