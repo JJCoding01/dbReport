@@ -25,7 +25,11 @@ class Report:
         self.path = layout_path
         self.layout = self.__get_layout(layout_path, kwargs)
         self.paths = self.layout["paths"]
-        self.cursor = sq3.connect(self.paths["database"]).cursor()
+        if os.path.exists(self.paths["database"]):
+            self.cursor = sq3.connect(self.paths["database"]).cursor()
+        else:
+            msg = f"database '{self.paths['database']}' does not exist"
+            raise FileNotFoundError(msg)
         self.categories = self.__get_categories()
         self.env = Environment(
             trim_blocks=True,
