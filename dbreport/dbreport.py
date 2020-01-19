@@ -19,16 +19,11 @@ class Report:
 
     """
 
-    def __init__(self, layout_path):
-
-        if not layout_path.lower().endswith(".json"):
-            # the layout path is not a json file type
-            raise ValueError("layout must be a json file!")
-        if not os.path.isfile(layout_path):
-            raise ValueError(f"{layout_path} does not exist!")
-
+    def __init__(self, layout_path=None, **kwargs):
+        if layout_path is not None and len(kwargs) > 0:
+            raise ValueError("cannot have both layout path and kwargs")
         self.path = layout_path
-        self.layout = self.__get_layout(layout_path)
+        self.layout = self.__get_layout(layout_path, kwargs)
         self.paths = self.layout["paths"]
         self.cursor = sq3.connect(self.paths["database"]).cursor()
         self.categories = self.__get_categories()
@@ -109,7 +104,7 @@ class Report:
                     layout_paths[key] = files
         return layout_paths
 
-    def __get_layout(self, user_path):
+    def __get_layout(self, user_path, kwargs):
         """
         Return the user layout, with all defaults set, given the path to the
         user-specified layout file.
@@ -117,21 +112,26 @@ class Report:
 
         # get the base paths that will be used to convert the relative paths
         # in the layout files to absolute
-        bases = [
-            os.path.dirname(__file__),  # default layout base path
-            os.path.dirname(self.path),
-        ]  # user layout base path
+        bases = [os.path.dirname(__file__)]  # default layout base path
+        if user_path is not None:
+            bases.append(os.path.dirname(self.path))  # user layout base path
 
-        # full path to default and user specified layout files [default, user]
-        layout_paths = [
-            os.path.join(bases[0], "templates", "layout.json"),
-            user_path,
-        ]
+            # full path to default and user specified layout files [default, user]
+            layout_paths = [
+                os.path.join(bases[0], "templates", "layout.json"),
+                user_path,
+            ]
+        else:
+            # layout path is None, rely on the keyword arguments
+            layout_paths = [os.path.join(bases[0], "templates", "layout.json")]
 
         layouts = []
         for path in layout_paths:
             with open(path, "r") as f:
                 layouts.append(json.load(f))
+
+        if user_path is None:
+            layouts.append(kwargs)
 
         # paths for layouts to be absolute
         for layout, base in zip(layouts, bases):
