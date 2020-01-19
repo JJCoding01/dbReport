@@ -39,7 +39,6 @@ class Report:
         )
         self.env.filters["has_link"] = lambda value: isinstance(value, tuple)
 
-    def __set_defaults(self, default_layout, user_layout=None):
     def __del__(self):
         """
         Deconstruct method to disconnect/close database connection
@@ -49,6 +48,7 @@ class Report:
         except AttributeError:
             pass
 
+    def __set_defaults(self, default_layout, user_layout):
         """
         Set the values in the user_layout to override the defaults
 
@@ -59,8 +59,6 @@ class Report:
         :param default_layout: dict: default layout
         :param user_layout: dict: user layout (defaults to None)
         """
-        if user_layout is None:
-            user_layout = {}
 
         for k, v in default_layout.items():
             user_layout.setdefault(k, v)
