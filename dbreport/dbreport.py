@@ -238,7 +238,7 @@ class Report:
             titles = map_names.get(view_names, view_names)
         return titles
 
-    def __render_report(self, view_name, data, parse=True):
+    def __render_report(self, view_name, data, parse=False):
         """render an output report"""
         # Set up basic constants for this report
         update = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
@@ -272,19 +272,20 @@ class Report:
 
         return html
 
-    def render(self, views=None, parse=True):
+    def render(self, views=None, parse=False):
         """
-        renders a report of each of the view names in :obj:`views`
+        Renders html for each view in :obj:`views`
 
         Parameters:
-            views (:obj:`list` | :obj:`None`): list of view names to to render,
+            views (:obj:`list` | :obj:`None`): list of view names to render,
                 defaults to :obj:`None`, all views
             parse (:obj:`bool`): whether the parse function is called on
-                query results.
+                query results. Defaults to `False` (don't parse)
 
         Returns:
-            :obj:`None`: No return value
+            :obj:`dict`: {`view_name`: `rendered_html`}
 
+        .. versionchanged:: 0.4.0a1 returns results; parse default
         """
         if isinstance(views, str):
             # views is a single view name and not a list.
