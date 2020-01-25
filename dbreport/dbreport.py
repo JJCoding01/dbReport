@@ -302,6 +302,30 @@ class Report:
             reports.setdefault(view, html)
         return reports
 
+    def write(self, report_path=None, **kwargs):
+        """
+        Write rendered reports to files
+
+        Parameters:
+            :obj:`str` | `None`: path where reports are written to (must exist)
+                defaults to `None`, use path in layout.
+            :obj:`kwargs`: all other keyword arguments are passed directly to
+                the render function.
+        Returns:
+            :obj:`None`: No return value
+
+        .. versionadded:: 0.4.0a1
+        """
+
+        if report_path is None:
+            report_path = self.paths["report_dir"]
+
+        rendered_reports = self.render(**kwargs)
+        for view, html in rendered_reports.items():
+            filename = os.path.join(report_path, f"{view}.html")
+            with open(filename, "w") as f:
+                f.write(html)
+
     def parse(self, data):
         """
         The parse function may be called to intercept data before rendering
