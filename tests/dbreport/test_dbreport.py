@@ -79,3 +79,9 @@ def test_write(report, rendered_reports):
             with open(f"{view}.html", "r") as f:
                 assert html == f.read()
             os.remove(f"{view}.html")
+
+
+def test_write_invalid_report_path(report):
+
+    with pytest.raises(NotADirectoryError):
+        report.write("not_a_directory")

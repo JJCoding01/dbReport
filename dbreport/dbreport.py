@@ -320,6 +320,9 @@ class Report:
         if report_path is None:
             report_path = self.paths["report_dir"]
 
+        if not os.path.isdir(report_path):
+            raise NotADirectoryError(f"{report_path} is not a directory")
+
         rendered_reports = self.render(**kwargs)
         for view, html in rendered_reports.items():
             filename = os.path.join(report_path, f"{view}.html")
