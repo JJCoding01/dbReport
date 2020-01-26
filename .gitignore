@@ -7,6 +7,8 @@ env/
 docs/build/*
 htmlcov/*
 .coverage
+example.db
+reports/*
 
 tests/data/reports/*
 tests/**/*.db
