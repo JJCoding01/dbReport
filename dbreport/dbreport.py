@@ -15,8 +15,12 @@ class Report:
     The Report will handle querying the database and generating the reports
 
     Parameters:
-        layout_path (:obj:`str`): path to the layout file
+        layout_path (:obj:`str` | :obj:`None`):
+            path to the layout file, or :obj:`None` when using kwargs
+        kwargs: Any keyword argument defined in the layout configuration
 
+    Raises:
+        ValueError: When both :obj:`layout_path` and :obj:`kwargs` defined
     """
 
     def __init__(self, layout_path=None, **kwargs):
@@ -280,12 +284,13 @@ class Report:
             views (:obj:`list` | :obj:`None`): list of view names to render,
                 defaults to :obj:`None`, all views
             parse (:obj:`bool`): whether the parse function is called on
-                query results. Defaults to `False` (don't parse)
+                query results. Defaults to :obj:`False` (don't parse)
 
         Returns:
-            :obj:`dict`: {`view_name`: `rendered_html`}
+            :obj:`dict`: Rendered html of reports
 
-        .. versionchanged:: 0.4.0a1 returns results; parse default
+        .. versionchanged:: 0.4.0
+            returns results; :obj:`parse` default was :obj:`True`
         """
         if isinstance(views, str):
             # views is a single view name and not a list.
@@ -307,14 +312,21 @@ class Report:
         Write rendered reports to files
 
         Parameters:
-            :obj:`str` | `None`: path where reports are written to (must exist)
-                defaults to `None`, use path in layout.
-            :obj:`kwargs`: all other keyword arguments are passed directly to
-                the render function.
+            report_path (:obj:`str` | :obj:`None`)
+                path where reports are written to (must exist) defaults to
+                :obj:`None`, use path in layout.
+            kwargs (:obj:`dict`)
+                all other keyword arguments are passed directly to the render
+                function.
+
         Returns:
             :obj:`None`: No return value
 
-        .. versionadded:: 0.4.0a1
+        Raises:
+            :obj:`NotADirectoryError`: When report path does not exist
+
+
+        .. versionadded:: 0.4.0
         """
 
         if report_path is None:
@@ -333,34 +345,6 @@ class Report:
         """
         The parse function may be called to intercept data before rendering
 
-        This is useful to filter, format, add hyperlinks, or otherwise
-        manipulate raw data queried from database before it gets rendered in
-        report.
-
-        To be sure the parse function is called, inherit from the base `Report`
-        class and overload the `parse` function in the custom class. Then
-        render the reports with `render(parse=True)`. If you try to parse data
-        without overloading the default parse function, it will raise a
-        `NotImplimentedError`.
-
-        Notes:
-            The data format for both :obj:`data` parameter and the returned
-            value are defined below.
-
-            - :obj:`key`: view names where the data was queried from
-            - :obj:`values`: list of tuples, each tuple is a row of data
-               - (:obj:`list`): list of rows, with each row defined as a tuple
-               - (:obj:`tuple`): each element in :obj:`values` is a tuple.
-                                 The elements of the tuple are the values from
-                                 the database, and/or the values that will be
-                                 shown in the report.
-
-            .. note::
-                The elements of each row must be a single item (:obj:`str`,
-                :obj:`bool`, :obj:`int`, etc) or a tuple in the form
-                (:obj:`value`, :obj:`href`), where :obj:`href` is where the
-                generated hyperlink for that value is directed to.
-
         Parameters:
             data (:obj:`dict`): data as queried from database.
                             The keys are view names from database, and
@@ -375,6 +359,34 @@ class Report:
             :obj:`NotImplementedError`: When the default parse function is used.
                 This must be overloaded by a custom parse function before use.
 
+        This function is useful to filter, format, add hyperlinks, or otherwise
+        manipulate raw data queried from database before it gets rendered in
+        report.
+
+        To be sure the parse function is called, create a class that inherits
+        from the base `Report` class and overload the `parse` function in the
+        custom class. Then render the reports with `render(parse=True)`.
+        If you try to parse data without overloading the default parse
+        function, it will raise a `NotImplementedError`.
+
+        Notes:
+            The data format for both :obj:`data` parameter and the returned
+            value are defined below.
+
+            - :obj:`keys`: view names where the data was queried from; and the
+                filename of the report if using the `write` method.
+            - :obj:`values`: list of tuples, each tuple is a row of data
+               - (:obj:`list`): list of rows, with each row defined as a tuple
+               - (:obj:`tuple`): each element in :obj:`values` is a tuple.
+                                 The elements of the tuple are the values from
+                                 the database, and/or the values that will be
+                                 shown in the report.
+
+            .. note::
+                The elements of each row must be a single item (:obj:`str`,
+                :obj:`bool`, :obj:`int`, etc) or a tuple in the form
+                (:obj:`value`, :obj:`href`), where :obj:`href` is where the
+                generated hyperlink for that value is directed to.
         """
 
         raise NotImplementedError(
