@@ -69,3 +69,13 @@ def test_content_filters(rendered_reports, db_connection):
         assert len(tags) == len(columns)
         for tag in tags:
             assert tag["id"] in columns
+
+
+def test_write(report, rendered_reports):
+    paths = [".", None]
+    for path in paths:
+        report.write(path)
+        for view, html in rendered_reports.items():
+            with open(f"{view}.html", "r") as f:
+                assert html == f.read()
+            os.remove(f"{view}.html")
