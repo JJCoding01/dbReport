@@ -2,11 +2,20 @@ PACKAGE_NAME=dbreport
 
 .PHONY: install docs lint-html tests
 
-install:
-	python setup.py install
+create-db:
+	python tests\data\db_setup.py "load-dump"
 
 docs:
 	cd docs && make html
+
+db:
+	make export-db && make create-db
+
+export-db:
+	python tests\data\db_setup.py "create-dump"
+
+install:
+	python setup.py install
 
 lint:
 	black $(PACKAGE_NAME) --line-length=79
@@ -18,12 +27,3 @@ lint-tests:
 
 tests:
 	pytest --cov-report html --cov=$(PACKAGE_NAME) tests/$(PACKAGE_NAME)
-
-export-db:
-	python tests\data\db_setup.py "create-dump"
-
-create-db:
-	python tests\data\db_setup.py "load-dump"
-
-db:
-	make export-db && make create-db
