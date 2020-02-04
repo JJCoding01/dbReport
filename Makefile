@@ -11,6 +11,15 @@ docs:
 db:
 	make export-db && make create-db
 
+example-simple:
+	python .\example.py simple
+
+example-parse:
+	python .\example.py parse
+
+example-category:
+	python .\example.py category
+
 export-db:
 	python tests\data\db_setup.py "create-dump"
 

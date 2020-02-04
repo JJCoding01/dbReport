@@ -1,6 +1,8 @@
 import os
+import sys
+
 from dbreport import Report
-from tests.data.db_setup import DUMP_PATH, VIEW_DIR, load_dump, add_views
+from tests.data.db_setup import DUMP_PATH, VIEW_DIR, add_views, load_dump
 
 # filename for example database. Replace with path to your own database.
 DB_FILENAME = "example.db"
@@ -140,6 +142,15 @@ def example_categories():
 
 
 if __name__ == "__main__":
-    # example_simple()
-    # example_parse()
-    example_categories()
+    args = sys.argv[1]
+    print(f"attempting to create '{args}' example...")
+    if args == "simple":
+        example_simple()
+    elif args == "parse":
+        example_parse()
+    elif args == "category":
+        example_categories()
+    else:
+        print(f"example '{args}' not found")
+        sys.exit(1)
+    print(f"completed running '{args}' example")
