@@ -60,8 +60,7 @@
         </form>
         <div class="table-container">
             <table id="table">
-                {# <caption class="caption">{{caption}}</caption> #}
-                <caption>Click any header to sort table by that column</caption>
+                <caption>{% if caption =='' %}Click any header to sort table by that column{% else %}{{caption}}{% endif %}</caption>
                 <thead class="header-row">
                     <tr>{% for header in headers %}<th class="header-row">{{header}}</th>{% endfor %}</tr>
                 </thead>
