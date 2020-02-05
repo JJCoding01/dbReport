@@ -18,10 +18,12 @@ def db_connection():
     load_dump(TEST_PATH, DUMP_PATH)
     add_views(TEST_PATH, VIEW_DIR)
 
-    cursor = sq3.connect(TEST_PATH).cursor()
+    conn = sq3.connect(TEST_PATH)
+    cursor = conn.cursor()
     yield cursor
 
     cursor.close()
+    conn.close()
     try:
         os.remove(TEST_PATH)
     except PermissionError:
@@ -32,10 +34,16 @@ def db_connection():
 def db_no_views():
     load_dump(TEST_PATH, DUMP_PATH)
 
-    cursor = sq3.connect(TEST_PATH).cursor()
+    conn = sq3.connect(TEST_PATH)
+    cursor = conn.cursor()
+    yield cursor
+
+    conn = sq3.connect(TEST_PATH)
+    cursor = conn.cursor()
     yield cursor
 
     cursor.close()
+    conn.close()
     try:
         os.remove(TEST_PATH)
     except PermissionError:
@@ -46,13 +54,20 @@ def db_no_views():
 def report(db_connection):
     report = Report(paths={"database": TEST_PATH, "report_dir": "."})
     yield report
-    print("close report fixture")
 
 
 @pytest.fixture()
 def rendered_reports(report):
     rendered = report.render(views=None, parse=False)
     yield rendered
+
+
+@pytest.fixture(scope="session")
+def views():
+    view_names = []
+    for file in os.listdir(VIEW_DIR):
+        view_names.append(file[:-4])  # strip .sql from filename
+    return view_names
 
 
 def get_columns(cursor, table_name):

@@ -1,11 +1,23 @@
 import os
 
 import pytest
-from bs4 import BeautifulSoup
-from conftest import get_columns
 
 from dbreport.dbreport import Report
-from tests.data.db_setup import VIEW_DIR
+
+
+def test_all_views_are_rendered(rendered_reports, views):
+    """Validate a report is generated for all views"""
+
+    rendered_view_names = list(rendered_reports.keys())
+    for view_name in views:
+        assert (
+                view_name in rendered_view_names
+        ), f"missing view '{view_name}' in rendered views"
+
+
+def test_database_connection(db_connection):
+    with pytest.raises(FileNotFoundError):
+        Report(paths={"database": "database_that_does_not_exist.db"})
 
 
 def test_init():
@@ -21,54 +33,20 @@ def test_init():
         Report("layout_path.json", path="any_keyword_argument_db.db")
 
 
-def test_database_connection(db_connection):
-
-    with pytest.raises(FileNotFoundError):
-        Report(paths={"database": "database_that_does_not_exist.db"})
-
-
-def test_report_names(rendered_reports):
-    """Validate a report is generated for all views"""
-
-    view_names = list(rendered_reports.keys())
-    for file in os.listdir(VIEW_DIR):
-        # strip .sql extension from filename to get the view name
-        view_name = file[:-4]
-        assert view_name in view_names
+def test_render_single_view_name_as_string(report, views):
+    # render a single view given the name as a string
+    reports = report.render(views=views[0], parse=False)
+    assert (
+            views[0] == list(reports.keys())[0]
+    ), "rendered report does not match requested"
 
 
-def test_subset_report_names(report):
-
-    reports = report.render(views=None, parse=False)
-    view_names = list(reports.keys())
-
+def test_subset_views_are_rendered(report, views):
     # render only specific reports
-    check_views = [view_names[0], view_names[3]]
+    check_views = [views[0], views[-1]]
     reports = report.render(views=check_views, parse=False)
     for view, key in zip(check_views, reports.keys()):
-        assert view == key
-
-    # render a single view given the name as a string
-    reports = report.render(views=check_views[0], parse=False)
-    assert check_views[0] == list(reports.keys())[0]
-
-
-def test_content_title(rendered_reports):
-
-    for r in rendered_reports:
-        soup = BeautifulSoup(rendered_reports[r], features="html.parser")
-        assert soup.title.text == r
-
-
-def test_content_filters(rendered_reports, db_connection):
-
-    for r in rendered_reports:
-        soup = BeautifulSoup(rendered_reports[r], features="html.parser")
-        columns = get_columns(db_connection, r)
-        tags = soup.find_all("input")
-        assert len(tags) == len(columns)
-        for tag in tags:
-            assert tag["id"] in columns
+        assert view == key, "rendered report name does not match requested"
 
 
 def test_write(report, rendered_reports):
@@ -77,7 +55,7 @@ def test_write(report, rendered_reports):
         report.write(path)
         for view, html in rendered_reports.items():
             with open(f"{view}.html", "r") as f:
-                assert html == f.read()
+                assert html == f.read(), f"failed for path: {path}"
             os.remove(f"{view}.html")
 
 
