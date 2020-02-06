@@ -1,6 +1,6 @@
 """Generator for SQLite database"""
-from .dbreport import Report
 from .cli import cli
+from .dbreport import Report
 
 __version__ = "0.3.2dev"
 __author__ = "Joseph Contreras Jr."

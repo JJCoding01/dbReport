@@ -4,13 +4,8 @@ import sqlite3 as sq3
 import pytest
 
 from dbreport import Report
-from tests.data.db_setup import (
-    DUMP_PATH,
-    TEST_PATH,
-    VIEW_DIR,
-    add_views,
-    load_dump,
-)
+from tests.data.db_setup import (DUMP_PATH, TEST_PATH, VIEW_DIR,
+                                 add_views, load_dump)
 
 
 @pytest.fixture(scope="session")

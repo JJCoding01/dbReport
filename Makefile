@@ -28,10 +28,12 @@ install:
 
 lint:
 	black $(PACKAGE_NAME) --line-length=79
+	isort -rc $(PACKAGE_NAME)
 	pylint $(PACKAGE_NAME)
 
 lint-tests:
 	black tests --line-length=79
+	isort -rc tests
 	pylint tests
 
 tests:
