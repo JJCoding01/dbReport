@@ -29,11 +29,10 @@ class Report:
         self.path = layout_path
         self.layout = self.__get_layout(layout_path, kwargs)
         self.paths = self.layout["paths"]
-        if os.path.exists(self.paths["database"]):
-            self.cursor = sq3.connect(self.paths["database"]).cursor()
-        else:
+        if not os.path.exists(self.paths["database"]):
             msg = f"database '{self.paths['database']}' does not exist"
             raise FileNotFoundError(msg)
+        self.cursor = sq3.connect(self.paths["database"]).cursor()
         self.categories = self.__get_categories()
         self.env = Environment(
             trim_blocks=True,
@@ -157,14 +156,36 @@ class Report:
         bar in each report.
         """
 
+        # create copy of category parameter to avoid changing input
+        updated_categories = {k: v for k, v in categories.items()}
+
+        # create list of all view names that are included with any category.
+        # This will be a set, so any duplicates are removed
+        categorized_views = []
+        for k in updated_categories.values():
+            categorized_views += list(k)
+        categorized_views = set(categorized_views)  # remove duplicates
+
+        # check that all categorized views are in the list of all views.
+        # If there are any categorized views that are not in the views from the
+        # database, it will create a link without a report, resulting in a 404
+        for view in categorized_views:
+            if view not in views:
+                raise ValueError(f"view '{view}' does not exist!")
+
         # iterate over categories and remove any view name that is
         # listed as in the categories
-        for category in categories:
-            for view in categories[category]:
-                if view in views:
-                    views.remove(view)
-        categories.setdefault("Misc", views)
-        return categories
+        misc_views = []
+        for view in views:
+            if view not in categorized_views:
+                # this view is not specified in any category, so it should be
+                # included in the Misc category
+                misc_views.append(view)
+
+        if misc_views != []:
+            # only create misc view category if there are views to add to it
+            updated_categories.setdefault("Misc", misc_views)
+        return updated_categories
 
     def __get_categories(self):
         """
