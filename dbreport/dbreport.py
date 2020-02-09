@@ -33,6 +33,7 @@ class Report:
             msg = f"database '{self.paths['database']}' does not exist"
             raise FileNotFoundError(msg)
         self.cursor = sq3.connect(self.paths["database"]).cursor()
+        self.__views = self.__get_views()
         self.categories = self.__get_categories()
         self.env = Environment(
             trim_blocks=True,
@@ -49,6 +50,45 @@ class Report:
             self.cursor.close()
         except AttributeError:
             pass
+
+    @property
+    def categories(self):
+        return self.__categories
+
+    @categories.setter
+    def categories(self, categories):
+
+        if not isinstance(categories, dict):
+            raise TypeError("categories must be a dict")
+
+        for category, entries in categories.items():
+            # first, check that all categories are strings, and all values
+            # are lists
+            if not isinstance(category, str):
+                raise TypeError("Category must be a str!")
+            if not isinstance(entries, list):
+                raise TypeError("Category entries must be a list")
+
+            # check that all entries are actually a view. Otherwise it will
+            # create a broken link (ie, a link that goes to a non-existent
+            for entry in entries:
+                if entry not in self.views:
+                    raise ValueError(
+                        f"given category item '{entry}' does not have a report"
+                    )
+        self.__categories = categories
+
+    @property
+    def paths(self):
+        return self.__paths
+
+    @paths.setter
+    def paths(self, paths):
+        self.__paths = paths
+
+    @property
+    def views(self):
+        return self.__views
 
     def __set_defaults(self, default_layout, user_layout):
         """
@@ -197,7 +237,9 @@ class Report:
         cat_list = self.__add_misc_category(
             categories=self.layout["categories"], views=self.__get_views()
         )
+        return cat_list
 
+    def __get_category_links(self, cat_list):
         categories = {}
         for key in cat_list:
             paths = []
@@ -273,7 +315,7 @@ class Report:
         caption = self.layout["captions"].get(view_name, "")
         title = self.__get_title(view_name)
         description = self.layout["descriptions"].get(view_name, "")
-        categories = self.categories
+        categories = self.__get_category_links(self.categories)
 
         # Query database for all rows for view given by input
         if parse:  # pragma: no cover

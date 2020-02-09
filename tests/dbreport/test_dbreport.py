@@ -33,6 +33,38 @@ def test_init():
         Report("layout_path.json", path="any_keyword_argument_db.db")
 
 
+def test_property_categories(report, views):
+    # when no categories are given, it should have one category (Misc) that
+    # contains all views
+    categories = report.categories
+    assert len(categories) == 1, "Default category length should have one item"
+    assert list(categories.keys())[0] == "Misc", "default category not 'Misc'"
+    assert (
+            categories.get("Misc", []) == views
+    ), "default category does not have all views"
+
+
+def test_property_categories_invalid(report):
+    with pytest.raises(TypeError):
+        report.categories = ""  # not a dictionary
+
+    with pytest.raises(TypeError):
+        report.categories = {1: ["a list"]}  # category is not a str
+
+    with pytest.raises(TypeError):
+        report.categories = {"my category": "not a list"}
+
+    with pytest.raises(ValueError):
+        report.categories = {"my category": ["view name that does not exist"]}
+
+
+def test_property_views(report, views):
+    assert report.views == views, "report views does not match expected"
+
+    with pytest.raises(AttributeError):
+        report.views = "any value"  # views property is read-only
+
+
 def test_render_single_view_name_as_string(report, views):
     # render a single view given the name as a string
     reports = report.render(views=views[0], parse=False)
