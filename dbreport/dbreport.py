@@ -2,6 +2,7 @@
 This module will will generate HTML reports for the views in a sqlite database.
 """
 
+import copy
 import json
 import os
 import sqlite3 as sq3
@@ -144,7 +145,7 @@ class Report:
                 files = []
                 for file in os.listdir(full_path):
                     files.append(os.path.join(full_path, file))
-                if files == []:
+                if not files:
                     layout_paths[key] = full_path
                 else:
                     layout_paths[key] = files
@@ -160,7 +161,7 @@ class Report:
         # in the layout files to absolute
         bases = [os.path.dirname(__file__)]  # default layout base path
         if user_path is not None:
-            bases.append(os.path.dirname(self.path))  # user layout base path
+            bases.append(os.path.dirname(user_path))  # user layout base path
 
             # full path to default and user specified layout files [default, user]
             layout_paths = [
@@ -197,14 +198,13 @@ class Report:
         """
 
         # create copy of category parameter to avoid changing input
-        updated_categories = {k: v for k, v in categories.items()}
+        updated_categories = copy.deepcopy(categories)
 
         # create list of all view names that are included with any category.
         # This will be a set, so any duplicates are removed
-        categorized_views = []
+        categorized_views = set()
         for k in updated_categories.values():
-            categorized_views += list(k)
-        categorized_views = set(categorized_views)  # remove duplicates
+            categorized_views.update(k)
 
         # check that all categorized views are in the list of all views.
         # If there are any categorized views that are not in the views from the
@@ -222,7 +222,7 @@ class Report:
                 # included in the Misc category
                 misc_views.append(view)
 
-        if misc_views != []:
+        if misc_views:
             # only create misc view category if there are views to add to it
             updated_categories.setdefault("Misc", misc_views)
         return updated_categories
@@ -370,14 +370,14 @@ class Report:
             reports.setdefault(view, html)
         return reports
 
-    def write(self, report_path=None, **kwargs):
+    def write(self, report_dir=None, **kwargs):
         """
         Write rendered reports to files
 
         Parameters:
-            report_path (:obj:`str` | :obj:`None`)
-                path where reports are written to (must exist) defaults to
-                :obj:`None`, use path in layout.
+            report_dir (:obj:`str` | :obj:`None`)
+                path where reports are written to defaults to :obj:`None`,
+                 which will use the path in the layout.
             kwargs (:obj:`dict`)
                 all other keyword arguments are passed directly to the render
                 function.
@@ -388,19 +388,18 @@ class Report:
         Raises:
             :obj:`NotADirectoryError`: When report path does not exist
 
-
         .. versionadded:: 0.4.0
         """
 
-        if report_path is None:
-            report_path = self.paths["report_dir"]
+        if report_dir is None:
+            report_dir = self.paths["report_dir"]
 
-        if not os.path.isdir(report_path):
-            raise NotADirectoryError(f"{report_path} is not a directory")
+        if not os.path.isdir(report_dir):
+            raise NotADirectoryError(f"{report_dir} is not a directory")
 
         rendered_reports = self.render(**kwargs)
         for view, html in rendered_reports.items():
-            filename = os.path.join(report_path, f"{view}.html")
+            filename = os.path.join(report_dir, f"{view}.html")
             with open(filename, "w") as f:
                 f.write(html)
 

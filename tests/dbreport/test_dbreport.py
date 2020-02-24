@@ -92,6 +92,5 @@ def test_write(report, rendered_reports):
 
 
 def test_write_invalid_report_path(report):
-
     with pytest.raises(NotADirectoryError):
         report.write("not_a_directory")
