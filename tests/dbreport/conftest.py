@@ -70,12 +70,16 @@ def views():
     return view_names
 
 
-def get_columns(cursor, table_name):
-    """
-    Return list of table column names from sqlite database
-    """
-    sql = """PRAGMA table_info("{}")"""
-    sql = sql.format(table_name)
-    c = cursor.execute(sql)
-    cols = [col[1] for col in c]
-    return cols
+@pytest.fixture(scope="session")
+def get_columns(*args, **kwargs):
+    def columns(cursor, table_name):
+        """
+        Return list of table column names from sqlite database
+        """
+        sql = """PRAGMA table_info("{}")"""
+        sql = sql.format(table_name)
+        c = cursor.execute(sql)
+        cols = [col[1] for col in c]
+        return cols
+
+    return columns

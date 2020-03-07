@@ -3,7 +3,6 @@ Test module to validate the actual rendering
 """
 
 from bs4 import BeautifulSoup
-from conftest import get_columns
 
 from dbreport.dbreport import Report
 from tests.data.db_setup import TEST_PATH
@@ -23,7 +22,38 @@ def test_captions(db_connection, views):
         ), "caption does match expected value"
 
 
-def test_content_filters(rendered_reports, db_connection):
+def test_categories_with_misc():
+    # create several categories, but leave at lease one (1) view not in any
+    # category.
+    categories = {
+        "Employees": ["listEmployees", "topSalesmen"],
+        "Customers": ["topCustomer"],
+    }
+    report = Report(
+        paths={"database": TEST_PATH, "report_dir": "."}, categories=categories
+    )
+    rendered = report.render()
+
+    for v, html in rendered.items():
+        soup = BeautifulSoup(html, features="html.parser")
+        buttons = soup.find_all(
+            "button", class_="dropbtn theme-d5 hover-theme"
+        )
+
+        # compare the length of rendered categories and input categories. The
+        # rendered categories should be one more than the input categories
+        # since it will have the automatically added Misc category
+        assert (
+                len(categories) == len(buttons) - 1
+        ), "number of rendered categories does not match input categories"
+
+        for category, button in zip(categories, buttons):
+            assert (
+                    category == button.text
+            ), "input category does not match rendered category"
+
+
+def test_content_filters(rendered_reports, db_connection, get_columns):
     for r in rendered_reports:
         soup = BeautifulSoup(rendered_reports[r], features="html.parser")
         columns = get_columns(db_connection, r)
