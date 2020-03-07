@@ -20,11 +20,12 @@ def test_database_connection(db_connection):
         Report(paths={"database": "database_that_does_not_exist.db"})
 
 
-def test_init():
-
+def test_init_with_non_existant_layout():
     with pytest.raises(FileNotFoundError):
         Report("layout_that_does_not_exist.json")
 
+
+def test_init_with_both_layout_path_and_kwargs():
     with pytest.raises(ValueError):
         # only the path to the layout file is given as a positional argument.
         # The remaining parameters are parameters from the layout file given as
@@ -48,12 +49,18 @@ def test_property_categories_invalid(report):
     with pytest.raises(TypeError):
         report.categories = ""  # not a dictionary
 
+
+def test_property_categories_invalid_key_not_str(report):
     with pytest.raises(TypeError):
         report.categories = {1: ["a list"]}  # category is not a str
 
+
+def test_property_categories_invalid_key_not_list(report):
     with pytest.raises(TypeError):
         report.categories = {"my category": "not a list"}
 
+
+def test_property_categories_invalid_value_with_invalid_view(report):
     with pytest.raises(ValueError):
         report.categories = {"my category": ["view name that does not exist"]}
 
@@ -61,6 +68,8 @@ def test_property_categories_invalid(report):
 def test_property_views(report, views):
     assert report.views == views, "report views does not match expected"
 
+
+def test_property_views_read_only(report):
     with pytest.raises(AttributeError):
         report.views = "any value"  # views property is read-only
 
