@@ -65,6 +65,22 @@ def test_property_views(report, views):
         report.views = "any value"  # views property is read-only
 
 
+def test_add_ignore_views(report):
+    report.ignore = ["popularArtists", "topSalesmen"]
+    assert report.ignore == ["popularArtists", "topSalesmen"]
+
+
+def test_add_invalid_ignore_views(report):
+    with pytest.raises(ValueError):
+        report.ignore = ["popularArtists", "view_name_that_does_not_exist"]
+
+
+def test_ignored_views_are_removed(report):
+    report.ignore = ["listEmployees", "popularArtists"]
+    for view in report.ignore:
+        assert view not in report.views, "ignored view is still included"
+
+
 def test_render_single_view_name_as_string(report, views):
     # render a single view given the name as a string
     reports = report.render(views=views[0], parse=False)

@@ -27,7 +27,7 @@ class Report:
     def __init__(self, layout_path=None, **kwargs):
         if layout_path is not None and len(kwargs) > 0:
             raise ValueError("cannot have both layout path and kwargs")
-        self.path = layout_path
+        self.ignore = kwargs.get("ignore_views", [])
         self.layout = self.__get_layout(layout_path, kwargs)
         self.paths = self.layout["paths"]
         if not os.path.exists(self.paths["database"]):
@@ -78,6 +78,35 @@ class Report:
                         f"given category item '{entry}' does not have a report"
                     )
         self.__categories = categories
+
+    @property
+    def ignore(self):
+        """
+        List of views in database that should not be included in reports
+
+        When setting the `ignore` property, it must be an iterable (:obj:`list`
+        or :obj:`tuple`) of view names.
+
+        When a view is listed here, it will not be included in any menu,
+        including the `Misc` category.
+
+        Defaults to an empty list
+
+        Raises:
+            ValueError: When any item listed is not in `views`
+        """
+        return self.__ignore
+
+    @ignore.setter
+    def ignore(self, values):
+
+        for value in values:
+            if value not in self.views:
+                raise ValueError(
+                    f"Cannot update ignore list since '{value}' "
+                    f"is not a view"
+                )
+        self.__ignore = values
 
     @property
     def paths(self):
