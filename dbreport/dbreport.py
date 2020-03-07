@@ -34,7 +34,7 @@ class Report:
             msg = f"database '{self.paths['database']}' does not exist"
             raise FileNotFoundError(msg)
         self.cursor = sq3.connect(self.paths["database"]).cursor()
-        self.__views = self.__get_views()
+        self.__views = self.views
         self.categories = self.__get_categories()
         self.env = Environment(
             trim_blocks=True,
@@ -89,6 +89,21 @@ class Report:
 
     @property
     def views(self):
+        """list of views in the database"""
+        sql = """SELECT name
+                 FROM sqlite_master
+                 WHERE TYPE = "view"
+                 ORDER BY name"""
+        data = self.cursor.execute(sql)
+        self.__views = [view[0] for view in data]
+
+        # Remove any views that are in the ignore list in the layout
+        # file
+        for ignore_view in self.ignore:
+            # note, since the ignore property will throw an error whenever a
+            # view that does not exist in the views property, it is guaranteed
+            # that the ignored view will be in views
+            self.__views.remove(ignore_view)
         return self.__views
 
     def __set_defaults(self, default_layout, user_layout):
@@ -235,7 +250,7 @@ class Report:
         """
 
         cat_list = self.__add_misc_category(
-            categories=self.layout["categories"], views=self.__get_views()
+            categories=self.layout["categories"], views=self.views
         )
         return cat_list
 
@@ -252,29 +267,12 @@ class Report:
 
         return categories
 
-    def __get_views(self):
-        """return a list of view names from database"""
-        sql = """SELECT name
-                 FROM sqlite_master
-                 WHERE TYPE = "view"
-                 ORDER BY name"""
-        data = self.cursor.execute(sql)
-        views = [view[0] for view in data]
-
-        # Remove any views that are in the ignore list in the layout
-        # file
-        ignore_views = self.layout["ignore_views"]
-        for ignore_view in ignore_views:
-            if ignore_view in views:
-                views.remove(ignore_view)
-        return views
-
     def __get_data(self, views=None):
         """get the data for the view(s) given"""
 
         if views is None:
             # views are None, set to use all views
-            views = self.__get_views()
+            views = self.views
         elif not isinstance(views, list):
             # make the view a list
             views = [views]
@@ -361,7 +359,7 @@ class Report:
             views = [views]
         elif views is None:
             # since no views where explicitly given, render all views
-            views = self.__get_views()
+            views = self.views
 
         reports = {}
         for view in views:
