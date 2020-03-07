@@ -1,5 +1,4 @@
 """Generator for SQLite database"""
-from .cli import cli
 from .dbreport import Report
 
 __version__ = "0.3.2dev"
