@@ -25,6 +25,9 @@ author = 'Joseph Contreras'
 # The full version, including alpha/beta/rc tags
 release = '0.3.3dev'
 
+# add this to specifically use index.rst rather then contents.rst to avoid
+# errors when building on RTD
+master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
 

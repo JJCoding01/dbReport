@@ -1,0 +1,16 @@
+language: python
+python:
+  - 3.6
+  - 3.7
+  - 3.8
+
+install:
+  - pip install -r requirements-dev.txt
+  - pip install coveralls
+
+script:
+  - make lint
+  - make tests
+
+after_success:
+  - coveralls
