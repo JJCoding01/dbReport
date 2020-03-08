@@ -361,19 +361,6 @@ class Report:
 
     def render(self, views=None, parse=False):
         """
-<<<<<<< HEAD
-        renders a report of each of the view names in :obj:`views`
-
-        Parameters:
-            views (:obj:`list` | :obj:`None`): list of view names to to render,
-                defaults to :obj:`None`, all views
-            parse (:obj:`bool`): whether the parse function is called on
-                query results.
-
-        Returns:
-            :obj:`None`: No return value
-
-=======
         Renders html for each view in :obj:`views`
 
         Parameters:
@@ -387,7 +374,6 @@ class Report:
 
         .. versionchanged:: 0.4.0
             returns results; :obj:`parse` default was :obj:`True`
->>>>>>> add-tests
         """
         if isinstance(views, str):
             # views is a single view name and not a list.
