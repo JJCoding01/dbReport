@@ -289,7 +289,7 @@ class Report:
 
         return categories
 
-    def __get_data(self, views=None):
+    def __get_data(self, views):
         """get the data for the view(s) given"""
 
         if views is None:
