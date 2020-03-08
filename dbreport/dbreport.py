@@ -250,13 +250,6 @@ class Report:
         for k in updated_categories.values():
             categorized_views.update(k)
 
-        # check that all categorized views are in the list of all views.
-        # If there are any categorized views that are not in the views from the
-        # database, it will create a link without a report, resulting in a 404
-        for view in categorized_views:
-            if view not in views:
-                raise ValueError(f"view '{view}' does not exist!")
-
         # iterate over categories and remove any view name that is
         # listed as in the categories
         misc_views = []
