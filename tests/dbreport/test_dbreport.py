@@ -60,9 +60,40 @@ def test_property_categories_invalid_key_not_list(report):
         report.categories = {"my category": "not a list"}
 
 
+def test_property_categories_invalid_not_dict(report):
+    with pytest.raises(TypeError):
+        report.categories = 'not a dict'
+
+
 def test_property_categories_invalid_value_with_invalid_view(report):
     with pytest.raises(ValueError):
         report.categories = {"my category": ["view name that does not exist"]}
+
+
+def test_property_category_has_misc(report):
+    assert "Misc" in report.categories.keys(), "default Misc not included"
+
+
+def test_property_category_add_items(report, views):
+    report.categories = {"category 1": views[0:1], "category 2": views[3:4]}
+    assert "category 1" in report.categories.keys()
+    assert "category 2" in report.categories.keys()
+    assert "Misc" not in report.categories.keys()
+
+
+def test_property_category_without_misc(report, views):
+    report.categories = {"Some Category": views}
+    assert "Misc" not in report.categories.keys(), "default Misc not included"
+
+
+def test_categories_with_misc(report_with_categories_with_misc):
+    report = report_with_categories_with_misc
+    assert "Misc" in report.categories.keys()
+
+
+def test_categories_without_misc(report_with_categories_without_misc):
+    report = report_with_categories_without_misc
+    assert "Misc" not in report.categories.keys()
 
 
 def test_property_views(report, views):

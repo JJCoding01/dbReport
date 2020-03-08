@@ -52,6 +52,21 @@ def report(db_connection):
 
 
 @pytest.fixture()
+def report_with_categories_with_misc(db_connection, views):
+    categories = {"cat1": views[0:3]}
+    report = Report(paths={"database": TEST_PATH, "report_dir": "."},
+                    categories=categories)
+    yield report
+
+
+@pytest.fixture()
+def report_with_categories_without_misc(db_connection, views):
+    report = Report(paths={"database": TEST_PATH, "report_dir": "."},
+                    categories={"cat1": views})
+    yield report
+
+
+@pytest.fixture()
 def rendered_reports(report):
     rendered = report.render(views=None, parse=False)
     yield rendered
