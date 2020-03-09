@@ -10,7 +10,7 @@ install:
 
 script:
   - make lint
-  - make tests
+  - make tests-ci
 
 after_success:
   - coveralls
