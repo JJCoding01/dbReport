@@ -41,7 +41,7 @@ def test_property_categories(report, views):
     assert len(categories) == 1, "Default category length should have one item"
     assert list(categories.keys())[0] == "Misc", "default category not 'Misc'"
     assert (
-            categories.get("Misc", []) == views
+            categories.get("Misc", []).sort() == views.sort()
     ), "default category does not have all views"
 
 
@@ -97,7 +97,7 @@ def test_categories_without_misc(report_with_categories_without_misc):
 
 
 def test_property_views(report, views):
-    assert report.views == views, "report views does not match expected"
+    assert report.views.sort() == views.sort(), "report views does not match expected"
 
 
 def test_property_views_read_only(report):
