@@ -1,12 +1,9 @@
-from datetime import datetime
+import os
 
 import pytest
 
 from dbreport.dbreport import Report
 
-
-def test_time(patch_datetime_now, datetime_constant):
-    assert datetime.now() == datetime_constant
 
 def test_all_views_are_rendered(rendered_reports, views):
     """Validate a report is generated for all views"""
@@ -140,7 +137,13 @@ def test_subset_views_are_rendered(report, views):
         assert view == key, "rendered report name does not match requested"
 
 
-def test_write(report, rendered_reports):
+def test_rendered_report_has_patched_date(rendered_reports, datetime_constant):
+    date_str = datetime_constant.strftime("%Y-%m-%dT%H:%M:%S")
+    for html in rendered_reports.values():
+        assert date_str in html
+
+
+def test_write(report, rendered_reports, datetime_constant):
     paths = [".", None]
     for path in paths:
         report.write(path)

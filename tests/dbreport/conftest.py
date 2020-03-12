@@ -14,14 +14,15 @@ def datetime_constant():
     yield datetime(2020, 1, 1, 0, 0, 0)  # 2020-01-01 00:00:00
 
 
-@pytest.fixture(autouse=False)
-def patch_datetime_now(monkeypatch, datetime_constant):
+@pytest.fixture()
+def patch_datetime(monkeypatch, datetime_constant):
     class mydatetime:
         @classmethod
         def now(cls):
             return datetime_constant
 
-    monkeypatch.setattr('test_dbreport.datetime', mydatetime)
+    monkeypatch.setattr("dbreport.dbreport.datetime", mydatetime)
+
 
 
 @pytest.fixture(scope="session")
@@ -83,7 +84,7 @@ def report_with_categories_without_misc(db_connection, views):
 
 
 @pytest.fixture()
-def rendered_reports(report):
+def rendered_reports(report, patch_datetime):
     rendered = report.render(views=None, parse=False)
     yield rendered
 
