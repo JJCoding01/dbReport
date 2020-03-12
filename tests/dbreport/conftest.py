@@ -1,11 +1,27 @@
 import os
 import sqlite3 as sq3
+from datetime import datetime
 
 import pytest
 
 from dbreport import Report
 from tests.data.db_setup import (DUMP_PATH, TEST_PATH, VIEW_DIR,
                                  add_views, load_dump)
+
+
+@pytest.fixture()
+def datetime_constant():
+    yield datetime(2020, 1, 1, 0, 0, 0)  # 2020-01-01 00:00:00
+
+
+@pytest.fixture(autouse=False)
+def patch_datetime_now(monkeypatch, datetime_constant):
+    class mydatetime:
+        @classmethod
+        def now(cls):
+            return datetime_constant
+
+    monkeypatch.setattr('test_dbreport.datetime', mydatetime)
 
 
 @pytest.fixture(scope="session")

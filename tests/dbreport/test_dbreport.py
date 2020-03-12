@@ -1,9 +1,12 @@
-import os
+from datetime import datetime
 
 import pytest
 
 from dbreport.dbreport import Report
 
+
+def test_time(patch_datetime_now, datetime_constant):
+    assert datetime.now() == datetime_constant
 
 def test_all_views_are_rendered(rendered_reports, views):
     """Validate a report is generated for all views"""
