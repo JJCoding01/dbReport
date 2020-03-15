@@ -20,7 +20,7 @@ def test_database_connection(db_connection):
         Report(paths={"database": "database_that_does_not_exist.db"})
 
 
-def test_init_with_non_existant_layout():
+def test_init_with_non_existent_layout():
     with pytest.raises(FileNotFoundError):
         Report("layout_that_does_not_exist.json")
 
@@ -62,7 +62,7 @@ def test_property_categories_invalid_key_not_list(report):
 
 def test_property_categories_invalid_not_dict(report):
     with pytest.raises(TypeError):
-        report.categories = 'not a dict'
+        report.categories = "not a dict"
 
 
 def test_property_categories_invalid_value_with_invalid_view(report):
@@ -97,7 +97,9 @@ def test_categories_without_misc(report_with_categories_without_misc):
 
 
 def test_property_views(report, views):
-    assert report.views.sort() == views.sort(), "report views does not match expected"
+    assert (
+            report.views.sort() == views.sort()
+    ), "report views does not match expected"
 
 
 def test_property_views_read_only(report):
