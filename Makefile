@@ -38,3 +38,6 @@ lint-tests:
 
 tests:
 	pytest --cov-report html --cov=$(PACKAGE_NAME) tests/$(PACKAGE_NAME)
+
+tests-ci:
+	pytest --cov-report html --cov=$(PACKAGE_NAME) tests/$(PACKAGE_NAME) -v

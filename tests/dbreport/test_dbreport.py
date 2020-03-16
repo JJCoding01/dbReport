@@ -20,7 +20,7 @@ def test_database_connection(db_connection):
         Report(paths={"database": "database_that_does_not_exist.db"})
 
 
-def test_init_with_non_existant_layout():
+def test_init_with_non_existent_layout():
     with pytest.raises(FileNotFoundError):
         Report("layout_that_does_not_exist.json")
 
@@ -41,7 +41,7 @@ def test_property_categories(report, views):
     assert len(categories) == 1, "Default category length should have one item"
     assert list(categories.keys())[0] == "Misc", "default category not 'Misc'"
     assert (
-            categories.get("Misc", []) == views
+            categories.get("Misc", []).sort() == views.sort()
     ), "default category does not have all views"
 
 
@@ -62,7 +62,7 @@ def test_property_categories_invalid_key_not_list(report):
 
 def test_property_categories_invalid_not_dict(report):
     with pytest.raises(TypeError):
-        report.categories = 'not a dict'
+        report.categories = "not a dict"
 
 
 def test_property_categories_invalid_value_with_invalid_view(report):
@@ -97,7 +97,9 @@ def test_categories_without_misc(report_with_categories_without_misc):
 
 
 def test_property_views(report, views):
-    assert report.views == views, "report views does not match expected"
+    assert (
+            report.views.sort() == views.sort()
+    ), "report views does not match expected"
 
 
 def test_property_views_read_only(report):
@@ -137,7 +139,13 @@ def test_subset_views_are_rendered(report, views):
         assert view == key, "rendered report name does not match requested"
 
 
-def test_write(report, rendered_reports):
+def test_rendered_report_has_patched_date(rendered_reports, datetime_constant):
+    date_str = datetime_constant.strftime("%Y-%m-%dT%H:%M:%S")
+    for html in rendered_reports.values():
+        assert date_str in html
+
+
+def test_write(report, rendered_reports, datetime_constant):
     paths = [".", None]
     for path in paths:
         report.write(path)
