@@ -17,10 +17,11 @@ each other.
    :maxdepth: 1
    :caption: Contents:
 
-   quick-start
    layout
    dbreport
    license
+
+.. include:: quick-start.md
 
 Indices and tables
 ==================
