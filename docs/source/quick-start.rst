@@ -1,5 +1,6 @@
+***********
 Quick Start
-============
+***********
 
 Installation
 ------------
@@ -27,9 +28,6 @@ Example Setup
 -------------
 Once *dbReport* has been installed, it can be used to start generating reports.
 
-Here is a minimal layout example that defines the paths to the database and
-a sub-directory where the reports should be generated. Use this sample layout
-file for the following examples.
 
 .. code-block:: json
 
