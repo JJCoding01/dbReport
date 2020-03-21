@@ -1,8 +1,8 @@
 Readme
 =======
 
-[![Build Status](https://travis-ci.org/josephjcontreras/dbReport.svg?branch=add-tests)](https://travis-ci.org/josephjcontreras/dbReport)
-[![Coverage Status](https://coveralls.io/repos/github/josephjcontreras/dbReport/badge.svg?branch=add-tests)](https://coveralls.io/github/josephjcontreras/dbReport?branch=add-tests)
+[![Build Status](https://travis-ci.org/josephjcontreras/dbReport.svg?branch=master)](https://travis-ci.org/josephjcontreras/dbReport)
+[![Coverage Status](https://coveralls.io/repos/github/josephjcontreras/dbReport/badge.svg?branch=master)](https://coveralls.io/github/josephjcontreras/dbReport?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/dbreport/badge/?version=latest)](https://dbreport.readthedocs.io/en/latest/?badge=latest)
 
 ## Description

@@ -372,7 +372,7 @@ class Report:
         Returns:
             :obj:`dict`: Rendered html of reports
 
-        .. versionchanged:: 0.4.0
+        .. versionchanged:: 0.3.3a1
             returns results; :obj:`parse` default was :obj:`True`
         """
         if isinstance(views, str):
@@ -408,7 +408,7 @@ class Report:
         Raises:
             :obj:`NotADirectoryError`: When report path does not exist
 
-        .. versionadded:: 0.4.0
+        .. versionadded:: 0.3.3a1
         """
 
         if report_dir is None:

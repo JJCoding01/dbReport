@@ -1,6 +1,6 @@
 # Change Log
 
-## v0.4.0a1
+## v0.3.3a1
  - Added tests and added CI on Travis
  - Added `Report.write` to write rendered output to files
  
