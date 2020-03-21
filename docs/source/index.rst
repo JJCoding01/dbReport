@@ -3,8 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+##########################
 dbReport's Documentation
-====================================
+##########################
 
 The dbReport package will generate HTML reports from a sqlite database.
 It uses views defined in the database to collect the data for the reports, and
