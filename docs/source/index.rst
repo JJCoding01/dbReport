@@ -22,10 +22,3 @@ each other.
    license
 
 .. include:: quick-start.md
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
