@@ -1,2 +1,7 @@
+"""Generator for SQLite database"""
 from .dbreport import Report
-from .cli import cli
+
+__version__ = "0.3.3a1"
+__author__ = "Joseph Contreras Jr."
+__license__ = "MIT"
+__copyright__ = "Copyright 2018 Joseph Contreras Jr."

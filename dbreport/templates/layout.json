@@ -1,6 +1,6 @@
 {
 "categories": {},
-"ignore_views": [""],
+  "ignore_views": [],
 "paths": {
   "database": "",
   "template": "templates/base.html.j2",
@@ -10,9 +10,7 @@
     "templates/javascript/multifilter/multifilter.js",
     "templates/javascript/tablesorter/jquery.tablesorter.js"
   ],
-  "sql": "templates/sql",
-  "report_dir": "reports",
-  "search_paths": ""
+  "report_dir": "reports"
     },
 "titles": {},
 "captions": {},

@@ -29,7 +29,6 @@ release = '0.3.3dev'
 # errors when building on RTD
 master_doc = 'index'
 
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
