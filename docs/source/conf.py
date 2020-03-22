@@ -23,7 +23,7 @@ copyright = '2019, Joseph Contreras'
 author = 'Joseph Contreras'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3.3dev'
+release = '0.3.3a1'
 
 # add this to specifically use index.rst rather then contents.rst to avoid
 # errors when building on RTD
@@ -63,6 +63,3 @@ pygments_style = 'sphinx'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-
-# The master toctree document.
-master_doc = 'index'
