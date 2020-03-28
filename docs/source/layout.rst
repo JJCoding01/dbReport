@@ -1,5 +1,8 @@
+
 Layout Configuration
 ====================
+
+.. contents::
 
 The layout file defines how the reports are generated, the database that should
 be queried, aliases, and other options for rendering. It can also be used to
