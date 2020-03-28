@@ -10,7 +10,7 @@ dbReport's Documentation
 The dbReport package will generate HTML reports from a sqlite database.
 It uses views defined in the database to collect the data for the reports, and
 a JSON file to configure how the reports are generated and related to
-each other.
+each other. The project can be found on `github <https://github.com/josephjcontreras/dbReport/>`_
 
 
 .. toctree::
