@@ -54,6 +54,31 @@ class Report:
 
     @property
     def categories(self):
+        """
+        Categories for reports
+
+        The categories is a dictionary defining the menu and the items in the
+        menus on each report. This is useful for categorizing the reports
+        together.
+
+        Each key is the menu name, how it should appear in the report. The
+        values for the key is a list of view names, (note it should be the
+        view name, not the alias or title) to be under that heading.
+        The name that will appear in the rendered report is the title for
+        that report, if one is given.
+
+        A view name can be under multiple menus.
+
+        If a view name does not appear under any menus, it will be
+        automatically included in a Misc menu item.
+        Unless it is listed in  `ignore`.
+
+        Raises:
+            ValueError: when an item is not in `views`
+            TypeError: when setting value that is not a :obj:`dict`
+            TypeError: when key is not of type :obj:`str`
+            Typeerror: when value is not of type :obj:`list`
+        """
         return self.__categories
 
     @categories.setter
