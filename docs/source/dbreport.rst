@@ -1,13 +1,9 @@
 dbReport Package
 =================
 
-This section will go into details on how each module should be called.
-
-.. toctree::
-
-   dbReport <dbreport.dbreport>
-
-.. automodule:: dbreport
+.. automodule:: dbreport.dbreport
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
+
