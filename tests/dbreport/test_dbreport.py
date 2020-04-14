@@ -158,3 +158,12 @@ def test_write(report, rendered_reports, datetime_constant):
 def test_write_invalid_report_path(report):
     with pytest.raises(NotADirectoryError):
         report.write("not_a_directory")
+
+
+def test_layout_ignore_views(report_from_layout):
+    report, layout = report_from_layout
+    reports = report.render()
+    ignore_view = 'popularArtists'
+    assert (
+            ignore_view not in reports.keys()
+    ), f"ignored view '{ignore_view}' was still rendered"

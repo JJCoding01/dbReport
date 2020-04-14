@@ -27,14 +27,15 @@ class Report:
     def __init__(self, layout_path=None, **kwargs):
         if layout_path is not None and len(kwargs) > 0:
             raise ValueError("cannot have both layout path and kwargs")
-        self.ignore = kwargs.get("ignore_views", [])
         self.layout = self.__get_layout(layout_path, kwargs)
         self.paths = self.layout["paths"]
         if not os.path.exists(self.paths["database"]):
             msg = f"database '{self.paths['database']}' does not exist"
             raise FileNotFoundError(msg)
         self.cursor = sq3.connect(self.paths["database"]).cursor()
-        self.__views = self.views
+        self.ignore = kwargs.get(
+            "ignore_views", self.layout.get("ignore_views", [])
+        )
         self.categories = self.__get_categories()
         self.env = Environment(
             trim_blocks=True,
@@ -126,7 +127,7 @@ class Report:
     def ignore(self, values):
 
         for value in values:
-            if value not in self.views:
+            if value not in self.__get_views():
                 raise ValueError(
                     f"Cannot update ignore list since '{value}' "
                     f"is not a view"
@@ -141,24 +142,44 @@ class Report:
     def paths(self, paths):
         self.__paths = paths
 
-    @property
-    def views(self):
-        """list of views in the database"""
+    def __get_views(self):
+        """
+        Returns list of all views
+
+        Function to return a list of all views from the database. This does
+        not take into account the ignored views.
+
+        Returns
+            `obj:list`: list of views from database
+        """
+        try:
+            return self.__all_views
+        except AttributeError:
+            # the views have not been retrieved from the database yet.
+            pass
+
+        # fetch all database views from the database
         sql = """SELECT name
                  FROM sqlite_master
                  WHERE TYPE = "view"
                  ORDER BY name"""
         data = self.cursor.execute(sql)
-        self.__views = [view[0] for view in data]
+        self.__all_views = [view[0] for view in data]
+        return self.__all_views
 
-        # Remove any views that are in the ignore list in the layout
-        # file
-        for ignore_view in self.ignore:
-            # note, since the ignore property will throw an error whenever a
-            # view that does not exist in the views property, it is guaranteed
-            # that the ignored view will be in views
-            self.__views.remove(ignore_view)
-        return self.__views
+    @property
+    def views(self):
+        """List of views to be rendered
+
+        This will include all the views defined in the database, without the
+        views specified by the `ignore_views` key.
+
+        Returns
+            `obj:list`: list of views to be rendered.
+        """
+
+        # Filter out any views that are in the ignore list
+        return [v for v in self.__get_views() if v not in self.ignore]
 
     def __set_defaults(self, default_layout, user_layout):
         """

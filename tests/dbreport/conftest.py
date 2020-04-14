@@ -1,3 +1,4 @@
+import json
 import os
 import sqlite3 as sq3
 from datetime import datetime
@@ -22,7 +23,6 @@ def patch_datetime(monkeypatch, datetime_constant):
             return datetime_constant
 
     monkeypatch.setattr("dbreport.dbreport.datetime", mydatetime)
-
 
 
 @pytest.fixture(scope="session")
@@ -113,3 +113,22 @@ def get_columns(*args, **kwargs):
         return cols
 
     return columns
+
+
+@pytest.fixture(scope="session")
+def report_from_layout(db_connection):
+    """
+    create layout file and yield the path
+
+    Delete the file on clean-up
+    """
+    path = os.path.abspath(os.path.join(".", "layout.json"))
+    layout = {
+        "paths": {"database": TEST_PATH, "report_dir": "."},
+        "ignore_views": ["popularArtists"],
+    }
+    with open(path, "w") as f:
+        f.write(json.dumps(layout))
+    report = Report(path)
+    yield report, layout
+    os.remove(path)
