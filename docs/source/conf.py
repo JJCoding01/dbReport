@@ -23,7 +23,7 @@ copyright = '2019, Joseph Contreras'
 author = 'Joseph Contreras'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3.3a1'
+release = '0.3.3a2'
 
 # add this to specifically use index.rst rather then contents.rst to avoid
 # errors when building on RTD

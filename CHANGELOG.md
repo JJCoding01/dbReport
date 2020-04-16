@@ -1,5 +1,9 @@
 # Change Log
 
+## v0.3.3a2
+ - Corrected bug where views listed in the `ignore_views` key from layout file 
+   were still getting rendered 
+
 ## v0.3.3a1
  - Added tests and added CI on Travis
  - Added `Report.write` to write rendered output to files
