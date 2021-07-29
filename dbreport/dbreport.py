@@ -7,6 +7,7 @@ import json
 import os
 import sqlite3 as sq3
 from datetime import datetime
+from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -222,21 +223,22 @@ class Report:
                 layout_paths[key] = []
                 for path in input_paths[key]:
                     dirs = path.split(os.pathsep)
-                    layout_paths[key].append(
-                        os.path.abspath(os.path.join(base_path, *dirs))
-                    )
+                    full_path = os.path.abspath(os.path.join(base_path, *dirs))
+                    unc_path = Path(full_path).resolve()
+                    layout_paths[key].append(unc_path)
                 continue
 
             dirs = input_paths[key].split(os.pathsep)
             full_path = os.path.abspath(os.path.join(base_path, *dirs))
+            unc_path = Path(full_path).resolve()
 
             layout_paths.setdefault(key, full_path)
-            if os.path.isdir(full_path) and key != "report_dir":
+            if os.path.isdir(unc_path) and key != "report_dir":
                 files = []
-                for file in os.listdir(full_path):
-                    files.append(os.path.join(full_path, file))
+                for file in os.listdir(unc_path):
+                    files.append(os.path.join(unc_path, file))
                 if not files:
-                    layout_paths[key] = full_path
+                    layout_paths[key] = unc_path
                 else:
                     layout_paths[key] = files
         return layout_paths
