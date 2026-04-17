@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dbreport"
+version = "0.3.3a2"
+description = "Generate html reports of views in a sqlite3 database"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Joseph Contreras", email = "26684136+JosephJContreras@users.noreply.github.com" }]
+keywords = ["report", "sqlite", "sqlite3", "html"]
+classifiers = ["Development Status :: 3 - Alpha"]
+requires-python = ">=3.8"
+dependencies = ["jinja2"]
+
+[project.urls]
+Homepage = "https://dbreport.readthedocs.io/en/latest/index.html"
+
+[project.scripts]
+report = "dbreport:cli"
+
+[project.optional-dependencies]
+dev = [
+    "beautifulsoup4==4.12.3",
+    "black==25.1.0",
+    "isort==5.13.2",
+    "pylint==3.3.4",
+    "pytest-cov==6.0.0",
+    "pytest==8.3.4",
+    "sphinx==8.1.3",
+    "text-unidecode",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+dbreport = [
+    "templates/*",
+    "templates/SQL/*",
+    "templates/css/*.css",
+    "templates/javascript/multifilter/*.js",
+    "templates/javascript/tablesorter/*.js",
+    "templates/javascript/jquery-timeago/*.js",
+]
+"*" = ["License.txt"]
+
+[tool.isort]
+balanced_wrapping = true
+order_by_type = true
+verbose = true
+
+[tool.black]
+line-length = 79
