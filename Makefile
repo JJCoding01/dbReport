@@ -25,6 +25,8 @@ export-db:
 
 install:
 	pip install -e ".[dev]"
+	git submodule init
+	git submodule update
 
 lint:
 	black $(PACKAGE_NAME) --line-length=79
