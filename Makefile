@@ -24,7 +24,7 @@ export-db:
 	python tests\data\db_setup.py "create-dump"
 
 install:
-	python setup.py install
+	pip install -e ".[dev]"
 
 lint:
 	black $(PACKAGE_NAME) --line-length=79
