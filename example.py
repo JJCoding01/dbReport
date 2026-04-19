@@ -74,10 +74,6 @@ def example_simple():
     # 2.1 or you can access the rendered html as text using
     # rendered_reports = report.render()
 
-    # 3. Open first report in default application for html (hopefully it's
-    # a browser. If not, you probably know how to open it in one.)
-    os.system(os.path.join(REPORTS_DIR, "listEmployees.html"))
-
 
 def example_parse():
     """
@@ -98,10 +94,6 @@ def example_parse():
 
     # 2.1 or you can access the rendered html as text using
     # rendered_reports = report.render(parse=True)
-
-    # 3. Open first report in default application for html (hopefully it's
-    # a browser. If not, you probably know how to open it in one.)
-    os.system(os.path.join(REPORTS_DIR, "listEmployees.html"))
 
 
 def example_categories():
@@ -136,21 +128,10 @@ def example_categories():
     # 2.1 or you can access the rendered html as text using
     # rendered_reports = report.render()
 
-    # 3. Open first report in default application for html (hopefully it's
-    # a browser. If not, you probably know how to open it in one.)
-    os.system(os.path.join(REPORTS_DIR, "listEmployees.html"))
-
 
 if __name__ == "__main__":
-    args = sys.argv[1]
-    print(f"attempting to create '{args}' example...")
-    if args == "simple":
-        example_simple()
-    elif args == "parse":
-        example_parse()
-    elif args == "category":
-        example_categories()
-    else:
-        print(f"example '{args}' not found")
-        sys.exit(1)
-    print(f"completed running '{args}' example")
+    # example_simple()
+    # example_parse()
+    example_categories()
+
+    # os.system(os.path.join(REPORTS_DIR, "listEmployees.html"))
