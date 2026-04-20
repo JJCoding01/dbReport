@@ -25,6 +25,7 @@ export-db:
 
 install:
 	pip install -e ".[dev]"
+	pre-commit install
 	git submodule init
 	git submodule update
 
