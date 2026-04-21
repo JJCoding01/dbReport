@@ -11,6 +11,7 @@ import json
 import os
 import shutil
 import sqlite3 as sq3
+
 from datetime import datetime
 
 from bs4 import BeautifulSoup
@@ -49,9 +50,7 @@ class Report:
         # initialize __all_views, must before self.categories and self.ignore
         self.__all_views = None
 
-        self.ignore = kwargs.get(
-            "ignore_views", self.layout.get("ignore_views", [])
-        )
+        self.ignore = kwargs.get("ignore_views", self.layout.get("ignore_views", []))
         self.categories = self.__get_categories()
         self.env = Environment(
             trim_blocks=True,
@@ -284,9 +283,7 @@ class Report:
             if value == "" or isinstance(value, list):
                 layout_paths[key] = value
             else:
-                layout_paths[key] = os.path.abspath(
-                    os.path.join(base_path, value)
-                )
+                layout_paths[key] = os.path.abspath(os.path.join(base_path, value))
         return layout_paths
 
     def __get_layout(self, user_path, kwargs):
@@ -518,9 +515,7 @@ class Report:
         rows = data.get(view_name, [])
 
         # Get the template for reports and render
-        html = self.env.get_template(
-            os.path.basename(self.paths["template"])
-        ).render(
+        html = self.env.get_template(os.path.basename(self.paths["template"])).render(
             title=title,
             description=description,
             categories=categories,
@@ -591,9 +586,7 @@ class Report:
                 "jquery-timeago",
                 "jquery.timeago.js",
             ),
-            os.path.join(
-                pkg_templates, "javascript", "multifilter", "multifilter.js"
-            ),
+            os.path.join(pkg_templates, "javascript", "multifilter", "multifilter.js"),
             os.path.join(
                 pkg_templates,
                 "javascript",
@@ -696,6 +689,4 @@ class Report:
                 generated hyperlink for that value is directed to.
         """
 
-        raise NotImplementedError(
-            "parse function must be overloaded before use"
-        )
+        raise NotImplementedError("parse function must be overloaded before use")
