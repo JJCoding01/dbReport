@@ -4,11 +4,15 @@
 "paths": {
   "database": "",
   "template": "templates/base.html.j2",
-  "css_styles": "templates/css",
+  "css_styles": [
+    "static/css/color-theme.css",
+    "static/css/navigation-bar-styles.css",
+    "static/css/styles.css"
+  ],
   "javascript": [
-    "templates/javascript/jquery-timeago/jquery.timeago.js",
-    "templates/javascript/multifilter/multifilter.js",
-    "templates/javascript/tablesorter/jquery.tablesorter.js"
+    "static/javascript/jquery.timeago.js",
+    "static/javascript/multifilter.js",
+    "static/javascript/jquery.tablesorter.js"
   ],
   "report_dir": "reports"
     },
