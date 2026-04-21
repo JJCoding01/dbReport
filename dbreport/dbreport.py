@@ -508,7 +508,7 @@ class Report:
             titles = map_names.get(view_names, view_names)
         return titles
 
-    def __render_report(self, view_name, data, parse=False, asset_paths=None):
+    def __render_report(self, view_name, data, parse=False):
         """
         Render the Jinja2 template for a single view and return prettified HTML.
 
@@ -518,9 +518,6 @@ class Report:
                 returned by :meth:`__get_data`.
             parse (:obj:`bool`): When :obj:`True`, passes ``data`` through
                 :meth:`parse` before rendering. Defaults to :obj:`False`.
-            asset_paths (:obj:`dict` | :obj:`None`): Dict with ``css_styles``
-                and ``javascript`` keys. Defaults to :obj:`None`, which uses
-                ``self.paths``.
 
         Returns:
             :obj:`str`: Prettified HTML string for the rendered view.
