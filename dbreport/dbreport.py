@@ -45,7 +45,8 @@ class Report:
         if not os.path.exists(self.paths["database"]):
             msg = f"database '{self.paths['database']}' does not exist"
             raise FileNotFoundError(msg)
-        self.cursor = sq3.connect(self.paths["database"]).cursor()
+        self.conn = sq3.connect(self.paths["database"])
+        self.cursor = self.conn.cursor()
 
         # initialize __all_views, must before self.categories and self.ignore
         self.__all_views = None
@@ -63,8 +64,15 @@ class Report:
         """
         Deconstruct method to disconnect/close database connection
         """
+        self.close()
+
+    def close(self):
+        """Close the database cursor and connection."""
         try:
             self.cursor.close()
+            self.conn.close()
+            self.cursor = None
+            self.conn = None
         except AttributeError:
             pass
 

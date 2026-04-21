@@ -66,6 +66,7 @@ def db_no_views():
 def report(db_connection):
     report = Report(paths={"database": TEST_PATH, "report_dir": "."})
     yield report
+    report.close()
 
 
 @pytest.fixture()
@@ -75,6 +76,7 @@ def report_with_categories_with_misc(db_connection, views):
         paths={"database": TEST_PATH, "report_dir": "."}, categories=categories
     )
     yield report
+    report.close()
 
 
 @pytest.fixture()
@@ -84,6 +86,7 @@ def report_with_categories_without_misc(db_connection, views):
         categories={"cat1": views},
     )
     yield report
+    report.close()
 
 
 @pytest.fixture()
@@ -131,4 +134,5 @@ def report_from_layout(db_connection):
         f.write(json.dumps(layout))
     report = Report(path)
     yield report, layout
+    report.close()
     os.remove(path)

@@ -32,11 +32,14 @@ def extract_dump(db_path, dump_path):
     dump_path: str: path to the dump file to be saved
     """
 
-    with sq3.connect(db_path) as conn:
+    conn = sq3.connect(db_path)
+    try:
         with open(dump_path, "w", newline="") as f:
             # noinspection PyTypeChecker
             for line in conn.iterdump():
                 f.write(unidecode(line))
+    finally:
+        conn.close()
 
 
 def load_dump(db_path, dump_path):
@@ -60,12 +63,16 @@ def load_dump(db_path, dump_path):
     with open(dump_path, "r") as f:
         sql = f.read()
 
-    with sq3.connect(db_path) as cursor:
+    conn = sq3.connect(db_path)
+    try:
         try:
-            cursor.executescript(sql)
+            conn.executescript(sql)
         except sq3.OperationalError:
             # most likely cause is the table already exists
             pass
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def add_views(db_path, view_dir):
