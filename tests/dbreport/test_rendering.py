@@ -36,15 +36,13 @@ def test_categories_with_misc():
 
     for v, html in rendered.items():
         soup = BeautifulSoup(html, features="html.parser")
-        buttons = soup.find_all(
-            "button", class_="dropbtn theme-d5 hover-theme"
-        )
+        buttons = soup.find_all("button", class_="dropbtn theme-d5 hover-theme")
 
         # compare the length of rendered categories and input categories. The
         # rendered categories should be one more than the input categories
         # since it will have the automatically added Misc category
         assert (
-                len(categories) == len(buttons) - 1
+            len(categories) == len(buttons) - 1
         ), "number of rendered categories does not match input categories"
 
         for category, button in zip(categories, buttons):
@@ -58,12 +56,10 @@ def test_content_filters(rendered_reports, db_connection, get_columns):
         soup = BeautifulSoup(rendered_reports[r], features="html.parser")
         columns = get_columns(db_connection, r)
         tags = soup.find_all("input")
-        assert len(tags) == len(
-            columns
-        ), "different number of filters and columns"
+        assert len(tags) == len(columns), "different number of filters and columns"
         for tag in tags:
             assert (
-                    tag["id"] in columns
+                tag["id"] in columns
             ), f"missing id value '{tag['id']}' in filter inputs"
 
 

@@ -1,13 +1,13 @@
 import json
 import os
 import sqlite3 as sq3
+
 from datetime import datetime
 
 import pytest
 
 from dbreport import Report
-from tests.data.db_setup import (DUMP_PATH, TEST_PATH, VIEW_DIR,
-                                 add_views, load_dump)
+from tests.data.db_setup import add_views, DUMP_PATH, load_dump, TEST_PATH, VIEW_DIR
 
 
 @pytest.fixture()
