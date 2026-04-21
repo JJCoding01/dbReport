@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang = "en-US">
+<html lang="en-US">
 <head>
-    <meta charset = "UTF-8">
+    <meta charset="UTF-8">
 
     <title>{{title}}</title>
+
     <!--link to css files-->
     {% for style in css_styles %}
-    <link rel = "stylesheet" type = "text/css" href = "{{style}}"></link>
+    <link rel="stylesheet" type="text/css" href="{{style}}"/>
     {% endfor %}
 
     <!--connect to jquery engine to run plug-ins-->
@@ -39,7 +40,7 @@
                 <button class="dropbtn theme-d5 hover-theme">{{category}}</button>
                 <div class="dropdown-content">
                 {% for k in range(categories[category][0]|length) %}
-                    <a class=" theme-d4 hover-theme" href="{{categories[category][1][k]}}">{{categories[category][0][k]}}</a>
+                    <a class="theme-d4 hover-theme" href="{{categories[category][1][k]}}">{{categories[category][0][k]}}</a>
                 {% endfor %}
                 </div>
             </div>
@@ -48,7 +49,7 @@
         <h2 class="header2">Description</h2>
         <p class="description">{{description}}</p>
         <form class="filter-form">
-            <fieldset class=filter-group>
+            <fieldset class="filter-group">
                 <legend class="filter-legend">Filters</legend>
                 {% for header in headers %}
                 <div class="filter-container">
@@ -92,7 +93,7 @@
     </div>
     <footer id="footer" class="theme-d5">
         <p class="right">Last updated: {{updated}}<br>
-        <time class="timeago" datetime={{updated}} title="{{updated}}"></time>
+        <time class="timeago" datetime="{{updated}}" title="{{updated}}"></time>
           </p>
     </footer>
 </body>
