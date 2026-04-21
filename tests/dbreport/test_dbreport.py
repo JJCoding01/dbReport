@@ -87,13 +87,13 @@ def test_property_category_without_misc(report, views):
 
 
 def test_categories_with_misc(report_with_categories_with_misc):
-    report = report_with_categories_with_misc
-    assert "Misc" in report.categories.keys()
+    report_ = report_with_categories_with_misc
+    assert "Misc" in report_.categories.keys()
 
 
 def test_categories_without_misc(report_with_categories_without_misc):
-    report = report_with_categories_without_misc
-    assert "Misc" not in report.categories.keys()
+    report_ = report_with_categories_without_misc
+    assert "Misc" not in report_.categories.keys()
 
 
 def test_property_views(report, views):
