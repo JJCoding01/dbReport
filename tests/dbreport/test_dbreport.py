@@ -11,7 +11,7 @@ def test_all_views_are_rendered(rendered_reports, views):
     rendered_view_names = list(rendered_reports.keys())
     for view_name in views:
         assert (
-                view_name in rendered_view_names
+            view_name in rendered_view_names
         ), f"missing view '{view_name}' in rendered views"
 
 
@@ -41,7 +41,7 @@ def test_property_categories(report, views):
     assert len(categories) == 1, "Default category length should have one item"
     assert list(categories.keys())[0] == "Misc", "default category not 'Misc'"
     assert (
-            categories.get("Misc", []).sort() == views.sort()
+        categories.get("Misc", []).sort() == views.sort()
     ), "default category does not have all views"
 
 
@@ -97,9 +97,7 @@ def test_categories_without_misc(report_with_categories_without_misc):
 
 
 def test_property_views(report, views):
-    assert (
-            report.views.sort() == views.sort()
-    ), "report views does not match expected"
+    assert report.views.sort() == views.sort(), "report views does not match expected"
 
 
 def test_property_views_read_only(report):
@@ -127,7 +125,7 @@ def test_render_single_view_name_as_string(report, views):
     # render a single view given the name as a string
     reports = report.render(views=views[0], parse=False)
     assert (
-            views[0] == list(reports.keys())[0]
+        views[0] == list(reports.keys())[0]
     ), "rendered report does not match requested"
 
 
@@ -163,7 +161,7 @@ def test_write_invalid_report_path(report):
 def test_layout_ignore_views(report_from_layout):
     report, layout = report_from_layout
     reports = report.render()
-    ignore_view = 'popularArtists'
+    ignore_view = "popularArtists"
     assert (
-            ignore_view not in reports.keys()
+        ignore_view not in reports.keys()
     ), f"ignored view '{ignore_view}' was still rendered"
