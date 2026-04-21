@@ -18,7 +18,7 @@ def test_captions(db_connection, views):
         soup = BeautifulSoup(html, features="html.parser")
         caption = soup.find("caption")
         assert (
-                caption.text == f"caption for view {view}"
+            caption.get_text(strip=True) == f"caption for view {view}"
         ), "caption does match expected value"
 
 
@@ -48,8 +48,8 @@ def test_categories_with_misc():
         ), "number of rendered categories does not match input categories"
 
         for category, button in zip(categories, buttons):
-            assert (
-                    category == button.text
+            assert category == button.get_text(
+                strip=True
             ), "input category does not match rendered category"
 
 
@@ -70,7 +70,9 @@ def test_content_filters(rendered_reports, db_connection, get_columns):
 def test_content_title(rendered_reports):
     for r in rendered_reports:
         soup = BeautifulSoup(rendered_reports[r], features="html.parser")
-        assert soup.title.text == r, "title text not found in rendered report"
+        assert (
+            soup.title.get_text(strip=True) == r
+        ), "title text not found in rendered report"
 
 
 def test_descriptions(db_connection, views):
@@ -83,7 +85,7 @@ def test_descriptions(db_connection, views):
     for view, html in rendered.items():
         soup = BeautifulSoup(html, features="html.parser")
         description_tag = soup.find("p", class_="description")
-        assert description_tag.text == description.format(
+        assert description_tag.get_text(strip=True) == description.format(
             view
         ), "descriptions do not match"
 
@@ -97,4 +99,6 @@ def test_titles(db_connection, views):
     for view, html in rendered.items():
         soup = BeautifulSoup(html, features="html.parser")
         title = soup.find("title")
-        assert title.text == view.upper(), "title does match expected value"
+        assert (
+            title.get_text(strip=True) == view.upper()
+        ), "title does match expected value"
