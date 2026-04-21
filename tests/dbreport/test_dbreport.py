@@ -167,8 +167,8 @@ def test_write_invalid_report_path(report):
 
 
 def test_layout_ignore_views(report_from_layout):
-    report, layout = report_from_layout
-    reports = report.render()
+    report_, layout = report_from_layout
+    reports = report_.render()
     ignore_view = "popularArtists"
     assert (
         ignore_view not in reports.keys()
