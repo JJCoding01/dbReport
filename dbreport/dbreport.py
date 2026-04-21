@@ -46,6 +46,9 @@ class Report:
         self.ignore = kwargs.get(
             "ignore_views", self.layout.get("ignore_views", [])
         )
+
+        self.__all_views = None  # initialize, must before self.categories
+
         self.categories = self.__get_categories()
         self.env = Environment(
             trim_blocks=True,
@@ -204,11 +207,11 @@ class Report:
         Returns
             `obj:list`: list of views from database
         """
-        try:
+        if self.__all_views is not None:
+            # the views have already been extracted from the database
             return self.__all_views
-        except AttributeError:
-            # the views have not been retrieved from the database yet.
-            pass
+
+        # the views have not been retrieved from the database yet.
 
         # fetch all database views from the database
         sql = """SELECT name
