@@ -9,6 +9,7 @@ layout configuration, call :meth:`Report.render` to get HTML strings, or
 import copy
 import json
 import os
+import shutil
 import sqlite3 as sq3
 from datetime import datetime
 
@@ -562,6 +563,53 @@ class Report:
             html = self.__render_report(view, data, parse)
             reports.setdefault(view, html)
         return reports
+
+    def copy_assets(self, report_dir=None):
+        """
+        Copy the built-in CSS and JavaScript assets from the package templates
+        into ``<report_dir>/static/css/`` and
+        ``<report_dir>/static/javascript/``.
+
+        Call this once to bootstrap the static folder that your rendered reports
+        expect. The ``write`` method no longer copies assets automatically.
+
+        Parameters:
+            report_dir (:obj:`str` | :obj:`None`): Root directory where the
+                ``static/`` tree will be created. Defaults to :obj:`None`,
+                which uses the path from the layout.
+        """
+        if report_dir is None:
+            report_dir = self.paths["report_dir"]
+
+        pkg_templates = os.path.join(os.path.dirname(__file__), "templates")
+        css_src = os.path.join(pkg_templates, "css")
+        js_srcs = [
+            os.path.join(
+                pkg_templates,
+                "javascript",
+                "jquery-timeago",
+                "jquery.timeago.js",
+            ),
+            os.path.join(
+                pkg_templates, "javascript", "multifilter", "multifilter.js"
+            ),
+            os.path.join(
+                pkg_templates,
+                "javascript",
+                "tablesorter",
+                "jquery.tablesorter.js",
+            ),
+        ]
+
+        css_out = os.path.join(report_dir, "static", "css")
+        js_out = os.path.join(report_dir, "static", "javascript")
+        os.makedirs(css_out, exist_ok=True)
+        os.makedirs(js_out, exist_ok=True)
+
+        for filename in os.listdir(css_src):
+            shutil.copy2(os.path.join(css_src, filename), css_out)
+        for src in js_srcs:
+            shutil.copy2(src, js_out)
 
     def write(self, report_dir=None, **kwargs):
         """
