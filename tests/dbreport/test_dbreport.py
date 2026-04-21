@@ -143,14 +143,22 @@ def test_rendered_report_has_patched_date(rendered_reports, datetime_constant):
         assert date_str in html
 
 
-def test_write(report, rendered_reports, datetime_constant):
-    paths = [".", None]
-    for path in paths:
-        report.write(path)
-        for view, html in rendered_reports.items():
-            with open(f"{view}.html", "r") as f:
-                assert html == f.read(), f"failed for path: {path}"
-            os.remove(f"{view}.html")
+@pytest.mark.parametrize("path", [".", None])
+def test_write(report, rendered_reports, datetime_constant, path):
+    """write() writes one HTML file per view and returns a dict matching render()."""
+
+    result = report.write(path)
+
+    # assert that the returned result is a dictionary with keys that match the
+    # results of `render()`
+    assert isinstance(result, dict)
+    assert set(result.keys()) == set(rendered_reports.keys())
+
+    # check that the files were actually written to disk
+    for view, html in rendered_reports.items():
+        with open(f"{view}.html", "r") as f:
+            assert html == f.read(), f"failed for path: {path}"
+        os.remove(f"{view}.html")
 
 
 def test_write_invalid_report_path(report):
