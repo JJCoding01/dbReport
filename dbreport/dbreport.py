@@ -624,7 +624,7 @@ class Report:
                 function.
 
         Returns:
-            :obj:`None`: No return value
+            :obj:`dict`: Rendered html of reports (same as :meth:`render`)
 
         Raises:
             :obj:`NotADirectoryError`: When report path does not exist
@@ -644,6 +644,8 @@ class Report:
             filename = os.path.join(report_dir, f"{view}.html")
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(html)
+
+        return rendered_reports
 
     def parse(self, data):
         """
