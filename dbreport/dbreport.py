@@ -1,5 +1,9 @@
 """
-This module will will generate HTML reports for the views in a sqlite database.
+Generate HTML reports for the views in a SQLite database.
+
+The :class:`Report` class is the primary interface: instantiate it with a
+layout configuration, call :meth:`Report.render` to get HTML strings, or
+:meth:`Report.write` to write them directly to disk.
 """
 
 import copy
@@ -13,15 +17,21 @@ from jinja2 import Environment, FileSystemLoader
 
 class Report:
     """
-    The Report will handle querying the database and generating the reports
+    Query a SQLite database and generate sortable, filterable HTML reports.
+
+    Configuration is supplied either as a path to a JSON layout file or as
+    keyword arguments whose names match the top-level keys of
+    ``dbreport/templates/layout.json`` (e.g. ``paths``, ``categories``,
+    ``titles``, ``captions``, ``descriptions``, ``ignore_views``).
 
     Parameters:
         layout_path (:obj:`str` | :obj:`None`):
-            path to the layout file, or :obj:`None` when using kwargs
-        kwargs: Any keyword argument defined in the layout configuration
+            Path to a JSON layout file, or :obj:`None` when using kwargs.
+        kwargs: Any keyword argument defined in the layout configuration.
 
     Raises:
-        ValueError: When both :obj:`layout_path` and :obj:`kwargs` defined
+        ValueError: When both ``layout_path`` and keyword arguments are given.
+        FileNotFoundError: When the database path does not exist.
     """
 
     def __init__(self, layout_path=None, **kwargs):
@@ -84,7 +94,21 @@ class Report:
 
     @categories.setter
     def categories(self, categories):
+        """
+        Set the categories mapping used to build the navigation bar.
 
+        Parameters:
+            categories (:obj:`dict`): Mapping of menu name (:obj:`str`) to a
+                list of view names (:obj:`list` of :obj:`str`). Each view name
+                must correspond to an existing database view.
+
+        Raises:
+            TypeError: When ``categories`` is not a :obj:`dict`.
+            TypeError: When any key is not a :obj:`str`.
+            TypeError: When any value is not a :obj:`list`.
+            ValueError: When any view name in a list does not exist in the
+                database.
+        """
         if not isinstance(categories, dict):
             raise TypeError("categories must be a dict")
 
@@ -125,7 +149,18 @@ class Report:
 
     @ignore.setter
     def ignore(self, values):
+        """
+        Set the list of view names to exclude from all reports and menus.
 
+        Parameters:
+            values (:obj:`list` | :obj:`tuple`): Iterable of view name strings
+                to ignore. Every name must correspond to an existing database
+                view.
+
+        Raises:
+            ValueError: When any name in ``values`` is not a known database
+                view.
+        """
         for value in values:
             if value not in self.__get_views():
                 raise ValueError(
@@ -136,10 +171,27 @@ class Report:
 
     @property
     def paths(self):
+        """
+        Resolved absolute paths used by this report instance.
+
+        Returns:
+            :obj:`dict`: Mapping with at minimum the keys ``database``
+            (path to the ``.db`` file), ``report_dir`` (output directory),
+            ``template`` (path to the Jinja2 template), ``css_styles``
+            (list of CSS file paths), and ``javascript`` (list of JS file
+            paths).
+        """
         return self.__paths
 
     @paths.setter
     def paths(self, paths):
+        """
+        Replace the paths dictionary.
+
+        Parameters:
+            paths (:obj:`dict`): New paths mapping. Merges into or replaces
+                the current ``paths`` dict used by this instance.
+        """
         self.__paths = paths
 
     def __get_views(self):
@@ -183,14 +235,21 @@ class Report:
 
     def __set_defaults(self, default_layout, user_layout):
         """
-        Set the values in the user_layout to override the defaults
+        Merge defaults into user layout, preserving any user-supplied values.
 
-        This will recursively navigate through the default layout dictionary
-        to ensure the user specified layout has all the required keys.
+        Recursively walks ``default_layout`` and calls ``setdefault`` on
+        ``user_layout`` so that any key not already present is filled in from
+        the defaults.
 
-        :return: dict: user_layout
-        :param default_layout: dict: default layout
-        :param user_layout: dict: user layout (defaults to None)
+        Parameters:
+            default_layout (:obj:`dict`): The reference layout containing all
+                required keys and their default values.
+            user_layout (:obj:`dict`): The user-supplied layout to be filled
+                in. Modified in place.
+
+        Returns:
+            :obj:`dict`: ``user_layout`` with all missing keys populated from
+            ``default_layout``.
         """
 
         for k, v in default_layout.items():
@@ -202,15 +261,19 @@ class Report:
     @staticmethod
     def __expand_paths(input_paths, base_path):
         """
-        Expand the paths attribute of the layout file to use absolute paths
+        Convert relative paths in a layout paths dict to absolute paths.
 
-        :input
-        :param input_paths: dict: paths given in a layout file
-        :param base_path: str: root path to be pre-pended to each of the paths
+        Parameters:
+            input_paths (:obj:`dict`): The ``paths`` dict from a layout file,
+                where values may be relative path strings or lists of path
+                strings.
+            base_path (:obj:`str`): Root directory prepended to each relative
+                path before calling :func:`os.path.abspath`.
 
-        :return:
-        layout_paths: dict: drop in replacement for the layout['paths'] key
-                            with relative paths converted to absolute paths
+        Returns:
+            :obj:`dict`: Drop-in replacement for ``layout['paths']`` with all
+            relative paths resolved to absolute paths. Directory entries are
+            expanded to a list of their contained file paths.
         """
         layout_paths = {}
         for key in input_paths:
@@ -243,8 +306,23 @@ class Report:
 
     def __get_layout(self, user_path, kwargs):
         """
-        Return the user layout, with all defaults set, given the path to the
-        user-specified layout file.
+        Build the final layout dict by merging defaults with user config.
+
+        Loads ``dbreport/templates/layout.json`` as the default, then overlays
+        either the JSON file at ``user_path`` or the ``kwargs`` dict. All path
+        values are expanded to absolute paths relative to each layout file's
+        directory.
+
+        Parameters:
+            user_path (:obj:`str` | :obj:`None`): Path to the user-supplied
+                layout JSON file, or :obj:`None` when kwargs are used.
+            kwargs (:obj:`dict`): Keyword arguments passed to
+                :meth:`__init__`, used as the user layout when
+                ``user_path`` is :obj:`None`.
+
+        Returns:
+            :obj:`dict`: Complete layout with all defaults applied and all
+            paths resolved to absolute paths.
         """
 
         # get the base paths that will be used to convert the relative paths
@@ -312,9 +390,15 @@ class Report:
 
     def __get_categories(self):
         """
-        Given the category name and list of view names, return
-        a dictionary with category name and list of relative paths to
-        the report for that view
+        Build the categories dict from layout config, adding a Misc bucket.
+
+        Reads ``self.layout['categories']``, then calls
+        :meth:`__add_misc_category` to append any uncategorised views under
+        a ``'Misc'`` key.
+
+        Returns:
+            :obj:`dict`: Mapping of category name (:obj:`str`) to list of
+            view names (:obj:`list` of :obj:`str`) that belong to it.
         """
 
         cat_list = self.__add_misc_category(
@@ -323,6 +407,22 @@ class Report:
         return cat_list
 
     def __get_category_links(self, cat_list):
+        """
+        Convert a category-to-views mapping into a category-to-links mapping.
+
+        For each category, resolves the display titles for its views and
+        builds relative ``./view.html`` href strings, producing the data
+        structure consumed by the Jinja2 template's navigation bar.
+
+        Parameters:
+            cat_list (:obj:`dict`): Mapping of category name to list of view
+                names, as returned by :meth:`__get_categories`.
+
+        Returns:
+            :obj:`dict`: Mapping of category name to a tuple of
+            ``(titles, paths)`` where ``titles`` is a list of display strings
+            and ``paths`` is the corresponding list of relative HTML hrefs.
+        """
         categories = {}
         for key in cat_list:
             paths = []
@@ -336,7 +436,18 @@ class Report:
         return categories
 
     def __get_data(self, views):
-        """get the data for the view(s) given"""
+        """
+        Query the database and return rows for each requested view.
+
+        Parameters:
+            views (:obj:`list` | :obj:`str` | :obj:`None`): View name(s) to
+                query. A single string is wrapped in a list. :obj:`None`
+                queries all non-ignored views.
+
+        Returns:
+            :obj:`dict`: Mapping of view name to a list of row tuples as
+            returned by ``cursor.fetchall()``.
+        """
 
         if views is None:
             # views are None, set to use all views
@@ -353,7 +464,15 @@ class Report:
         return data
 
     def __get_columns(self, table_name):
-        """return a list of columns for the given table"""
+        """
+        Return the ordered list of column names for a database view or table.
+
+        Parameters:
+            table_name (:obj:`str`): Name of the SQLite view or table.
+
+        Returns:
+            :obj:`list` of :obj:`str`: Column names in schema order.
+        """
         sql = """PRAGMA table_info("{}")"""
         sql = sql.format(table_name)
         results = self.cursor.execute(sql)
@@ -361,7 +480,21 @@ class Report:
         return cols
 
     def __get_title(self, view_names):
-        """return the name/title to be used as the page title"""
+        """
+        Resolve display title(s) for one or more view names.
+
+        Looks up each name in ``layout['titles']``; falls back to the raw
+        view name when no override is configured.
+
+        Parameters:
+            view_names (:obj:`list` | :obj:`str`): One view name or a list of
+                view names to resolve.
+
+        Returns:
+            :obj:`str` | :obj:`list` of :obj:`str`: Single title string when
+            ``view_names`` is a string; list of title strings when it is a
+            list.
+        """
         map_names = self.layout["titles"]
         titles = []
         if isinstance(view_names, list):
