@@ -575,7 +575,8 @@ class Report:
         ``<report_dir>/static/javascript/``.
 
         Call this once to bootstrap the static folder that your rendered reports
-        expect. The ``write`` method no longer copies assets automatically.
+        expect. The ``write`` method will not copy assets; use the ``generate``
+        method to copy assets and write reports.
 
         Parameters:
             report_dir (:obj:`str` | :obj:`None`): Root directory where the
@@ -646,6 +647,27 @@ class Report:
             filename = os.path.join(report_dir, f"{view}.html")
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(html)
+
+        return rendered_reports
+
+    def generate(self, report_dir=None, **kwargs):
+        """
+        Combine the `write()` method and `copy_assets()` methods
+
+        Parameters:
+            report_dir (:obj:`str` | :obj:`None`)
+                path where reports are written to defaults to :obj:`None`,
+                 which will use the path in the layout.
+            kwargs (:obj:`dict`)
+                all other keyword arguments are passed directly to the render
+                function.
+
+        Returns:
+            :obj:`dict`: Rendered html of reports (same as :meth:`render`)
+        """
+
+        rendered_reports = self.write(report_dir=report_dir, **kwargs)
+        self.copy_assets(report_dir=report_dir)
 
         return rendered_reports
 
