@@ -53,7 +53,7 @@ package-data."*" = [ "License.txt" ]
 packages.find.where = [ "." ]
 
 [tool.black]
-line-length = 79
+line-length = 88
 
 [tool.isort]
 force_alphabetical_sort_within_sections = true
