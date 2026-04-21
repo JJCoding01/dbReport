@@ -45,12 +45,13 @@ class Report:
             msg = f"database '{self.paths['database']}' does not exist"
             raise FileNotFoundError(msg)
         self.cursor = sq3.connect(self.paths["database"]).cursor()
+
+        # initialize __all_views, must before self.categories and self.ignore
+        self.__all_views = None
+
         self.ignore = kwargs.get(
             "ignore_views", self.layout.get("ignore_views", [])
         )
-
-        self.__all_views = None  # initialize, must before self.categories
-
         self.categories = self.__get_categories()
         self.env = Environment(
             trim_blocks=True,
