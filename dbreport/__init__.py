@@ -1,4 +1,8 @@
+# pylint: disable=F
+# flake8: noqa
+
 """Generator for SQLite database"""
+
 from .dbreport import Report
 
 __version__ = "0.3.3a2"
