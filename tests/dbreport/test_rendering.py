@@ -98,3 +98,27 @@ def test_titles(db_connection, views):
         assert (
             title.get_text(strip=True) == view.upper()
         ), "title does match expected value"
+
+
+def test_render_matches_write(report, patch_datetime, tmp_path):
+    """render() and write() produce identical HTML."""
+    rendered = report.render()
+    written = report.write(str(tmp_path))
+    for view in rendered:
+        assert rendered[view] == written[view]
+
+
+def test_write_html_references_static_assets(report, tmp_path):
+    """Written HTML files reference assets under the static/ subdirectory."""
+    report.write(str(tmp_path))
+    html_files = list(tmp_path.glob("*.html"))
+    assert html_files, "no HTML files written"
+    soup = BeautifulSoup(html_files[0].read_text(), "html.parser")
+    hrefs = [tag["href"] for tag in soup.find_all("link", href=True)]
+    srcs = [
+        tag["src"]
+        for tag in soup.find_all("script", src=True)
+        if tag.get("src", "").startswith("static")
+    ]
+    assert any("static" in h for h in hrefs), "no static css href in HTML"
+    assert srcs, "no static js src in HTML"
