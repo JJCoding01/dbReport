@@ -1,44 +1,42 @@
 PACKAGE_NAME=dbreport
 
-.PHONY: install docs lint-html tests
+# GENERAL SETUP
 
-create-db:
-	python tests\data\db_setup.py "load-dump"
-
-docs:
-	cd docs && make html
-
-db:
-	make export-db && make create-db
-
-example-simple:
-	python .\example.py simple
-
-example-parse:
-	python .\example.py parse
-
-example-category:
-	python .\example.py category
-
-export-db:
-	python tests\data\db_setup.py "create-dump"
-
+.PHONY: install
 install:
 	pip install -e ".[dev]"
 	pre-commit install
 	git submodule init
 	git submodule update
 
-lint:
-	black $(PACKAGE_NAME) --line-length=79
-	isort -rc $(PACKAGE_NAME)
+# DOCUMENTATION AND TEST DB
+
+.PHONY: docs
+docs:
+	cd docs && make html
+
+create-db:
+	python tests\data\db_setup.py "load-dump"
+
+# FORMATTING AND LINTING
+
+format:
+	black $(PACKAGE_NAME)
+	isort $(PACKAGE_NAME)
 	pylint $(PACKAGE_NAME)
 
-lint-tests:
-	black tests --line-length=79
-	isort -rc tests
-	pylint tests
+pyproject:
+	validate-pyproject pyproject.toml
+	pyproject-fmt pyproject.toml
 
+format-tests:
+	black tests
+	isort tests
+	flake8 tests
+
+# TESTING
+
+.PHONY: tests
 tests:
 	pytest --cov-report html --cov=$(PACKAGE_NAME) tests/$(PACKAGE_NAME)
 
