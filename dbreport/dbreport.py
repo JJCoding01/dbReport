@@ -342,7 +342,7 @@ class Report:
 
         layouts = []
         for path in layout_paths:
-            with open(path, "r") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 layouts.append(json.load(f))
 
         if user_path is None:
@@ -458,7 +458,7 @@ class Report:
 
         data = {}
         for view in views:
-            sql = "SELECT * FROM '{}'".format(view)
+            sql = f"SELECT * FROM '{view}'"
             results = self.cursor.execute(sql).fetchall()
             data.setdefault(view, results)
         return data
@@ -599,7 +599,7 @@ class Report:
         rendered_reports = self.render(**kwargs)
         for view, html in rendered_reports.items():
             filename = os.path.join(report_dir, f"{view}.html")
-            with open(filename, "w") as f:
+            with open(filename, "w", encoding="utf-8") as f:
                 f.write(html)
 
     def parse(self, data):
