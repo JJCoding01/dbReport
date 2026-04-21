@@ -42,26 +42,6 @@ def db_connection():
         print(f"could not delete {TEST_PATH}")
 
 
-@pytest.fixture(scope="session")
-def db_no_views():
-    load_dump(TEST_PATH, DUMP_PATH)
-
-    conn = sq3.connect(TEST_PATH)
-    cursor = conn.cursor()
-    yield cursor
-
-    conn = sq3.connect(TEST_PATH)
-    cursor = conn.cursor()
-    yield cursor
-
-    cursor.close()
-    conn.close()
-    try:
-        os.remove(TEST_PATH)
-    except PermissionError:
-        print(f"could not delete {TEST_PATH}")
-
-
 @pytest.fixture()
 def report(db_connection):
     report = Report(paths={"database": TEST_PATH, "report_dir": "."})
