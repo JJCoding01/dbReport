@@ -24,6 +24,7 @@ report = "dbreport:cli"
 dev = [
     "beautifulsoup4==4.12.3",
     "black==25.1.0",
+    "flake8",
     "isort==5.13.2",
     "pylint==3.3.4",
     "pytest-cov==6.0.0",
