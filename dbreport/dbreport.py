@@ -264,47 +264,27 @@ class Report:
     @staticmethod
     def __expand_paths(input_paths, base_path):
         """
-        Convert relative paths in a layout paths dict to absolute paths.
+        Return a copy of the paths dict with non-empty scalar paths resolved to
+        absolute paths relative to ``base_path``.
+
+        List values (e.g. ``css_styles``, ``javascript``) are passed through
+        unchanged so that relative hrefs embedded in HTML are preserved as-is.
 
         Parameters:
-            input_paths (:obj:`dict`): The ``paths`` dict from a layout file,
-                where values may be relative path strings or lists of path
-                strings.
-            base_path (:obj:`str`): Root directory prepended to each relative
-                path before calling :func:`os.path.abspath`.
+            input_paths (:obj:`dict`): The ``paths`` dict from a layout file.
+            base_path (:obj:`str`): Root directory used to resolve scalar paths.
 
         Returns:
-            :obj:`dict`: Drop-in replacement for ``layout['paths']`` with all
-            relative paths resolved to absolute paths. Directory entries are
-            expanded to a list of their contained file paths.
+            :obj:`dict`: Paths dict with scalar paths made absolute.
         """
         layout_paths = {}
-        for key in input_paths:
-            if input_paths[key] == "":
-                layout_paths.setdefault(key, "")
-                continue
-
-            if isinstance(input_paths[key], list):
-                layout_paths[key] = []
-                for path in input_paths[key]:
-                    dirs = path.split(os.pathsep)
-                    layout_paths[key].append(
-                        os.path.abspath(os.path.join(base_path, *dirs))
-                    )
-                continue
-
-            dirs = input_paths[key].split(os.pathsep)
-            full_path = os.path.abspath(os.path.join(base_path, *dirs))
-
-            layout_paths.setdefault(key, full_path)
-            if os.path.isdir(full_path) and key != "report_dir":
-                files = []
-                for file in os.listdir(full_path):
-                    files.append(os.path.join(full_path, file))
-                if not files:
-                    layout_paths[key] = full_path
-                else:
-                    layout_paths[key] = files
+        for key, value in input_paths.items():
+            if value == "" or isinstance(value, list):
+                layout_paths[key] = value
+            else:
+                layout_paths[key] = os.path.abspath(
+                    os.path.join(base_path, value)
+                )
         return layout_paths
 
     def __get_layout(self, user_path, kwargs):
@@ -521,12 +501,8 @@ class Report:
         Returns:
             :obj:`str`: Prettified HTML string for the rendered view.
         """
-        css_styles = (asset_paths or {}).get("css_styles") or self.paths[
-            "css_styles"
-        ]
-        javascripts = (asset_paths or {}).get("javascript") or self.paths[
-            "javascript"
-        ]
+        css_styles = self.paths["css_styles"]
+        javascripts = self.paths["javascript"]
         headers = self.__get_columns(view_name)
         caption = self.layout["captions"].get(view_name, "")
         title = self.__get_title(view_name)
@@ -565,9 +541,6 @@ class Report:
                 defaults to :obj:`None`, all views
             parse (:obj:`bool`): whether the parse function is called on
                 query results. Defaults to :obj:`False` (don't parse)
-            _asset_paths (:obj:`dict` | :obj:`None`): optional override for
-                ``css_styles`` and ``javascript`` paths embedded in the HTML.
-                Defaults to :obj:`None`, which uses the paths from the layout.
 
         Returns:
             :obj:`dict`: Rendered html of reports
@@ -586,9 +559,7 @@ class Report:
         reports = {}
         for view in views:
             data = self.__get_data(view)
-            html = self.__render_report(
-                view, data, parse, asset_paths=_asset_paths
-            )
+            html = self.__render_report(view, data, parse)
             reports.setdefault(view, html)
         return reports
 
