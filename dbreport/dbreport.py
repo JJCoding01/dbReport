@@ -12,6 +12,7 @@ import os
 import sqlite3 as sq3
 from datetime import datetime
 
+from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 
 
