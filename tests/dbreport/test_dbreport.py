@@ -173,3 +173,14 @@ def test_layout_ignore_views(report_from_layout):
     assert (
         ignore_view not in reports.keys()
     ), f"ignored view '{ignore_view}' was still rendered"
+
+
+def test_copy_assets_creates_static_dirs(report, tmp_path):
+    """
+    copy_assets() populates static/css and static/javascript from the package templates.
+    """
+    report.copy_assets(str(tmp_path))
+    css_dir = tmp_path / "static" / "css"
+    js_dir = tmp_path / "static" / "javascript"
+    assert css_dir.is_dir() and len(list(css_dir.iterdir())) > 0
+    assert js_dir.is_dir() and len(list(js_dir.iterdir())) > 0
