@@ -547,6 +547,9 @@ class Report:
                 defaults to :obj:`None`, all views
             parse (:obj:`bool`): whether the parse function is called on
                 query results. Defaults to :obj:`False` (don't parse)
+            _asset_paths (:obj:`dict` | :obj:`None`): optional override for
+                ``css_styles`` and ``javascript`` paths embedded in the HTML.
+                Defaults to :obj:`None`, which uses the paths from the layout.
 
         Returns:
             :obj:`dict`: Rendered html of reports
@@ -565,7 +568,9 @@ class Report:
         reports = {}
         for view in views:
             data = self.__get_data(view)
-            html = self.__render_report(view, data, parse)
+            html = self.__render_report(
+                view, data, parse, asset_paths=_asset_paths
+            )
             reports.setdefault(view, html)
         return reports
 
