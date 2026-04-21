@@ -168,8 +168,7 @@ class Report:
         for value in values:
             if value not in self.__get_views():
                 raise ValueError(
-                    f"Cannot update ignore list since '{value}' "
-                    f"is not a view"
+                    f"Cannot update ignore list since '{value}' is not a view"
                 )
         self.__ignore = values
 
@@ -621,6 +620,7 @@ class Report:
             raise NotADirectoryError(f"{report_dir} is not a directory")
 
         rendered_reports = self.render(**kwargs)
+
         for view, html in rendered_reports.items():
             filename = os.path.join(report_dir, f"{view}.html")
             with open(filename, "w", encoding="utf-8") as f:
