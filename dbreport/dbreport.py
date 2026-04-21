@@ -504,12 +504,29 @@ class Report:
             titles = map_names.get(view_names, view_names)
         return titles
 
-    def __render_report(self, view_name, data, parse=False):
-        """render an output report"""
-        # Set up basic constants for this report
-        update = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-        css_styles = self.paths["css_styles"]
-        js = self.paths["javascript"]
+    def __render_report(self, view_name, data, parse=False, asset_paths=None):
+        """
+        Render the Jinja2 template for a single view and return prettified HTML.
+
+        Parameters:
+            view_name (:obj:`str`): Name of the database view being rendered.
+            data (:obj:`dict`): Mapping of view name to list of row tuples, as
+                returned by :meth:`__get_data`.
+            parse (:obj:`bool`): When :obj:`True`, passes ``data`` through
+                :meth:`parse` before rendering. Defaults to :obj:`False`.
+            asset_paths (:obj:`dict` | :obj:`None`): Dict with ``css_styles``
+                and ``javascript`` keys. Defaults to :obj:`None`, which uses
+                ``self.paths``.
+
+        Returns:
+            :obj:`str`: Prettified HTML string for the rendered view.
+        """
+        css_styles = (asset_paths or {}).get("css_styles") or self.paths[
+            "css_styles"
+        ]
+        javascripts = (asset_paths or {}).get("javascript") or self.paths[
+            "javascript"
+        ]
         headers = self.__get_columns(view_name)
         caption = self.layout["captions"].get(view_name, "")
         title = self.__get_title(view_name)
@@ -523,20 +540,21 @@ class Report:
         rows = data.get(view_name, [])
 
         # Get the template for reports and render
-        temp = self.env.get_template(os.path.basename(self.paths["template"]))
-        html = temp.render(
+        html = self.env.get_template(
+            os.path.basename(self.paths["template"])
+        ).render(
             title=title,
             description=description,
             categories=categories,
-            updated=update,
+            updated=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
             caption=caption,
             css_styles=css_styles,
-            javascripts=js,
+            javascripts=javascripts,
             headers=headers,
             rows=rows,
         )
 
-        return html
+        return BeautifulSoup(html, "html.parser").prettify()
 
     def render(self, views=None, parse=False):
         """
