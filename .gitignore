@@ -16,3 +16,7 @@ reports/*
 
 tests/data/reports/*
 tests/**/*.db
+*.db
+
+triggers/*
+views/*
