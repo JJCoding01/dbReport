@@ -17,8 +17,10 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 
+from .layout import Layout, Paths
 
-class Report:
+
+class Report(Layout):
     """
     Query a SQLite database and generate sortable, filterable HTML reports.
 
@@ -40,23 +42,28 @@ class Report:
     def __init__(self, layout_path=None, **kwargs):
         if layout_path is not None and len(kwargs) > 0:
             raise ValueError("cannot have both layout path and kwargs")
-        self.layout = self.__get_layout(layout_path, kwargs)
-        self.paths = self.layout["paths"]
-        if not os.path.exists(self.paths["database"]):
-            msg = f"database '{self.paths['database']}' does not exist"
+        layout = self.__get_layout(layout_path, kwargs)
+        paths = Paths(**layout.pop("paths"))
+        if not os.path.exists(paths.database):
+            msg = f"database '{paths.database}' does not exist"
             raise FileNotFoundError(msg)
-        self.conn = sq3.connect(self.paths["database"])
+        self.conn = sq3.connect(paths.database)
         self.cursor = self.conn.cursor()
-
-        # initialize __all_views, must before self.categories and self.ignore
-        self.__all_views = None
-
-        self.ignore = kwargs.get("ignore_views", self.layout.get("ignore_views", []))
-        self.categories = self.__get_categories()
+        self._all_views = None
+        super().__init__(
+            paths=paths,
+            ignore_views=layout["ignore_views"],
+            categories=layout["categories"],
+            titles=layout["titles"],
+            captions=layout["captions"],
+            descriptions=layout["descriptions"],
+        )
+        # Add Misc bucket for any views not covered by the user-specified categories
+        self.categories = self.__add_misc_category(layout["categories"], self.views)
         self.env = Environment(
             trim_blocks=True,
             lstrip_blocks=True,
-            loader=FileSystemLoader(os.path.dirname(self.paths["template"])),
+            loader=FileSystemLoader(os.path.dirname(self.paths.template)),
         )
         self.env.filters["has_link"] = lambda value: isinstance(value, tuple)
 
@@ -76,36 +83,29 @@ class Report:
         except AttributeError:
             pass
 
-    @property
-    def categories(self):
+    @Layout.ignore_views.setter
+    def ignore_views(self, values):
         """
-        Categories for reports
+        Set the list of view names to exclude from all reports and menus.
 
-        The categories is a dictionary defining the menu and the items in the
-        menus on each report. This is useful for categorizing the reports
-        together.
-
-        Each key is the menu name, how it should appear in the report. The
-        values for the key is a list of view names, (note it should be the
-        view name, not the alias or title) to be under that heading.
-        The name that will appear in the rendered report is the title for
-        that report, if one is given.
-
-        A view name can be under multiple menus.
-
-        If a view name does not appear under any menus, it will be
-        automatically included in a Misc menu item.
-        Unless it is listed in  `ignore`.
+        Parameters:
+            values (:obj:`list`): View name strings to ignore. Every name must
+                correspond to an existing database view.
 
         Raises:
-            ValueError: when an item is not in `views`
-            TypeError: when setting value that is not a :obj:`dict`
-            TypeError: when key is not of type :obj:`str`
-            Typeerror: when value is not of type :obj:`list`
+            TypeError: When ``values`` is not a list.
+            ValueError: When any name in ``values`` is not a known database view.
         """
-        return self.__categories
+        if not isinstance(values, list):
+            raise TypeError("ignore_views must be a list")
+        for value in values:
+            if value not in self._get_views():
+                raise ValueError(
+                    f"Cannot update ignore list since '{value}' is not a view"
+                )
+        self._ignore = list(values)
 
-    @categories.setter
+    @Layout.categories.setter
     def categories(self, categories):
         """
         Set the categories mapping used to build the navigation bar.
@@ -122,91 +122,15 @@ class Report:
             ValueError: When any view name in a list does not exist in the
                 database.
         """
-        if not isinstance(categories, dict):
-            raise TypeError("categories must be a dict")
-
-        for category, entries in categories.items():
-            # first, check that all categories are strings, and all values
-            # are lists
-            if not isinstance(category, str):
-                raise TypeError("Category must be a str!")
-            if not isinstance(entries, list):
-                raise TypeError("Category entries must be a list")
-
-            # check that all entries are actually a view. Otherwise it will
-            # create a broken link (ie, a link that goes to a non-existent
+        Layout.categories.fset(self, categories)
+        for entries in categories.values():
             for entry in entries:
                 if entry not in self.views:
                     raise ValueError(
                         f"given category item '{entry}' does not have a report"
                     )
-        self.__categories = categories
 
-    @property
-    def ignore(self):
-        """
-        List of views in database that should not be included in reports
-
-        When setting the `ignore` property, it must be an iterable (:obj:`list`
-        or :obj:`tuple`) of view names.
-
-        When a view is listed here, it will not be included in any menu,
-        including the `Misc` category.
-
-        Defaults to an empty list
-
-        Raises:
-            ValueError: When any item listed is not in `views`
-        """
-        return self.__ignore
-
-    @ignore.setter
-    def ignore(self, values):
-        """
-        Set the list of view names to exclude from all reports and menus.
-
-        Parameters:
-            values (:obj:`list` | :obj:`tuple`): Iterable of view name strings
-                to ignore. Every name must correspond to an existing database
-                view.
-
-        Raises:
-            ValueError: When any name in ``values`` is not a known database
-                view.
-        """
-        for value in values:
-            if value not in self.__get_views():
-                raise ValueError(
-                    f"Cannot update ignore list since '{value}' is not a view"
-                )
-        self.__ignore = values
-
-    @property
-    def paths(self):
-        """
-        Resolved absolute paths used by this report instance.
-
-        Returns:
-            :obj:`dict`: Mapping with at minimum the keys ``database``
-            (path to the ``.db`` file), ``report_dir`` (output directory),
-            ``template`` (path to the Jinja2 template), ``css_styles``
-            (list of CSS file paths), and ``javascript`` (list of JS file
-            paths).
-        """
-        return self.__paths
-
-    @paths.setter
-    def paths(self, paths):
-        """
-        Replace the paths dictionary.
-
-        Parameters:
-            paths (:obj:`dict`): New paths mapping. Merges into or replaces
-                the current ``paths`` dict used by this instance.
-        """
-        self.__paths = paths
-
-    def __get_views(self):
+    def _get_views(self):
         """
         Returns list of all views
 
@@ -216,20 +140,16 @@ class Report:
         Returns
             `obj:list`: list of views from database
         """
-        if self.__all_views is not None:
-            # the views have already been extracted from the database
-            return self.__all_views
+        if self._all_views is not None:
+            return self._all_views
 
-        # the views have not been retrieved from the database yet.
-
-        # fetch all database views from the database
         sql = """SELECT name
                  FROM sqlite_master
                  WHERE TYPE = "view"
                  ORDER BY name"""
         data = self.cursor.execute(sql)
-        self.__all_views = [view[0] for view in data]
-        return self.__all_views
+        self._all_views = [view[0] for view in data]
+        return self._all_views
 
     @property
     def views(self):
@@ -241,9 +161,7 @@ class Report:
         Returns
             `obj:list`: list of views to be rendered.
         """
-
-        # Filter out any views that are in the ignore list
-        return [v for v in self.__get_views() if v not in self.ignore]
+        return [v for v in self._get_views() if v not in self.ignore_views]
 
     def __set_defaults(self, default_layout, user_layout):
         """
@@ -378,24 +296,6 @@ class Report:
             updated_categories.setdefault("Misc", misc_views)
         return updated_categories
 
-    def __get_categories(self):
-        """
-        Build the categories dict from layout config, adding a Misc bucket.
-
-        Reads ``self.layout['categories']``, then calls
-        :meth:`__add_misc_category` to append any uncategorised views under
-        a ``'Misc'`` key.
-
-        Returns:
-            :obj:`dict`: Mapping of category name (:obj:`str`) to list of
-            view names (:obj:`list` of :obj:`str`) that belong to it.
-        """
-
-        cat_list = self.__add_misc_category(
-            categories=self.layout["categories"], views=self.views
-        )
-        return cat_list
-
     def __get_category_links(self, cat_list):
         """
         Convert a category-to-views mapping into a category-to-links mapping.
@@ -406,7 +306,7 @@ class Report:
 
         Parameters:
             cat_list (:obj:`dict`): Mapping of category name to list of view
-                names, as returned by :meth:`__get_categories`.
+                names, as returned by the categories setter.
 
         Returns:
             :obj:`dict`: Mapping of category name to a tuple of
@@ -414,15 +314,10 @@ class Report:
             and ``paths`` is the corresponding list of relative HTML hrefs.
         """
         categories = {}
-        for key in cat_list:
-            paths = []
-            titles = self.__get_title(cat_list[key])
-            for link in cat_list[key]:
-                # Note all the reports are all in the same folder
-                path = os.path.join(".", link + ".html")
-                paths.append(path)
-            categories.setdefault(key, (titles, paths))
-
+        for key, views in cat_list.items():
+            titles = self.__get_title(views)
+            paths = [os.path.join(".", link + ".html") for link in views]
+            categories[key] = (titles, paths)
         return categories
 
     def __get_data(self, views):
@@ -430,27 +325,15 @@ class Report:
         Query the database and return rows for each requested view.
 
         Parameters:
-            views (:obj:`list` | :obj:`str` | :obj:`None`): View name(s) to
-                query. A single string is wrapped in a list. :obj:`None`
-                queries all non-ignored views.
+            views (:obj:`list`): View names to query.
 
         Returns:
             :obj:`dict`: Mapping of view name to a list of row tuples as
             returned by ``cursor.fetchall()``.
         """
-
-        if views is None:
-            # views are None, set to use all views
-            views = self.views
-        elif not isinstance(views, list):
-            # make the view a list
-            views = [views]
-
         data = {}
         for view in views:
-            sql = f"SELECT * FROM '{view}'"
-            results = self.cursor.execute(sql).fetchall()
-            data.setdefault(view, results)
+            data[view] = self.cursor.execute(f"SELECT * FROM '{view}'").fetchall()
         return data
 
     def __get_columns(self, table_name):
@@ -473,8 +356,8 @@ class Report:
         """
         Resolve display title(s) for one or more view names.
 
-        Looks up each name in ``layout['titles']``; falls back to the raw
-        view name when no override is configured.
+        Looks up each name in ``titles``; falls back to the raw view name
+        when no override is configured.
 
         Parameters:
             view_names (:obj:`list` | :obj:`str`): One view name or a list of
@@ -485,7 +368,7 @@ class Report:
             ``view_names`` is a string; list of title strings when it is a
             list.
         """
-        map_names = self.layout["titles"]
+        map_names = self.titles
         titles = []
         if isinstance(view_names, list):
             for view in view_names:
@@ -508,22 +391,19 @@ class Report:
         Returns:
             :obj:`str`: Prettified HTML string for the rendered view.
         """
-        css_styles = self.paths["css_styles"]
-        javascripts = self.paths["javascript"]
+        css_styles = self.paths.css_styles
+        javascripts = self.paths.javascript
         headers = self.__get_columns(view_name)
-        caption = self.layout["captions"].get(view_name, "")
+        caption = self.captions.get(view_name, "")
         title = self.__get_title(view_name)
-        description = self.layout["descriptions"].get(view_name, "")
+        description = self.descriptions.get(view_name, "")
         categories = self.__get_category_links(self.categories)
 
-        # Query database for all rows for view given by input
         if parse:  # pragma: no cover
-            # call the parse function that may be overloaded
             data = self.parse(data)
         rows = data.get(view_name, [])
 
-        # Get the template for reports and render
-        html = self.env.get_template(os.path.basename(self.paths["template"])).render(
+        html = self.env.get_template(os.path.basename(self.paths.template)).render(
             title=title,
             description=description,
             categories=categories,
@@ -551,18 +431,14 @@ class Report:
             :obj:`dict`: Rendered html of reports
         """
         if isinstance(views, str):
-            # views is a single view name and not a list.
-            # convert it to a list
             views = [views]
         elif views is None:
-            # since no views where explicitly given, render all views
             views = self.views
 
+        data = self.__get_data(views)
         reports = {}
         for view in views:
-            data = self.__get_data(view)
-            html = self.__render_report(view, data, parse)
-            reports.setdefault(view, html)
+            reports[view] = self.__render_report(view, data, parse)
         return reports
 
     def copy_assets(self, report_dir=None):
@@ -581,7 +457,7 @@ class Report:
                 which uses the path from the layout.
         """
         if report_dir is None:
-            report_dir = self.paths["report_dir"]
+            report_dir = self.paths.report_dir
 
         pkg_templates = os.path.join(os.path.dirname(__file__), "templates")
         css_src = os.path.join(pkg_templates, "css")
@@ -631,7 +507,7 @@ class Report:
         """
 
         if report_dir is None:
-            report_dir = self.paths["report_dir"]
+            report_dir = self.paths.report_dir
 
         if not os.path.isdir(report_dir):
             raise NotADirectoryError(f"{report_dir} is not a directory")
@@ -668,50 +544,21 @@ class Report:
 
     def parse(self, data):
         """
-        The parse function may be called to intercept data before rendering
+        Override hook to transform raw query data before rendering.
+
+        Subclass ``Report`` and override this method, then call
+        ``render(parse=True)`` to activate it.
 
         Parameters:
-            data (:obj:`dict`): data as queried from database.
-                            The keys are view names from database, and
-                            values are a list of queried results.
+            data (:obj:`dict`): ``{view_name: [row_tuples]}`` as returned by
+                the database query. Row elements may be plain values or
+                ``(value, href)`` tuples to produce hyperlinks.
 
         Returns:
-            :obj:`dict`: data as it should be rendered by report.
-                     The keys are view names as used in `layout` file, and
-                     values are a list of results to be included in reports.
+            :obj:`dict`: Same structure as ``data``, with values transformed
+            as needed for rendering.
 
         Raises:
-            :obj:`NotImplementedError`: When the default parse function is used.
-                This must be overloaded by a custom parse function before use.
-
-        This function is useful to filter, format, add hyperlinks, or otherwise
-        manipulate raw data queried from database before it gets rendered in
-        report.
-
-        To be sure the parse function is called, create a class that inherits
-        from the base `Report` class and overload the `parse` function in the
-        custom class. Then render the reports with `render(parse=True)`.
-        If you try to parse data without overloading the default parse
-        function, it will raise a `NotImplementedError`.
-
-        Notes:
-            The data format for both :obj:`data` parameter and the returned
-            value are defined below.
-
-            - :obj:`keys`: view names where the data was queried from; and the
-                filename of the report if using the `write` method.
-            - :obj:`values`: list of tuples, each tuple is a row of data
-               - (:obj:`list`): list of rows, with each row defined as a tuple
-               - (:obj:`tuple`): each element in :obj:`values` is a tuple.
-                                 The elements of the tuple are the values from
-                                 the database, and/or the values that will be
-                                 shown in the report.
-
-            .. note::
-                The elements of each row must be a single item (:obj:`str`,
-                :obj:`bool`, :obj:`int`, etc) or a tuple in the form
-                (:obj:`value`, :obj:`href`), where :obj:`href` is where the
-                generated hyperlink for that value is directed to.
+            :obj:`NotImplementedError`: Always — must be overridden before use.
         """
-
         raise NotImplementedError("parse function must be overloaded before use")

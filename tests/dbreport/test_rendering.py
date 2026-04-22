@@ -4,7 +4,7 @@ Test module to validate the actual rendering
 
 from bs4 import BeautifulSoup
 
-from dbreport.dbreport import Report
+from dbreport import Report
 from tests.data.db_setup import TEST_PATH
 
 
