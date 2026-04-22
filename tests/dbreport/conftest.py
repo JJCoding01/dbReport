@@ -22,7 +22,7 @@ def patch_datetime(monkeypatch, datetime_constant):
         def now(cls):
             return datetime_constant
 
-    monkeypatch.setattr("dbreport.dbreport.datetime", mydatetime)
+    monkeypatch.setattr("dbreport.report.datetime", mydatetime)
 
 
 @pytest.fixture(scope="session")

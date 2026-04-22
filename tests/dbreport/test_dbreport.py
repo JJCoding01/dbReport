@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from dbreport.dbreport import Report
+from dbreport import Report
 
 
 def test_all_views_are_rendered(rendered_reports, views):
@@ -106,18 +106,18 @@ def test_property_views_read_only(report):
 
 
 def test_add_ignore_views(report):
-    report.ignore = ["popularArtists", "topSalesmen"]
-    assert report.ignore == ["popularArtists", "topSalesmen"]
+    report.ignore_views = ["popularArtists", "topSalesmen"]
+    assert report.ignore_views == ["popularArtists", "topSalesmen"]
 
 
 def test_add_invalid_ignore_views(report):
     with pytest.raises(ValueError):
-        report.ignore = ["popularArtists", "view_name_that_does_not_exist"]
+        report.ignore_views = ["popularArtists", "view_name_that_does_not_exist"]
 
 
 def test_ignored_views_are_removed(report):
-    report.ignore = ["listEmployees", "popularArtists"]
-    for view in report.ignore:
+    report.ignore_views = ["listEmployees", "popularArtists"]
+    for view in report.ignore_views:
         assert view not in report.views, "ignored view is still included"
 
 

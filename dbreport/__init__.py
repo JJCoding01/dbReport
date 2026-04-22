@@ -3,7 +3,8 @@
 
 """Generator for SQLite database"""
 
-from .dbreport import Report
+from .layout import Paths
+from .report import Report
 
 __version__ = "0.3.3a2"
 __author__ = "Joseph Contreras Jr."
