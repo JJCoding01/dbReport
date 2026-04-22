@@ -3,6 +3,7 @@
 
 """Generator for SQLite database"""
 
+from . import util
 from .layout import Paths
 from .report import Report
 
