@@ -23,6 +23,7 @@ create-db:
 format:
 	black $(PACKAGE_NAME)
 	isort $(PACKAGE_NAME)
+	flake8 $(PACKAGE_NAME)
 	pylint $(PACKAGE_NAME)
 
 pyproject:
