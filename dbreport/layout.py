@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -12,15 +12,14 @@ class Paths:
         database (:obj:`str`): Path to the SQLite ``.db`` file. Required.
         report_dir (:obj:`str`): Output directory for rendered HTML files.
         template (:obj:`str`): Path to the Jinja2 HTML template.
-        css_styles (:obj:`list` of :obj:`str`): CSS file hrefs for each report.
-        javascript (:obj:`list` of :obj:`str`): JS file hrefs for each report.
+        static (:obj:`str`): Directory containing ``css/`` and ``js/``
+            subdirectories whose files are auto-included in each report.
     """
 
     database: str
     report_dir: str = "reports"
     template: str = ""
-    css_styles: list = field(default_factory=list)
-    javascript: list = field(default_factory=list)
+    static: str = ""
 
 
 class Layout:
@@ -32,7 +31,7 @@ class Layout:
 
     Parameters:
         paths (:class:`Paths`): File-path settings (database, report_dir, template,
-            css_styles, javascript).
+            static).
         ignore_views (:obj:`list` of :obj:`str`): View names to exclude from
             all reports.
         categories (:obj:`dict`): Maps menu name to list of view names.

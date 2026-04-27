@@ -45,9 +45,9 @@ package-data.dbreport = [
   "templates/*",
   "templates/SQL/*",
   "templates/css/*.css",
-  "templates/javascript/multifilter/*.js",
-  "templates/javascript/tablesorter/*.js",
-  "templates/javascript/jquery-timeago/*.js",
+  "templates/static/js/multifilter/*.js",
+  "templates/static/js/tablesorter/*.js",
+  "templates/static/js/jquery-timeago/*.js",
 ]
 package-data."*" = [ "License.txt" ]
 packages.find.where = [ "." ]

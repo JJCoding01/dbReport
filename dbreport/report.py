@@ -7,6 +7,7 @@ layout configuration, call :meth:`Report.render` to get HTML strings, or
 """
 
 import copy
+import glob
 import json
 import os
 import shutil
@@ -18,6 +19,12 @@ from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 
 from .layout import Layout, Paths
+
+_JS_ASSETS = {
+    "jquery-timeago": "jquery.timeago.js",
+    "multifilter": "multifilter.js",
+    "tablesorter": "jquery.tablesorter.js",
+}
 
 
 class Report(Layout):
@@ -194,8 +201,7 @@ class Report(Layout):
         Return a copy of the paths dict with non-empty scalar paths resolved to
         absolute paths relative to ``base_path``.
 
-        List values (e.g. ``css_styles``, ``javascript``) are passed through
-        unchanged so that relative hrefs embedded in HTML are preserved as-is.
+        Empty strings are passed through unchanged.
 
         Parameters:
             input_paths (:obj:`dict`): The ``paths`` dict from a layout file.
@@ -391,8 +397,14 @@ class Report(Layout):
         Returns:
             :obj:`str`: Prettified HTML string for the rendered view.
         """
-        css_styles = self.paths.css_styles
-        javascripts = self.paths.javascript
+        static_dir = self.paths.static
+        if static_dir:
+            static_name = os.path.basename(static_dir)
+            css_files = sorted(glob.glob(os.path.join(static_dir, "css", "*.css")))
+            css_styles = [f"{static_name}/css/{os.path.basename(f)}" for f in css_files]
+            javascripts = [f"{static_name}/js/{fn}" for fn in _JS_ASSETS.values()]
+        else:
+            css_styles, javascripts = [], []
         headers = self.__get_columns(view_name)
         caption = self.captions.get(view_name, "")
         title = self.__get_title(view_name)

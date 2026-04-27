@@ -4,16 +4,7 @@
 "paths": {
   "database": "",
   "template": "templates/base.html.j2",
-  "css_styles": [
-    "static/css/color-theme.css",
-    "static/css/navigation-bar-styles.css",
-    "static/css/styles.css"
-  ],
-  "javascript": [
-    "static/javascript/jquery.timeago.js",
-    "static/javascript/multifilter.js",
-    "static/javascript/jquery.tablesorter.js"
-  ],
+  "static": "templates/static",
   "report_dir": "reports"
     },
 "titles": {},
