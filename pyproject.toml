@@ -42,7 +42,8 @@ scripts.report = "dbreport:cli"
 
 [tool.setuptools]
 package-data.dbreport = [
-  "templates/*",
+  "templates/static/*.j2",
+  "templates/static/*.json",
   "templates/SQL/*",
   "templates/css/*.css",
   "templates/static/js/multifilter/*.js",
