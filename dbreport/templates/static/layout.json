@@ -3,7 +3,7 @@
   "ignore_views": [],
 "paths": {
   "database": "",
-  "template": "templates/base.html.j2",
+  "template": "templates/static/base.html.j2",
   "static": "templates/static",
   "report_dir": "reports"
     },
