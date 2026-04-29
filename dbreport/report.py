@@ -14,6 +14,7 @@ import shutil
 import sqlite3 as sq3
 
 from datetime import datetime
+from pathlib import Path
 
 from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
@@ -42,15 +43,15 @@ class Report(Layout):
         kwargs: Any keyword argument defined in the layout configuration.
 
     Raises:
-        ValueError: When both ``layout_path`` and keyword arguments are given.
-        FileNotFoundError: When the database path does not exist.
+        FileNotFoundError: When the layout file or database path does not exist.
     """
 
     def __init__(self, layout_path=None, **kwargs):
-        if layout_path is not None and len(kwargs) > 0:
-            raise ValueError("cannot have both layout path and kwargs")
-        layout = self.__get_layout(layout_path, kwargs)
-        paths = Paths(**layout.pop("paths"))
+        # TODO: Consider warning when entries in categories don't exist in db
+        # TODO: Consider warning when ignore_view has views that don't exist in db
+        self.layout = self.__get_layout(layout_path, kwargs)
+
+        paths = Paths(**self.layout["paths"])
         if not os.path.exists(paths.database):
             msg = f"database '{paths.database}' does not exist"
             raise FileNotFoundError(msg)
@@ -59,14 +60,16 @@ class Report(Layout):
         self._all_views = None
         super().__init__(
             paths=paths,
-            ignore_views=layout["ignore_views"],
-            categories=layout["categories"],
-            titles=layout["titles"],
-            captions=layout["captions"],
-            descriptions=layout["descriptions"],
+            ignore_views=self.layout["ignore_views"],
+            categories=self.layout["categories"],
+            titles=self.layout["titles"],
+            captions=self.layout["captions"],
+            descriptions=self.layout["descriptions"],
         )
         # Add Misc bucket for any views not covered by the user-specified categories
-        self.categories = self.__add_misc_category(layout["categories"], self.views)
+        self.categories = self.__add_misc_category(
+            self.layout["categories"], self.views
+        )
         self.env = Environment(
             trim_blocks=True,
             lstrip_blocks=True,
@@ -170,103 +173,79 @@ class Report(Layout):
         """
         return [v for v in self._get_views() if v not in self.ignore_views]
 
-    def __set_defaults(self, default_layout, user_layout):
-        """
-        Merge defaults into user layout, preserving any user-supplied values.
-
-        Recursively walks ``default_layout`` and calls ``setdefault`` on
-        ``user_layout`` so that any key not already present is filled in from
-        the defaults.
-
-        Parameters:
-            default_layout (:obj:`dict`): The reference layout containing all
-                required keys and their default values.
-            user_layout (:obj:`dict`): The user-supplied layout to be filled
-                in. Modified in place.
-
-        Returns:
-            :obj:`dict`: ``user_layout`` with all missing keys populated from
-            ``default_layout``.
-        """
-
-        for k, v in default_layout.items():
-            user_layout.setdefault(k, v)
-            if isinstance(v, dict):
-                self.__set_defaults(v, user_layout[k])
-        return user_layout
-
     @staticmethod
-    def __expand_paths(input_paths, base_path):
+    def __deep_merge(base, override):
         """
-        Return a copy of the paths dict with non-empty scalar paths resolved to
-        absolute paths relative to ``base_path``.
+        Return a new dict that is ``base`` deep-merged with ``override``.
 
-        Empty strings are passed through unchanged.
+        For nested dicts, merges recursively. For all other value types
+        (including lists), ``override`` completely replaces ``base``.
+        Neither input is mutated.
 
         Parameters:
-            input_paths (:obj:`dict`): The ``paths`` dict from a layout file.
-            base_path (:obj:`str`): Root directory used to resolve scalar paths.
+            base (:obj:`dict`): The lower-priority dict (defaults).
+            override (:obj:`dict`): The higher-priority dict (user values).
 
         Returns:
-            :obj:`dict`: Paths dict with scalar paths made absolute.
+            :obj:`dict`: Merged result.
         """
-        layout_paths = {}
-        for key, value in input_paths.items():
-            if value == "" or isinstance(value, list):
-                layout_paths[key] = value
+        result = dict(base)
+        for key, value in override.items():
+            if (
+                key in result
+                and isinstance(result[key], dict)
+                and isinstance(value, dict)
+            ):
+                result[key] = Report.__deep_merge(result[key], value)
             else:
-                layout_paths[key] = os.path.abspath(os.path.join(base_path, value))
-        return layout_paths
+                if value is None:
+                    # The override is not set, keep the default
+                    continue
+                result[key] = value
+        return result
 
     def __get_layout(self, user_path, kwargs):
         """
-        Build the final layout dict by merging defaults with user config.
+        Build the final layout dict by merging defaults, user file, and kwargs.
 
-        Loads ``dbreport/templates/layout.json`` as the default, then overlays
-        either the JSON file at ``user_path`` or the ``kwargs`` dict. All path
-        values are expanded to absolute paths relative to each layout file's
-        directory.
+        Merging priority (highest to lowest): kwargs > user file > default.
+        Paths in each layer are resolved relative to that layer's source
+        location before merging.
 
         Parameters:
             user_path (:obj:`str` | :obj:`None`): Path to the user-supplied
-                layout JSON file, or :obj:`None` when kwargs are used.
+                layout JSON file, or :obj:`None`.
             kwargs (:obj:`dict`): Keyword arguments passed to
-                :meth:`__init__`, used as the user layout when
-                ``user_path`` is :obj:`None`.
+                :meth:`__init__`.
 
         Returns:
-            :obj:`dict`: Complete layout with all defaults applied and all
-            paths resolved to absolute paths.
+            :obj:`dict`: Complete merged layout
         """
 
-        # get the base paths that will be used to convert the relative paths
-        # in the layout files to absolute
-        bases = [os.path.dirname(__file__)]  # default layout base path
+        # Layer 1: default layout
+        default_base = Path(__file__).parent.absolute()
+        with open(
+            default_base / "templates" / "static" / "layout.json", "r", encoding="utf-8"
+        ) as f:
+            result = json.load(f)
+
+        # Resolve the default paths to absolute locations and flatten back to a
+        # plain dict so __deep_merge can treat all layers uniformly.
+        result["paths"] = Paths(**result["paths"]).set_defaults().as_dict()
+
+        # Layer 2: user file (optional)
         if user_path is not None:
-            bases.append(os.path.dirname(user_path))  # user layout base path
+            with open(user_path, "r", encoding="utf-8") as f:
+                user_layout = json.load(f)
+            result = self.__deep_merge(result, user_layout)
 
-            # full path to default and user specified layout files [default, user]
-            layout_paths = [
-                os.path.join(bases[0], "templates", "layout.json"),
-                user_path,
-            ]
-        else:
-            # layout path is None, rely on the keyword arguments
-            layout_paths = [os.path.join(bases[0], "templates", "layout.json")]
+        # Layer 3: kwargs (optional)
+        if kwargs:
+            result = self.__deep_merge(result, kwargs)
 
-        layouts = []
-        for path in layout_paths:
-            with open(path, "r", encoding="utf-8") as f:
-                layouts.append(json.load(f))
+        result["paths"] = Paths(**result["paths"]).as_dict()
 
-        if user_path is None:
-            layouts.append(kwargs)
-
-        # paths for layouts to be absolute
-        for layout, base in zip(layouts, bases):
-            layout["paths"] = self.__expand_paths(layout["paths"], base)
-
-        return self.__set_defaults(layouts[0], layouts[1])
+        return result
 
     @staticmethod
     def __add_misc_category(categories, views):
