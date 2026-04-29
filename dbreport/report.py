@@ -508,7 +508,7 @@ class Report(Layout):
         """
 
         rendered_reports = self.write(report_dir=report_dir, **kwargs)
-        self.copy_assets(report_dir=report_dir)
+        self.copy_assets(path=None)
 
         return rendered_reports
 
