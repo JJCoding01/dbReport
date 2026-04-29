@@ -668,6 +668,11 @@ class Report(Layout):
             Rendered HTML of reports (same as :meth:`render`).
         """
 
+        if report_dir is None:
+            report_dir = self.paths.report_dir
+
+        os.makedirs(report_dir, exist_ok=True)
+
         self.copy_assets(path=None)
         rendered_reports = self.write(report_dir=report_dir, **kwargs)
 
