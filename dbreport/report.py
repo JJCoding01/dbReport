@@ -12,6 +12,7 @@ import json
 import os
 import shutil
 import sqlite3 as sq3
+import warnings
 
 from datetime import datetime
 from pathlib import Path
@@ -117,23 +118,33 @@ class Report(Layout):
         ValueError
             When any name in ``values`` is not a known database view.
         """
-        if not isinstance(values, list):
-            raise TypeError("ignore_views must be a list")
+
+        # Call the `ignore_views` setter method for `Layout` and apply any
+        # logic or tests that the parent has.
+        Layout.ignore_views.fset(self, values)
+
+        # find all views that are ignored but do not exist
+        ignore_dne = []
         for value in values:
             if value not in self._get_views():
-                raise ValueError(
-                    f"Cannot update ignore list since '{value}' is not a view"
-                )
-        self._ignore = list(values)
+                ignore_dne.append(value)
+
+        # warn for any views that are listed to be ignored, but do not actually
+        # have a view.
+        if ignore_dne:
+            # there are views that are ignored that do not exist
+            views = ", ".join(f"{v!r}" for v in ignore_dne)
+            msg = f"The following views were ignored but do not exist: {views}"
+            warnings.warn(msg, UserWarning)
 
     @Layout.categories.setter
-    def categories(self, categories):
+    def categories(self, categories_):
         """
         Set the categories mapping used to build the navigation bar.
 
         Parameters
         ----------
-        categories : dict
+        categories_ : dict
             Mapping of menu name (str) to a list of view names (list of str).
             Each view name must correspond to an existing database view.
 
@@ -145,13 +156,28 @@ class Report(Layout):
         ValueError
             When any view name in a list does not exist in the database.
         """
-        Layout.categories.fset(self, categories)
-        for entries in categories.values():
+        # Call the `categories` setter method for `Layout` and apply any
+        # logic or tests that the parent has.
+        Layout.categories.fset(self, categories_)
+
+        # find all views listed in a category that does not exist and build a
+        # cleaned copy that omits them so they don't produce broken nav links
+        existing_views = set(self.views)
+        view_dne = set()
+        cleaned = {}
+        for key, entries in categories_.items():
+            valid = [e for e in entries if e in existing_views]
             for entry in entries:
-                if entry not in self.views:
-                    raise ValueError(
-                        f"given category item '{entry}' does not have a report"
-                    )
+                if entry not in existing_views:
+                    view_dne.add(f"{key}>{entry}")
+            if valid:
+                cleaned[key] = valid
+
+        if view_dne:
+            views = ", ".join(f"{v!r}" for v in view_dne)
+            msg = f"The following categories were listed but do not exist: {views}"
+            warnings.warn(msg, UserWarning)
+            self._categories = cleaned
 
     def _get_views(self):
         """

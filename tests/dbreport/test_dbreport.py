@@ -57,8 +57,23 @@ def test_property_categories_invalid_not_dict(report):
 
 
 def test_property_categories_invalid_value_with_invalid_view(report):
-    with pytest.raises(ValueError):
+    with pytest.warns(UserWarning):
         report.categories = {"my category": ["view name that does not exist"]}
+    assert "my category" not in report.categories
+
+
+def test_property_categories_all_invalid_drops_key(report):
+    with pytest.warns(UserWarning):
+        report.categories = {"my category": ["dne1", "dne2"]}
+    assert "my category" not in report.categories
+
+
+def test_property_categories_partial_invalid_view_removed(report, views):
+    with pytest.warns(UserWarning):
+        report.categories = {"my category": [views[0], "view name that does not exist"]}
+    assert "my category" in report.categories
+    assert views[0] in report.categories["my category"]
+    assert "view name that does not exist" not in report.categories["my category"]
 
 
 def test_property_category_has_misc(report):
@@ -102,7 +117,7 @@ def test_add_ignore_views(report):
 
 
 def test_add_invalid_ignore_views(report):
-    with pytest.raises(ValueError):
+    with pytest.warns(UserWarning):
         report.ignore_views = ["popularArtists", "view_name_that_does_not_exist"]
 
 
