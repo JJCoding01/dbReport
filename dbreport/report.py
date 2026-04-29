@@ -54,8 +54,6 @@ class Report(Layout):
     """
 
     def __init__(self, layout_path=None, **kwargs):
-        # TODO: Consider warning when entries in categories don't exist in db
-        # TODO: Consider warning when ignore_view has views that don't exist in db
         self.layout = self.__get_layout(layout_path, **kwargs)
 
         paths = Paths(**self.layout["paths"])
