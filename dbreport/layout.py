@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass
@@ -11,15 +12,61 @@ class Paths:
     Parameters:
         database (:obj:`str`): Path to the SQLite ``.db`` file. Required.
         report_dir (:obj:`str`): Output directory for rendered HTML files.
-        template (:obj:`str`): Path to the Jinja2 HTML template.
         static (:obj:`str`): Directory containing ``css/`` and ``js/``
             subdirectories whose files are auto-included in each report.
+        template (:obj:`str`): Path to the Jinja2 HTML template. Defaults to
+            ``<static>/base.html.j2`` when not explicitly set.
     """
 
-    database: str
-    report_dir: str = "reports"
-    template: str = ""
-    static: str = ""
+    database: Path = None
+    report_dir: Path = None
+    static: Path = None
+    template: Path = None
+
+    BASE_PATH = Path(__file__).parent
+
+    def __post_init__(self):
+
+        if self.database is not None:
+            self.database = Path(self.database)
+        if self.report_dir is not None:
+            self.report_dir = Path(self.report_dir)
+        if self.static is not None:
+            self.static = Path(self.static)
+        if self.template is not None:
+            self.template = Path(self.template)
+
+        # if not self.template and self.static:
+        #     # self.template = os.path.join(self.static, "base.html.j2")
+        #     self.template = self.static / "base.html.j2"
+
+    def set_defaults(self):
+        """
+        Method to set default full paths to the framework default locations
+
+        Call this method directly to set the defaults.
+
+        Returns
+        -------
+        Paths: Paths class
+        """
+        if self.report_dir is None:
+            self.report_dir = Path.cwd() / "reports"
+        self.report_dir = Path.cwd() / self.report_dir
+        self.static = Path(__file__).parent / self.static
+
+        if not self.template and self.static:
+            self.template = self.static / "base.html.j2"
+        return self
+
+    def as_dict(self):
+        """Return fields as a plain dict suitable for re-passing to Paths()."""
+        return {
+            "database": self.database,
+            "report_dir": self.report_dir,
+            "static": self.static,
+            "template": self.template,
+        }
 
 
 class Layout:
