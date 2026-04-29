@@ -101,9 +101,7 @@ def get_columns(*args, **kwargs):
 @pytest.fixture(scope="session")
 def report_from_layout(db_connection):
     """
-    create layout file and yield the path
-
-    Delete the file on clean-up
+    Create a layout file, yield ``(report, layout)``, and delete the file on teardown.
     """
     path = os.path.abspath(os.path.join(".", "layout.json"))
     layout = {
