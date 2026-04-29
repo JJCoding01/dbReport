@@ -17,14 +17,13 @@ def extract_triggers(conn: sqlite3.Connection):
         dict: dictionary in the form `{trigger_name: trigger_sql}`
     """
 
-    # conn = sqlite3.connect(db_path)
-    c = conn.cursor()
+    cursor = conn.cursor()
     search_sql = r'SELECT name, sql FROM sqlite_master WHERE type = "trigger"'
 
     # Extract the trigger sql. Keep the CREATE TRIGGER ... text
-    results = {r[0]: r[1] for r in c.execute(search_sql).fetchall()}
+    results = {r[0]: r[1] for r in cursor.execute(search_sql).fetchall()}
 
-    c.close()
+    cursor.close()
     return results
 
 
@@ -65,14 +64,11 @@ def export_triggers(save_dir: Path, db_path: Path):
     """
 
     conn = sqlite3.connect(db_path)
-
     triggers = extract_triggers(conn)
+    conn.close()
 
     for trigger, sql in triggers.items():
-        with open(save_dir / f"{trigger}.sql", "w", encoding="utf-8") as f:
-            f.write(sql)
-
-    conn.close()
+        (save_dir / f"{trigger}.sql").write_text(sql, encoding="utf-8")
 
 
 def import_triggers(path: Path, db_path: Path):
@@ -90,20 +86,13 @@ def import_triggers(path: Path, db_path: Path):
     conn = sqlite3.connect(db_path)
 
     if path.is_dir():
-        triggers = {}
-        for file in path.iterdir():
-            if not file.is_file():
-                continue
-            if file.suffix != ".sql":
-                continue
-
-            with open(file, "r", encoding="utf-8") as f:
-                sql = f.read()
-            triggers.setdefault(file.stem, sql)
+        triggers = {
+            f.stem: f.read_text(encoding="utf-8")
+            for f in path.iterdir()
+            if f.is_file() and f.suffix == ".sql"
+        }
     else:
-        with open(path, "r", encoding="utf-8") as f:
-            sql = f.read()
-        triggers = {path.stem: sql}
+        triggers = {path.stem: path.read_text(encoding="utf-8")}
 
     update_triggers(conn, triggers, exist_ok=True)
     conn.close()
