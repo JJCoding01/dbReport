@@ -82,6 +82,9 @@ class Report(Layout):
             lstrip_blocks=True,
             loader=FileSystemLoader(os.path.dirname(self.paths.template)),
         )
+
+        # Add `has_link` boolean variable into the template.
+        # The rendering template with use this during processing
         self.env.filters["has_link"] = lambda value: isinstance(value, tuple)
 
     def __del__(self):
@@ -450,6 +453,9 @@ class Report(Layout):
         if static_dir:
             static_name = os.path.basename(static_dir)
             css_files = sorted(glob.glob(os.path.join(static_dir, "css", "*.css")))
+
+            # note, get css paths relative to the static folder. Browsers do
+            # not load absolute windows paths
             css_styles = [f"{static_name}/css/{os.path.basename(f)}" for f in css_files]
             javascripts = [f"{static_name}/js/{fn}" for fn in _JS_ASSETS.values()]
         else:
