@@ -2,10 +2,10 @@
 "categories": {},
   "ignore_views": [],
 "paths": {
-  "database": "",
-  "template": "templates/static/base.html.j2",
+  "database": null,
+  "report_dir": "reports",
   "static": "templates/static",
-  "report_dir": "reports"
+  "template": null
     },
 "titles": {},
 "captions": {},
