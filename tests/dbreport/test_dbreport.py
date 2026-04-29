@@ -171,7 +171,7 @@ def test_copy_assets_creates_static_dirs(report, tmp_path):
     copy_assets() populates static/css and static/javascript from the package templates.
     """
     report.copy_assets(str(tmp_path))
-    css_dir = tmp_path / "static" / "css"
-    js_dir = tmp_path / "static" / "javascript"
+    css_dir = tmp_path / "css"
+    js_dir = tmp_path / "js"
     assert css_dir.is_dir() and len(list(css_dir.iterdir())) > 0
     assert js_dir.is_dir() and len(list(js_dir.iterdir())) > 0
