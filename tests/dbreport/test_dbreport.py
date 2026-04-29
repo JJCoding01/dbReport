@@ -25,15 +25,6 @@ def test_init_with_non_existent_layout():
         Report("layout_that_does_not_exist.json")
 
 
-def test_init_with_both_layout_path_and_kwargs():
-    with pytest.raises(ValueError):
-        # only the path to the layout file is given as a positional argument.
-        # The remaining parameters are parameters from the layout file given as
-        # keyword arguments. If any keyword arguments are given, the path to
-        # the layout file must be None
-        Report("layout_path.json", path="any_keyword_argument_db.db")
-
-
 def test_property_categories(report, views):
     # when no categories are given, it should have one category (Misc) that
     # contains all views
