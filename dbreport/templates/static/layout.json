@@ -1,13 +1,13 @@
 {
-"categories": {},
+  "categories": {},
   "ignore_views": [],
-"paths": {
-  "database": null,
-  "report_dir": "reports",
-  "static": "templates/static",
-  "template": null
-    },
-"titles": {},
-"captions": {},
+  "paths": {
+    "database": null,
+    "report_dir": "reports",
+    "static": "templates/static",
+    "template": null
+  },
+  "titles": {},
+  "captions": {},
   "descriptions": {}
 }
