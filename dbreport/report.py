@@ -454,15 +454,8 @@ class Report(Layout):
         # get the path to the default base `static` folder
         src = Path(__file__).parent / "templates" / "static"
 
-        css_out = os.path.join(report_dir, "static", "css")
-        js_out = os.path.join(report_dir, "static", "javascript")
-        os.makedirs(css_out, exist_ok=True)
-        os.makedirs(js_out, exist_ok=True)
-
-        for filename in os.listdir(css_src):
-            shutil.copy2(os.path.join(css_src, filename), css_out)
-        for src in js_srcs:
-            shutil.copy2(src, js_out)
+        # copy over all assets
+        shutil.copytree(src, dst, dirs_exist_ok=True)
 
     def write(self, report_dir=None, **kwargs):
         """
