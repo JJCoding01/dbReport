@@ -56,7 +56,7 @@ class Report(Layout):
     def __init__(self, layout_path=None, **kwargs):
         # TODO: Consider warning when entries in categories don't exist in db
         # TODO: Consider warning when ignore_view has views that don't exist in db
-        self.layout = self.__get_layout(layout_path, kwargs)
+        self.layout = self.__get_layout(layout_path, **kwargs)
 
         paths = Paths(**self.layout["paths"])
         if not os.path.exists(paths.database):
@@ -251,7 +251,7 @@ class Report(Layout):
                 result[key] = value
         return result
 
-    def __get_layout(self, user_path, kwargs):
+    def __get_layout(self, user_path, **kwargs):
         """
         Build the final layout dict by merging defaults, user file, and kwargs.
 
