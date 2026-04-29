@@ -37,15 +37,19 @@ class Report(Layout):
     ``dbreport/templates/layout.json`` (e.g. ``paths``, ``categories``,
     ``titles``, ``captions``, ``descriptions``, ``ignore_views``).
 
-    Parameters:
-        layout_path (:obj:`str` | :obj:`None`):
-            Path to a JSON layout file, or :obj:`None` when using kwargs only.
-            When provided alongside kwargs, the file is layer 2 and kwargs are
-            layer 3 (highest priority).
-        kwargs: Any keyword argument defined in the layout configuration.
+    Parameters
+    ----------
+    layout_path : str or None
+        Path to a JSON layout file, or None when using kwargs only. When
+        provided alongside kwargs, the file is layer 2 and kwargs are layer 3
+        (highest priority).
+    **kwargs
+        Any keyword argument defined in the layout configuration.
 
-    Raises:
-        FileNotFoundError: When the layout file or database path does not exist.
+    Raises
+    ------
+    FileNotFoundError
+        When the layout file or database path does not exist.
     """
 
     def __init__(self, layout_path=None, **kwargs):
@@ -100,13 +104,18 @@ class Report(Layout):
         """
         Set the list of view names to exclude from all reports and menus.
 
-        Parameters:
-            values (:obj:`list`): View name strings to ignore. Every name must
-                correspond to an existing database view.
+        Parameters
+        ----------
+        values : list
+            View name strings to ignore. Every name must correspond to an
+            existing database view.
 
-        Raises:
-            TypeError: When ``values`` is not a list.
-            ValueError: When any name in ``values`` is not a known database view.
+        Raises
+        ------
+        TypeError
+            When ``values`` is not a list.
+        ValueError
+            When any name in ``values`` is not a known database view.
         """
         if not isinstance(values, list):
             raise TypeError("ignore_views must be a list")
@@ -122,17 +131,19 @@ class Report(Layout):
         """
         Set the categories mapping used to build the navigation bar.
 
-        Parameters:
-            categories (:obj:`dict`): Mapping of menu name (:obj:`str`) to a
-                list of view names (:obj:`list` of :obj:`str`). Each view name
-                must correspond to an existing database view.
+        Parameters
+        ----------
+        categories : dict
+            Mapping of menu name (str) to a list of view names (list of str).
+            Each view name must correspond to an existing database view.
 
-        Raises:
-            TypeError: When ``categories`` is not a :obj:`dict`.
-            TypeError: When any key is not a :obj:`str`.
-            TypeError: When any value is not a :obj:`list`.
-            ValueError: When any view name in a list does not exist in the
-                database.
+        Raises
+        ------
+        TypeError
+            When ``categories`` is not a dict, any key is not a str, or any
+            value is not a list.
+        ValueError
+            When any view name in a list does not exist in the database.
         """
         Layout.categories.fset(self, categories)
         for entries in categories.values():
@@ -144,13 +155,14 @@ class Report(Layout):
 
     def _get_views(self):
         """
-        Returns list of all views
+        Return a list of all views from the database.
 
-        Function to return a list of all views from the database. This does
-        not take into account the ignored views.
+        Does not account for ignored views.
 
         Returns
-            `obj:list`: list of views from database
+        -------
+        list
+            View names from the database.
         """
         if self._all_views is not None:
             return self._all_views
@@ -165,13 +177,15 @@ class Report(Layout):
 
     @property
     def views(self):
-        """List of views to be rendered
+        """
+        List of views to be rendered.
 
-        This will include all the views defined in the database, without the
-        views specified by the `ignore_views` key.
+        All database views excluding those specified by ``ignore_views``.
 
         Returns
-            `obj:list`: list of views to be rendered.
+        -------
+        list
+            View names to be rendered.
         """
         return [v for v in self._get_views() if v not in self.ignore_views]
 
@@ -184,12 +198,17 @@ class Report(Layout):
         (including lists), ``override`` completely replaces ``base``.
         Neither input is mutated.
 
-        Parameters:
-            base (:obj:`dict`): The lower-priority dict (defaults).
-            override (:obj:`dict`): The higher-priority dict (user values).
+        Parameters
+        ----------
+        base : dict
+            The lower-priority dict (defaults).
+        override : dict
+            The higher-priority dict (user values).
 
-        Returns:
-            :obj:`dict`: Merged result.
+        Returns
+        -------
+        dict
+            Merged result.
         """
         result = dict(base)
         for key, value in override.items():
@@ -214,14 +233,17 @@ class Report(Layout):
         Paths in each layer are resolved relative to that layer's source
         location before merging.
 
-        Parameters:
-            user_path (:obj:`str` | :obj:`None`): Path to the user-supplied
-                layout JSON file, or :obj:`None`.
-            kwargs (:obj:`dict`): Keyword arguments passed to
-                :meth:`__init__`.
+        Parameters
+        ----------
+        user_path : str or None
+            Path to the user-supplied layout JSON file, or None.
+        kwargs : dict
+            Keyword arguments passed to :meth:`__init__`.
 
-        Returns:
-            :obj:`dict`: Complete merged layout
+        Returns
+        -------
+        dict
+            Complete merged layout.
         """
 
         # Layer 1: default layout
@@ -291,14 +313,18 @@ class Report(Layout):
         builds relative ``./view.html`` href strings, producing the data
         structure consumed by the Jinja2 template's navigation bar.
 
-        Parameters:
-            cat_list (:obj:`dict`): Mapping of category name to list of view
-                names, as returned by the categories setter.
+        Parameters
+        ----------
+        cat_list : dict
+            Mapping of category name to list of view names, as returned by
+            the categories setter.
 
-        Returns:
-            :obj:`dict`: Mapping of category name to a tuple of
-            ``(titles, paths)`` where ``titles`` is a list of display strings
-            and ``paths`` is the corresponding list of relative HTML hrefs.
+        Returns
+        -------
+        dict
+            Mapping of category name to a tuple of ``(titles, paths)`` where
+            ``titles`` is a list of display strings and ``paths`` is the
+            corresponding list of relative HTML hrefs.
         """
         categories = {}
         for key, views in cat_list.items():
@@ -311,12 +337,16 @@ class Report(Layout):
         """
         Query the database and return rows for each requested view.
 
-        Parameters:
-            views (:obj:`list`): View names to query.
+        Parameters
+        ----------
+        views : list
+            View names to query.
 
-        Returns:
-            :obj:`dict`: Mapping of view name to a list of row tuples as
-            returned by ``cursor.fetchall()``.
+        Returns
+        -------
+        dict
+            Mapping of view name to a list of row tuples as returned by
+            ``cursor.fetchall()``.
         """
         data = {}
         for view in views:
@@ -327,11 +357,15 @@ class Report(Layout):
         """
         Return the ordered list of column names for a database view or table.
 
-        Parameters:
-            table_name (:obj:`str`): Name of the SQLite view or table.
+        Parameters
+        ----------
+        table_name : str
+            Name of the SQLite view or table.
 
-        Returns:
-            :obj:`list` of :obj:`str`: Column names in schema order.
+        Returns
+        -------
+        list of str
+            Column names in schema order.
         """
         sql = """PRAGMA table_info("{}")"""
         sql = sql.format(table_name)
@@ -346,14 +380,16 @@ class Report(Layout):
         Looks up each name in ``titles``; falls back to the raw view name
         when no override is configured.
 
-        Parameters:
-            view_names (:obj:`list` | :obj:`str`): One view name or a list of
-                view names to resolve.
+        Parameters
+        ----------
+        view_names : list or str
+            One view name or a list of view names to resolve.
 
-        Returns:
-            :obj:`str` | :obj:`list` of :obj:`str`: Single title string when
-            ``view_names`` is a string; list of title strings when it is a
-            list.
+        Returns
+        -------
+        str or list of str
+            Single title string when ``view_names`` is a string; list of
+            title strings when it is a list.
         """
         map_names = self.titles
         titles = []
@@ -368,15 +404,21 @@ class Report(Layout):
         """
         Render the Jinja2 template for a single view and return prettified HTML.
 
-        Parameters:
-            view_name (:obj:`str`): Name of the database view being rendered.
-            data (:obj:`dict`): Mapping of view name to list of row tuples, as
-                returned by :meth:`__get_data`.
-            parse (:obj:`bool`): When :obj:`True`, passes ``data`` through
-                :meth:`parse` before rendering. Defaults to :obj:`False`.
+        Parameters
+        ----------
+        view_name : str
+            Name of the database view being rendered.
+        data : dict
+            Mapping of view name to list of row tuples, as returned by
+            :meth:`__get_data`.
+        parse : bool, optional
+            When True, passes ``data`` through :meth:`parse` before rendering.
+            Default is False.
 
-        Returns:
-            :obj:`str`: Prettified HTML string for the rendered view.
+        Returns
+        -------
+        str
+            Prettified HTML string for the rendered view.
         """
         static_dir = self.paths.static
         if static_dir:
@@ -412,16 +454,20 @@ class Report(Layout):
 
     def render(self, views=None, parse=False):
         """
-        Renders html for each view in :obj:`views`
+        Render HTML for each view in ``views``.
 
-        Parameters:
-            views (:obj:`list` | :obj:`None`): list of view names to render,
-                defaults to :obj:`None`, all views
-            parse (:obj:`bool`): whether the parse function is called on
-                query results. Defaults to :obj:`False` (don't parse)
+        Parameters
+        ----------
+        views : list or None, optional
+            View names to render. Default is None, which renders all views.
+        parse : bool, optional
+            Whether the parse function is called on query results.
+            Default is False.
 
-        Returns:
-            :obj:`dict`: Rendered html of reports
+        Returns
+        -------
+        dict
+            Rendered HTML of reports.
         """
         if isinstance(views, str):
             views = [views]
@@ -436,18 +482,18 @@ class Report(Layout):
 
     def copy_assets(self, path=None):
         """
-        Copy the built-in static directory to a new location
+        Copy the built-in static directory to a new location.
 
-        This is useful for initial project setup.
+        This is useful for initial project setup. Call this once to bootstrap
+        the static folder that your rendered reports expect. The ``write``
+        method will not copy assets; use the ``generate`` method to copy
+        assets and write reports.
 
-        Call this once to bootstrap the static folder that your rendered reports
-        expect. The ``write`` method will not copy assets; use the ``generate``
-        method to copy assets and write reports.
-
-        Parameters:
-            path: path-like | None: Default None
-                Root directory where the assets are to be copied to.
-                Default is None, which uses the ``static`` path from the layout
+        Parameters
+        ----------
+        path : path-like or None, optional
+            Root directory where the assets are to be copied to. Default is
+            None, which uses the ``static`` path from the layout.
         """
         if path is None:
             path = self.paths.static
@@ -461,21 +507,25 @@ class Report(Layout):
 
     def write(self, report_dir=None, **kwargs):
         """
-        Write rendered reports to files
+        Write rendered reports to files.
 
-        Parameters:
-            report_dir (:obj:`str` | :obj:`None`)
-                path where reports are written to defaults to :obj:`None`,
-                 which will use the path in the layout.
-            kwargs (:obj:`dict`)
-                all other keyword arguments are passed directly to the render
-                function.
+        Parameters
+        ----------
+        report_dir : str or None, optional
+            Path where reports are written to. Default is None, which uses the
+            path in the layout.
+        **kwargs
+            All other keyword arguments are passed directly to :meth:`render`.
 
-        Returns:
-            :obj:`dict`: Rendered html of reports (same as :meth:`render`)
+        Returns
+        -------
+        dict
+            Rendered HTML of reports (same as :meth:`render`).
 
-        Raises:
-            :obj:`NotADirectoryError`: When report path does not exist
+        Raises
+        ------
+        NotADirectoryError
+            When the report path does not exist.
         """
 
         if report_dir is None:
@@ -495,18 +545,20 @@ class Report(Layout):
 
     def generate(self, report_dir=None, **kwargs):
         """
-        Combine the `write()` method and `copy_assets()` methods
+        Combine the :meth:`write` and :meth:`copy_assets` methods.
 
-        Parameters:
-            report_dir (:obj:`str` | :obj:`None`)
-                path where reports are written to defaults to :obj:`None`,
-                 which will use the path in the layout.
-            kwargs (:obj:`dict`)
-                all other keyword arguments are passed directly to the render
-                function.
+        Parameters
+        ----------
+        report_dir : str or None, optional
+            Path where reports are written to. Default is None, which uses the
+            path in the layout.
+        **kwargs
+            All other keyword arguments are passed directly to :meth:`render`.
 
-        Returns:
-            :obj:`dict`: Rendered html of reports (same as :meth:`render`)
+        Returns
+        -------
+        dict
+            Rendered HTML of reports (same as :meth:`render`).
         """
 
         rendered_reports = self.write(report_dir=report_dir, **kwargs)
@@ -521,16 +573,22 @@ class Report(Layout):
         Subclass ``Report`` and override this method, then call
         ``render(parse=True)`` to activate it.
 
-        Parameters:
-            data (:obj:`dict`): ``{view_name: [row_tuples]}`` as returned by
-                the database query. Row elements may be plain values or
-                ``(value, href)`` tuples to produce hyperlinks.
+        Parameters
+        ----------
+        data : dict
+            ``{view_name: [row_tuples]}`` as returned by the database query.
+            Row elements may be plain values or ``(value, href)`` tuples to
+            produce hyperlinks.
 
-        Returns:
-            :obj:`dict`: Same structure as ``data``, with values transformed
-            as needed for rendering.
+        Returns
+        -------
+        dict
+            Same structure as ``data``, with values transformed as needed for
+            rendering.
 
-        Raises:
-            :obj:`NotImplementedError`: Always — must be overridden before use.
+        Raises
+        ------
+        NotImplementedError
+            Always — must be overridden before use.
         """
         raise NotImplementedError("parse function must be overloaded before use")

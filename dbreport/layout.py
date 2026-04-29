@@ -5,17 +5,22 @@ from pathlib import Path
 @dataclass
 class Paths:
     """
-    File-path settings for a report
+    File-path settings for a report.
 
     This matches the structure of ``paths`` sub-object in ``layout.json``.
 
-    Parameters:
-        database (:obj:`str`): Path to the SQLite ``.db`` file. Required.
-        report_dir (:obj:`str`): Output directory for rendered HTML files.
-        static (:obj:`str`): Directory containing ``css/`` and ``js/``
-            subdirectories whose files are auto-included in each report.
-        template (:obj:`str`): Path to the Jinja2 HTML template. Defaults to
-            ``<static>/base.html.j2`` when not explicitly set.
+    Parameters
+    ----------
+    database : str
+        Path to the SQLite ``.db`` file. Required.
+    report_dir : str
+        Output directory for rendered HTML files.
+    static : str
+        Directory containing ``css/`` and ``js/`` subdirectories whose files
+        are auto-included in each report.
+    template : str
+        Path to the Jinja2 HTML template. Defaults to
+        ``<static>/base.html.j2`` when not explicitly set.
     """
 
     database: Path = None
@@ -42,13 +47,14 @@ class Paths:
 
     def set_defaults(self):
         """
-        Method to set default full paths to the framework default locations
+        Set default full paths to the framework default locations.
 
         Call this method directly to set the defaults.
 
         Returns
         -------
-        Paths: Paths class
+        Paths
+            This instance with defaults applied.
         """
         if self.report_dir is None:
             self.report_dir = Path.cwd() / "reports"
@@ -76,15 +82,20 @@ class Layout:
     are grouped in a :class:`Paths` instance at ``self.paths``, while the
     remaining keys are top-level attributes.
 
-    Parameters:
-        paths (:class:`Paths`): File-path settings (database, report_dir, template,
-            static).
-        ignore_views (:obj:`list` of :obj:`str`): View names to exclude from
-            all reports.
-        categories (:obj:`dict`): Maps menu name to list of view names.
-        titles (:obj:`dict`): Per-view display titles.
-        captions (:obj:`dict`): Per-view caption text.
-        descriptions (:obj:`dict`): Per-view description text.
+    Parameters
+    ----------
+    paths : Paths
+        File-path settings (database, report_dir, template, static).
+    ignore_views : list of str
+        View names to exclude from all reports.
+    categories : dict
+        Maps menu name to list of view names.
+    titles : dict
+        Per-view display titles.
+    captions : dict
+        Per-view caption text.
+    descriptions : dict
+        Per-view description text.
     """
 
     def __init__(
@@ -135,13 +146,15 @@ class Layout:
 
         If a view name does not appear under any menus, it will be
         automatically included in a Misc menu item.
-        Unless it is listed in  `ignore`.
+        Unless it is listed in `ignore`.
 
-        Raises:
-            ValueError: when an item is not in `views`
-            TypeError: when setting value that is not a :obj:`dict`
-            TypeError: when key is not of type :obj:`str`
-            Typeerror: when value is not of type :obj:`list`
+        Raises
+        ------
+        ValueError
+            When an item is not in `views`.
+        TypeError
+            When setting a value that is not a dict, a key that is not str,
+            or a value that is not a list.
         """
         return self._categories
 
@@ -150,14 +163,16 @@ class Layout:
         """
         Set the categories mapping used to build the navigation bar.
 
-        Parameters:
-            categories (:obj:`dict`): Mapping of menu name (:obj:`str`) to a
-                list of view names (:obj:`list` of :obj:`str`).
+        Parameters
+        ----------
+        categories : dict
+            Mapping of menu name (str) to a list of view names (list of str).
 
-        Raises:
-            TypeError: When ``categories`` is not a :obj:`dict`.
-            TypeError: When any key is not a :obj:`str`.
-            TypeError: When any value is not a :obj:`list`.
+        Raises
+        ------
+        TypeError
+            When ``categories`` is not a dict, any key is not a str, or any
+            value is not a list.
         """
         if not isinstance(categories, dict):
             raise TypeError("categories must be a dict")

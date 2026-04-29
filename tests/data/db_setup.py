@@ -25,11 +25,14 @@ VIEW_DIR = os.path.join(BASE_PATH, "views")
 
 def extract_dump(db_path, dump_path):
     """
-    Create dump of database given the path to the database file
+    Create a dump of the database.
 
-    PARAMETERS
-    db_path: str: path to database file
-    dump_path: str: path to the dump file to be saved
+    Parameters
+    ----------
+    db_path : str
+        Path to the database file.
+    dump_path : str
+        Path where the dump file will be saved.
     """
 
     conn = sq3.connect(db_path)
@@ -44,11 +47,14 @@ def extract_dump(db_path, dump_path):
 
 def load_dump(db_path, dump_path):
     """
-    Create test database given path to dump file
+    Create a test database from a dump file.
 
-    PARAMETERS
-    db_path: str: path to database file to be created
-    dump_path: str: path to the dump file to be used to create database
+    Parameters
+    ----------
+    db_path : str
+        Path to the database file to be created.
+    dump_path : str
+        Path to the dump file used to create the database.
     """
 
     # start by removing the existing database if one exists
@@ -77,14 +83,15 @@ def load_dump(db_path, dump_path):
 
 def add_views(db_path, view_dir):
     """
-    add views to database
+    Add views to the database from SQL files.
 
-    PARAMETERS
-    db_path: str: path to database to have views added
-    view_dir: str: path the directory with view files. The contents of the
-                   files are not the sql to create the view, but rather the
-                   query the view should have. The view name uses the filename
-                   of the query
+    Parameters
+    ----------
+    db_path : str
+        Path to the database to have views added.
+    view_dir : str
+        Path to the directory containing view files. Each file holds the
+        SELECT query for the view; the view name is taken from the filename.
     """
 
     conn = sq3.connect(db_path)
