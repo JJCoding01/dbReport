@@ -39,7 +39,9 @@ class Report(Layout):
 
     Parameters:
         layout_path (:obj:`str` | :obj:`None`):
-            Path to a JSON layout file, or :obj:`None` when using kwargs.
+            Path to a JSON layout file, or :obj:`None` when using kwargs only.
+            When provided alongside kwargs, the file is layer 2 and kwargs are
+            layer 3 (highest priority).
         kwargs: Any keyword argument defined in the layout configuration.
 
     Raises:
