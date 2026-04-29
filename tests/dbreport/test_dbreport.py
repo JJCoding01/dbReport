@@ -127,6 +127,36 @@ def test_ignored_views_are_removed(report):
         assert view not in report.views, "ignored view is still included"
 
 
+def test_titles_invalid_not_dict(report):
+    with pytest.raises(TypeError):
+        report.titles = "not a dict"
+
+
+def test_titles_warns_for_missing_view(report):
+    with pytest.warns(UserWarning):
+        report.titles = {"view_that_does_not_exist": "My Title"}
+
+
+def test_captions_invalid_not_dict(report):
+    with pytest.raises(TypeError):
+        report.captions = "not a dict"
+
+
+def test_captions_warns_for_missing_view(report):
+    with pytest.warns(UserWarning):
+        report.captions = {"view_that_does_not_exist": "My Caption"}
+
+
+def test_descriptions_invalid_not_dict(report):
+    with pytest.raises(TypeError):
+        report.descriptions = "not a dict"
+
+
+def test_descriptions_warns_for_missing_view(report):
+    with pytest.warns(UserWarning):
+        report.descriptions = {"view_that_does_not_exist": "My Description"}
+
+
 def test_render_single_view_name_as_string(report, views):
     # render a single view given the name as a string
     reports = report.render(views=views[0], parse=False)

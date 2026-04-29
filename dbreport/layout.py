@@ -41,10 +41,6 @@ class Paths:
         if self.template is not None:
             self.template = Path(self.template)
 
-        # if not self.template and self.static:
-        #     # self.template = os.path.join(self.static, "base.html.j2")
-        #     self.template = self.static / "base.html.j2"
-
     def set_defaults(self):
         """
         Set default full paths to the framework default locations.
@@ -182,3 +178,87 @@ class Layout:
             if not isinstance(v, list):
                 raise TypeError("category values must be list")
         self._categories = categories
+
+    @property
+    def titles(self):
+        """Per-view display title overrides (dict of view name → title string)."""
+        return self._titles
+
+    @titles.setter
+    def titles(self, value):
+        """
+        Parameters
+        ----------
+        value : dict
+            Mapping of view name (str) to display title (str).
+
+        Raises
+        ------
+        TypeError
+            When ``value`` is not a dict, any key is not a str, or any value
+            is not a str.
+        """
+        if not isinstance(value, dict):
+            raise TypeError("titles must be a dict")
+        for k, v in value.items():
+            if not isinstance(k, str):
+                raise TypeError("titles keys must be str")
+            if not isinstance(v, str):
+                raise TypeError("titles values must be str")
+        self._titles = value
+
+    @property
+    def captions(self):
+        """Per-view table caption overrides (dict of view name → caption string)."""
+        return self._captions
+
+    @captions.setter
+    def captions(self, value):
+        """
+        Parameters
+        ----------
+        value : dict
+            Mapping of view name (str) to caption text (str).
+
+        Raises
+        ------
+        TypeError
+            When ``value`` is not a dict, any key is not a str, or any value
+            is not a str.
+        """
+        if not isinstance(value, dict):
+            raise TypeError("captions must be a dict")
+        for k, v in value.items():
+            if not isinstance(k, str):
+                raise TypeError("captions keys must be str")
+            if not isinstance(v, str):
+                raise TypeError("captions values must be str")
+        self._captions = value
+
+    @property
+    def descriptions(self):
+        """Per-view description overrides (dict of view name → description string)."""
+        return self._descriptions
+
+    @descriptions.setter
+    def descriptions(self, value):
+        """
+        Parameters
+        ----------
+        value : dict
+            Mapping of view name (str) to description text (str).
+
+        Raises
+        ------
+        TypeError
+            When ``value`` is not a dict, any key is not a str, or any value
+            is not a str.
+        """
+        if not isinstance(value, dict):
+            raise TypeError("descriptions must be a dict")
+        for k, v in value.items():
+            if not isinstance(k, str):
+                raise TypeError("descriptions keys must be str")
+            if not isinstance(v, str):
+                raise TypeError("descriptions values must be str")
+        self._descriptions = value

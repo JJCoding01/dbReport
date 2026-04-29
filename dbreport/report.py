@@ -182,6 +182,81 @@ class Report(Layout):
             warnings.warn(msg, UserWarning)
             self._categories = cleaned
 
+    @Layout.titles.setter
+    def titles(self, value):
+        """
+        Set per-view display titles, warning for any key that is not a known view
+
+        Parameters
+        ----------
+        value : dict
+            Mapping of view name (str) to display title (str).
+
+        Raises
+        ------
+        TypeError
+            When ``value`` is not a dict, any key is not a str, or any value
+            is not a str.
+        """
+        Layout.titles.fset(self, value)
+        dne = [k for k in value if k not in self._get_views()]
+        if dne:
+            views = ", ".join(f"{v!r}" for v in dne)
+            warnings.warn(
+                f"The following titles were listed but do not exist: {views}",
+                UserWarning,
+            )
+
+    @Layout.captions.setter
+    def captions(self, value):
+        """
+        Set per-view captions, warning for any key that is not a known view
+
+        Parameters
+        ----------
+        value : dict
+            Mapping of view name (str) to caption text (str).
+
+        Raises
+        ------
+        TypeError
+            When ``value`` is not a dict, any key is not a str, or any value
+            is not a str.
+        """
+        Layout.captions.fset(self, value)
+        dne = [k for k in value if k not in self._get_views()]
+        if dne:
+            views = ", ".join(f"{v!r}" for v in dne)
+            warnings.warn(
+                f"The following captions were listed but do not exist: {views}",
+                UserWarning,
+            )
+
+    @Layout.descriptions.setter
+    def descriptions(self, value):
+        """
+        Set per-view descriptions, warning for any key that is not a known view
+
+        Parameters
+        ----------
+        value : dict
+            Mapping of view name (str) to description text (str).
+
+        Raises
+        ------
+        TypeError
+            When ``value`` is not a dict, any key is not a str, or any value
+            is not a str.
+        """
+        Layout.descriptions.fset(self, value)
+        dne = [k for k in value if k not in self._get_views()]
+        if dne:
+            views = ", ".join(f"{v!r}" for v in dne)
+            warnings.warn(
+                f"The following descriptions were listed but do not exist: {views}",
+                UserWarning,
+            )
+
     def _get_views(self):
         """
         Return a list of all views from the database.
