@@ -432,41 +432,27 @@ class Report(Layout):
             reports[view] = self.__render_report(view, data, parse)
         return reports
 
-    def copy_assets(self, report_dir=None):
+    def copy_assets(self, path=None):
         """
-        Copy the built-in CSS and JavaScript assets from the package templates
-        into ``<report_dir>/static/css/`` and
-        ``<report_dir>/static/javascript/``.
+        Copy the built-in static directory to a new location
+
+        This is useful for initial project setup.
 
         Call this once to bootstrap the static folder that your rendered reports
         expect. The ``write`` method will not copy assets; use the ``generate``
         method to copy assets and write reports.
 
         Parameters:
-            report_dir (:obj:`str` | :obj:`None`): Root directory where the
-                ``static/`` tree will be created. Defaults to :obj:`None`,
-                which uses the path from the layout.
+            path: path-like | None: Default None
+                Root directory where the assets are to be copied to.
+                Default is None, which uses the ``static`` path from the layout
         """
-        if report_dir is None:
-            report_dir = self.paths.report_dir
+        if path is None:
+            path = self.paths.static
+        dst = Path(path)
 
-        pkg_templates = os.path.join(os.path.dirname(__file__), "templates")
-        css_src = os.path.join(pkg_templates, "css")
-        js_srcs = [
-            os.path.join(
-                pkg_templates,
-                "javascript",
-                "jquery-timeago",
-                "jquery.timeago.js",
-            ),
-            os.path.join(pkg_templates, "javascript", "multifilter", "multifilter.js"),
-            os.path.join(
-                pkg_templates,
-                "javascript",
-                "tablesorter",
-                "jquery.tablesorter.js",
-            ),
-        ]
+        # get the path to the default base `static` folder
+        src = Path(__file__).parent / "templates" / "static"
 
         css_out = os.path.join(report_dir, "static", "css")
         js_out = os.path.join(report_dir, "static", "javascript")
