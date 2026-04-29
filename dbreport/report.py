@@ -668,8 +668,8 @@ class Report(Layout):
             Rendered HTML of reports (same as :meth:`render`).
         """
 
-        rendered_reports = self.write(report_dir=report_dir, **kwargs)
         self.copy_assets(path=None)
+        rendered_reports = self.write(report_dir=report_dir, **kwargs)
 
         return rendered_reports
 
