@@ -54,11 +54,16 @@ class Paths:
         """
         if self.report_dir is None:
             self.report_dir = Path.cwd() / "reports"
-        self.report_dir = Path.cwd() / self.report_dir
-        self.static = Path(__file__).parent / self.static
 
-        if not self.template and self.static:
-            self.template = self.static / "base.html.j2"
+        # set the default static location as inside the `report_dir`. This is
+        # done since keeping the static folder inside this framework will cause
+        # the css/js files to not be loaded as expected.
+        # Note: No default for `static` is set here. The default will be set
+        # on report initiation since that's when the final report_dir location
+        # will be known. Leave it as a placeholder 'static' location now.
+
+        if not self.template:
+            self.template = Path(__file__).parent / "templates" / "base.html.j2"
         return self
 
     def as_dict(self):
