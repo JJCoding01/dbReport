@@ -52,15 +52,25 @@ def test_categories_with_misc():
 
 
 def test_content_filters(rendered_reports, db_connection, get_columns):
+    """Filter inputs are injected by DataTables at runtime into a second thead row."""
     for r in rendered_reports:
         soup = BeautifulSoup(rendered_reports[r], features="html.parser")
         columns = get_columns(db_connection, r)
-        tags = soup.find_all("input")
-        assert len(tags) == len(columns), "different number of filters and columns"
-        for tag in tags:
-            assert (
-                tag["id"] in columns
-            ), f"missing id value '{tag['id']}' in filter inputs"
+
+        assert (
+            soup.find("form", class_="filter-form") is None
+        ), "old filter-form should not be present"
+
+        thead = soup.find("thead")
+        assert thead is not None, "thead must be present"
+        header_rows = thead.find_all("tr")
+        assert (
+            len(header_rows) == 2
+        ), "thead must have two rows: labels and filter inputs"
+        filter_cells = header_rows[1].find_all("th")
+        assert len(filter_cells) == len(
+            columns
+        ), "second thead row must have one <th> per column"
 
 
 def test_content_title(rendered_reports):

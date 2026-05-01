@@ -10,22 +10,38 @@
     <link rel="stylesheet" type="text/css" href="{{style}}"/>
     {% endfor %}
 
-    <!--connect to jquery engine to run plug-ins-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
     <!--add connection to javascript plug-ins-->
     {% for js in javascripts %}
     <script type="text/javascript" src="{{js}}"></script>
     {% endfor %}
 
-    <!--Add script to start plug-ins here. These will be run whenever
-        the document is loaded/read-->
+    <!--
+    Add script to start plug-ins here. These will be run whenever the document
+    is loaded/read
+    -->
     <script>
         jQuery(document).ready(function() {
-            jQuery("time.timeago").timeago(); // used to show relative times/dates
-            jQuery("#table").tablesorter();   // used to sort table by a single column
-            jQuery(".filter").multifilter();  // used to filter table on multiple inputs
+            jQuery("time.timeago").timeago();
+
+            jQuery("#table").DataTable({
+                paging: false,
+                autoWidth: false,
+                initComplete: function () {
+                    this.api().columns().every(function (colIdx) {
+                        var column = this;
+                        var filterCell = jQuery('#table thead tr').eq(1).find('th').eq(colIdx);
+                        jQuery('<input type="search" placeholder="' + jQuery(column.header()).text() + '" />')
+                            .appendTo(filterCell.empty())
+                            .on('click', function (e) { e.stopPropagation(); })
+                            .on('input', function () {
+                                if (column.search() !== this.value) {
+                                    column.search(this.value).draw();
+                                }
+                            });
+                    });
+                }
             });
+        });
     </script>
 </head>
 
@@ -46,22 +62,12 @@
         </div>
         <h2 class="header2">Description</h2>
         <p class="description">{{description}}</p>
-        <form class="filter-form">
-            <fieldset class="filter-group">
-                <legend class="filter-legend">Filters</legend>
-                {% for header in headers %}
-                <div class="filter-container">
-                    <label class="labels" for="{{header}}">{{header}}</label>
-                    <input type="search" id="{{header}}" class="filter" name="{{header}}" autocomplete="off" placeholder="{{header}}" data-col="{{header}}"/>
-                </div>
-                {% endfor %}
-            </fieldset>
-        </form>
-        <div class="table-container">
+<div class="table-container">
             <table id="table">
                 <caption>{% if caption =='' %}Click any header to sort table by that column{% else %}{{caption}}{% endif %}</caption>
                 <thead class="header-row">
                     <tr>{% for header in headers %}<th class="header-row">{{header}}</th>{% endfor %}</tr>
+                    <tr>{% for header in headers %}<th></th>{% endfor %}</tr>
                 </thead>
                 <tbody>
                     {% for row in rows %}
@@ -86,6 +92,7 @@
                         {% endfor %}</tr>
                     {% endfor %}
                 </tbody>
+
             </table>
         </div>
     </div>

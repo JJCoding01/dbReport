@@ -135,22 +135,29 @@ tr:nth-child(odd) {
     font-weight: bold;
 }
 
-#table, th, td {
-
+#table {
+    table-layout: auto;
+    width: fit-content !important;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 10px;
+    border-collapse: collapse;
+    font-size: 10pt;
+}
 
+th, td {
     padding-left: 3pt;
     padding-right: 5pt;
     padding-top: 2pt;
     padding-bottom: 2pt;
-
-    width: auto;
-    table-layout: fixed;
-    border-collapse: collapse;
     border: 1pt solid #808080;
     font-size: 10pt;
+}
+
+#table thead tr:nth-child(2) th input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 
