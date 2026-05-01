@@ -1,9 +1,0 @@
-[submodule "dbreport/templates/static/js/jquery-timeago"]
-	path = dbreport/templates/static/js/jquery-timeago
-	url = https://github.com/rmm5t/jquery-timeago.git
-[submodule "dbreport/templates/static/js/multifilter"]
-	path = dbreport/templates/static/js/multifilter
-	url = https://github.com/tommyp/multifilter.git
-[submodule "dbreport/templates/static/js/tablesorter"]
-	path = dbreport/templates/static/js/tablesorter
-	url = https://github.com/christianbach/tablesorter.git

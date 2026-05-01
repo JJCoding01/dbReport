@@ -12,6 +12,7 @@ import json
 import os
 import shutil
 import sqlite3 as sq3
+import urllib.request
 import warnings
 
 from datetime import datetime
@@ -23,9 +24,13 @@ from jinja2 import Environment, FileSystemLoader
 from .layout import Layout, Paths
 
 _JS_ASSETS = {
-    "jquery-timeago": "jquery.timeago.js",
-    "multifilter": "multifilter.js",
-    "tablesorter": "jquery.tablesorter.js",
+    "jquery-3.7.1.min.js": "https://code.jquery.com/jquery-3.7.1.min.js",  # noqa: E501
+    "dataTables.min.js": "https://cdn.datatables.net/2.2.2/js/dataTables.min.js",  # noqa: E501
+    "jquery.timeago.js": "https://raw.githubusercontent.com/rmm5t/jquery-timeago/master/jquery.timeago.js",  # noqa: E501
+}
+
+_CSS_ASSETS = {
+    "dataTables.dataTables.min.css": "https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css",  # noqa: E501
 }
 
 
@@ -530,7 +535,7 @@ class Report(Layout):
             # note, get css paths relative to the static folder. Browsers do
             # not load absolute windows paths
             css_styles = [f"{static_name}/css/{os.path.basename(f)}" for f in css_files]
-            javascripts = [f"{static_name}/js/{fn}" for fn in _JS_ASSETS.values()]
+            javascripts = [f"{static_name}/js/{fn}" for fn in _JS_ASSETS]
         else:
             css_styles, javascripts = [], []
         headers = self.__get_columns(view_name)
@@ -607,8 +612,33 @@ class Report(Layout):
         # get the path to the default base `static` folder
         src = Path(__file__).parent / "templates" / "static"
 
-        # copy over all assets
-        shutil.copytree(src, dst, dirs_exist_ok=True)
+        if dst == src:
+            return
+
+        # copy entire css folder over to the new static location
+        shutil.copytree(src / "css", dst / "css", dirs_exist_ok=True)
+
+        def _download(url, dest):
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req) as resp, open(dest, "wb") as f:
+                f.write(resp.read())
+
+        # download the js assets from the source, but only if they don't
+        # already exist
+        js_dst = dst / "js"
+        os.makedirs(js_dst, exist_ok=True)
+        for filename, url in _JS_ASSETS.items():
+            dest_file = js_dst / filename
+            if not dest_file.exists():
+                _download(url, dest_file)
+
+        # download the css assets from the source, but only if they don't
+        # already exist
+        css_dst = dst / "css"
+        for filename, url in _CSS_ASSETS.items():
+            dest_file = css_dst / filename
+            if not dest_file.exists():
+                _download(url, dest_file)
 
     def write(self, report_dir=None, **kwargs):
         """
@@ -666,12 +696,11 @@ class Report(Layout):
             Rendered HTML of reports (same as :meth:`render`).
         """
 
-        if report_dir is None:
-            report_dir = self.paths.report_dir
+        report_dir = self.paths.report_dir
 
         os.makedirs(report_dir, exist_ok=True)
 
-        self.copy_assets(path=None)
+        self.copy_assets(path=None)  # use none to copy to the static folder
         rendered_reports = self.write(report_dir=report_dir, **kwargs)
 
         return rendered_reports

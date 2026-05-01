@@ -22,7 +22,7 @@
 /* The dropdown container */
 .dropdown {
   float: left;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Dropdown button */
@@ -44,6 +44,7 @@
 .dropdown-content {
   display: none;
   position: absolute;
+  z-index: 1000;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
