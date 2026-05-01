@@ -4,7 +4,7 @@
   "paths": {
     "database": null,
     "report_dir": "reports",
-    "static": "templates/static",
+    "static": null,
     "template": null
   },
   "titles": {},
