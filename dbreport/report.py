@@ -356,7 +356,7 @@ class Report(Layout):
         # Layer 1: default layout
         default_base = Path(__file__).parent.absolute()
         with open(
-            default_base / "templates" / "static" / "layout.json", "r", encoding="utf-8"
+            default_base / "templates" / "layout.json", "r", encoding="utf-8"
         ) as f:
             result = json.load(f)
 
