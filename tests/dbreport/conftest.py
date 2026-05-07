@@ -1,8 +1,10 @@
 import json
 import os
+import shutil
 import sqlite3 as sq3
 
 from datetime import datetime
+from pathlib import Path
 
 import pytest
 
@@ -43,8 +45,19 @@ def db_connection():
 
 
 @pytest.fixture()
-def report(db_connection):
-    report = Report(paths={"database": TEST_PATH, "report_dir": "."})
+def report(db_connection, tmp_path):
+    import dbreport as _dbreport
+
+    src_css = Path(_dbreport.__file__).parent / "templates" / "static" / "css"
+    static_dir = tmp_path / "static"
+    shutil.copytree(src_css, static_dir / "css")
+    report = Report(
+        paths={
+            "database": TEST_PATH,
+            "report_dir": ".",
+            "static": str(static_dir),
+        }
+    )
     yield report
     report.close()
 
