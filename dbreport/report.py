@@ -603,7 +603,7 @@ class Report(Layout):
             reports[view] = self.__render_report(view, data, parse)
         return reports
 
-    def copy_assets(self, path=None):
+    def copy_assets(self, path=None, force=False):
         """
         Copy the built-in static directory to a new location.
 
@@ -617,6 +617,10 @@ class Report(Layout):
         path : path-like or None, optional
             Root directory where the assets are to be copied to. Default is
             None, which uses the ``static`` path from the layout.
+        force: bool, optional
+            flag to indicate whether assets should be replaced with a fresh copy
+            if they already exist in the target static directory. Default is
+            False, don't overwrite with new.
         """
         if path is None:
             path = self.paths.static
@@ -642,7 +646,7 @@ class Report(Layout):
         os.makedirs(js_dst, exist_ok=True)
         for filename, url in _JS_ASSETS.items():
             dest_file = js_dst / filename
-            if not dest_file.exists():
+            if (not dest_file.exists()) or force:
                 _download(url, dest_file)
 
         # download the css assets from the source, but only if they don't
@@ -650,7 +654,7 @@ class Report(Layout):
         css_dst = dst / "css"
         for filename, url in _CSS_ASSETS.items():
             dest_file = css_dst / filename
-            if not dest_file.exists():
+            if (not dest_file.exists()) or force:
                 _download(url, dest_file)
 
     def write(self, report_dir=None, **kwargs):
@@ -659,7 +663,7 @@ class Report(Layout):
 
         Parameters
         ----------
-        report_dir : str or None, optional
+        report_dir : path-like or None, optional
             Path where reports are written to. Default is None, which uses the
             path in the layout.
         **kwargs
@@ -691,15 +695,15 @@ class Report(Layout):
 
         return rendered_reports
 
-    def generate(self, report_dir=None, **kwargs):
+    def generate(self, force=False, **kwargs):
         """
         Combine the :meth:`write` and :meth:`copy_assets` methods.
 
         Parameters
         ----------
-        report_dir : str or None, optional
-            Path where reports are written to. Default is None, which uses the
-            path in the layout.
+        force: bool, optional
+            Whether existing assets should be overwritten with a new copy.
+            Default is False, do not overwrite.
         **kwargs
             All other keyword arguments are passed directly to :meth:`render`.
 
@@ -713,7 +717,9 @@ class Report(Layout):
 
         os.makedirs(report_dir, exist_ok=True)
 
-        self.copy_assets(path=None)  # use none to copy to the static folder
+        self.copy_assets(
+            path=None, force=force
+        )  # use none to copy to the static folder
         rendered_reports = self.write(report_dir=report_dir, **kwargs)
 
         return rendered_reports
