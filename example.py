@@ -1,8 +1,7 @@
 import os
-import sys
 
 from dbreport import Report
-from tests.data.db_setup import DUMP_PATH, VIEW_DIR, add_views, load_dump
+from tests.data.db_setup import add_views, DUMP_PATH, load_dump, VIEW_DIR
 
 # filename for example database. Replace with path to your own database.
 DB_FILENAME = "example.db"
@@ -16,9 +15,6 @@ class MyCustomReport(Report):
     """
     Custom class that inherits from Report and implements the parse method
     """
-
-    # def __init__(self, **kwargs):
-    #     super(MyCustomReport, self).__init__(*kwargs)
 
     def parse(self, data):
         """
@@ -58,12 +54,6 @@ def example_simple():
 
     Use default report generator, no parsing, and no additional parameters.
     """
-
-    # 0. I assume you have your own database you want to create a report for.
-    # So you will not need to set up the database when using your own.
-    # This function simply creates a database to run the examples.
-    db_setup()
-
     # 1. Start of code for generating report.
     # Generate a report object by giving it the database path
     report = Report(paths={"database": DB_FILENAME})
@@ -80,11 +70,6 @@ def example_parse():
     Example showing how to use the parse function
     """
 
-    # 0. I assume you have your own database you want to create a report for.
-    # So you will not need to set up the database when using your own.
-    # This function simply creates a database to run the examples.
-    db_setup()
-
     # 1. Start of code for generating report.
     # Generate a report object by giving it the database path
     report = MyCustomReport(paths={"database": DB_FILENAME})
@@ -100,12 +85,6 @@ def example_categories():
     """
     Example with categories and custom titles
     """
-
-    # 0. I assume you have your own database you want to create a report for.
-    # So you will not need to set up the database when using your own.
-    # This function simply creates a database to run the examples.
-    db_setup()
-
     # 1. Start of code for generating report.
     # Generate a report object by giving it the database path.
     # The categories are Employees and Customers, and Misc (included
@@ -130,8 +109,10 @@ def example_categories():
 
 
 if __name__ == "__main__":
+    # set up the database
+    db_setup()
+
+    # run various report examples here
     # example_simple()
     # example_parse()
     example_categories()
-
-    # os.system(os.path.join(REPORTS_DIR, "listEmployees.html"))
