@@ -364,15 +364,28 @@ class Report(Layout):
         # plain dict so __deep_merge can treat all layers uniformly.
         result["paths"] = Paths(**result["paths"]).set_defaults().as_dict()
 
+        user_input = {}
+
         # Layer 2: user file (optional)
         if user_path is not None:
             with open(user_path, "r", encoding="utf-8") as f:
                 user_layout = json.load(f)
-            result = self.__deep_merge(result, user_layout)
+            user_input = self.__deep_merge(user_input, user_layout)
 
         # Layer 3: kwargs (optional)
         if kwargs:
-            result = self.__deep_merge(result, kwargs)
+            user_input = self.__deep_merge(user_input, kwargs)
+
+        # now merge all the results together
+        result = self.__deep_merge(result, user_input)
+
+        # finally, if the user has not set the static folder themselves, set
+        # the default location as `report_dir/static`
+        if user_input.get("paths").get("static") is None:
+            # using the default static placeholder. This needs updated
+            result["paths"]["static"] = (
+                Path(result["paths"].get("report_dir")) / "static"
+            )
 
         result["paths"] = Paths(**result["paths"]).as_dict()
 
