@@ -26,11 +26,11 @@ from .layout import Layout, Paths
 _JS_ASSETS = {
     "jquery-3.7.1.min.js": "https://code.jquery.com/jquery-3.7.1.min.js",  # noqa: E501
     "dataTables.min.js": "https://cdn.datatables.net/2.2.2/js/dataTables.min.js",  # noqa: E501
-    "jquery.timeago.js": "https://raw.githubusercontent.com/rmm5t/jquery-timeago/master/jquery.timeago.js",  # noqa: E501
+    "jquery.timeago.js": "https://raw.githubusercontent.com/rmm5t/jquery-timeago/master/jquery.timeago.js",  # noqa: E501  # pylint: disable=line-too-long
 }
 
 _CSS_ASSETS = {
-    "dataTables.dataTables.min.css": "https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css",  # noqa: E501
+    "dataTables.dataTables.min.css": "https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css",  # noqa: E501  # pylint: disable=line-too-long
 }
 
 
