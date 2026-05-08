@@ -44,10 +44,8 @@ def test_three_layers_all_present(report_from_layout, db_connection):
     """
     _, _ = report_from_layout
     path = os.path.abspath(os.path.join(".", "layout.json"))
-    # layout file: ignore_views=["popularArtists"], no titles
-    # kwargs: ignore_views=[], titles={"listAlbums": "Albums"}
-    report = Report(path, ignore_views=[], titles={"listAlbums": "Albums"})
+    report = Report(path, ignore_views=[], titles={"listEmployees": "Employees"})
     assert report.ignore_views == []  # kwargs win over file
-    assert report.titles == {"listAlbums": "Albums"}  # kwargs fill missing key
+    assert report.titles == {"listEmployees": "Employees"}  # kwargs fill missing key
     assert report.paths.static != ""  # defaults fill gap
     report.close()
