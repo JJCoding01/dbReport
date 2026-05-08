@@ -551,25 +551,20 @@ class Report(Layout):
             javascripts = [f"{static_name}/js/{fn}" for fn in _JS_ASSETS]
         else:
             css_styles, javascripts = [], []
-        headers = self.__get_columns(view_name)
-        caption = self.captions.get(view_name, "")
-        title = self.__get_title(view_name)
-        description = self.descriptions.get(view_name, "")
-        categories = self.__get_category_links(self.categories)
 
         if parse:  # pragma: no cover
             data = self.parse(data)
         rows = data.get(view_name, [])
 
         html = self.env.get_template(os.path.basename(self.paths.template)).render(
-            title=title,
-            description=description,
-            categories=categories,
+            title=self.__get_title(view_name),
+            description=self.descriptions.get(view_name, ""),
+            categories=self.__get_category_links(self.categories),
             updated=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
-            caption=caption,
+            caption=self.captions.get(view_name, ""),
             css_styles=css_styles,
             javascripts=javascripts,
-            headers=headers,
+            headers=self.__get_columns(view_name),
             rows=rows,
         )
 
