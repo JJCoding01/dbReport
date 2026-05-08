@@ -6,8 +6,6 @@ PACKAGE_NAME=dbreport
 install:
 	pip install -e ".[dev]"
 	pre-commit install
-	git submodule init
-	git submodule update
 
 # DOCUMENTATION AND TEST DB
 
