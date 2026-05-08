@@ -1,10 +1,18 @@
-/*This CSS file will be used for defining how the various elements
-will behave and where they will be located. There will be a separate
-CSS file that will define all the colors.
-This will allow the color theme to be changed easily. */
+/*
+=====================================================================
+   Page Structure
+=====================================================================
+*/
 
 html {
     height: 100%;
+}
+
+body {
+    min-height: 100%; /*for positioning footer*/
+    display: grid;
+    grid-template-rows: 1fr auto;
+    text-align: left;
 }
 
 #page-title {
@@ -16,23 +24,26 @@ html {
     margin-bottom: 0px;
 }
 
-body {
-    min-height: 100%; /*for positioning footer*/
-    display: grid;
-    grid-template-rows: 1fr auto;
-    text-align: left;
+#footer {
+    grid-row-start: 2;
+    grid-row-end: 3;
+
+    font-size: 10pt;
+    line-height: 50%;
+    text-align: right;
 }
 
-.timeago {
-    font-weight: bold;
-}
 
+/*
+=====================================================================
+   Typography
+=====================================================================
+*/
 
 h2.header2 {
   font-variant-caps: small-caps;
   font-family: sans-serif;
   white-space: nowrap;
-
 }
 
 p {
@@ -45,69 +56,9 @@ p.right {
     margin-right: 15px;
 }
 
-p.description{
-    /*text-decoration: underline;*/
+p.description {
     text-align: left;
     margin-left: 10px;
-}
-
-a.link:link{
-    color: #2715D6FF;
-    text-decoration: none;
-}
-a.link:hover {
-    font-size: 105%;
-    text-decoration: underline;
-}
-
-/*--------------Style Filter and filter containers--------------------*/
-.filter-form {
-  margin-left: auto;
-  margin-right: auto;
-
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-right: 15px;
-  padding-left: 15px;
-
-  margin-right: 20%;
-  margin-left: 20%;
-}
-
-.filter-group {
-  border: solid;
-  border-width: thin;
-  border-color: black;
-  border-radius: 10px;
-}
-
-.filter-legend {
-  font-variant-caps: small-caps;
-  letter-spacing: 1pt;
-  font-size: 10pt;
-  font-weight: bold;
-  /*font-weight: bolder;*/
-  padding-right: 5px;
-  padding-left: 5px;
-  font-family: sans-serif;
-}
-
-.filter-container {
-  display: inline-block;
-  padding-bottom: 8px;
-  padding-right: 10px;
-}
-
-.filter {
-  font-weight: lighter;
-  border: none;
-  border-bottom: 1px solid black;
-  display: block;
-  padding-top: 0px;
-  font-style: italic;
-  font-size: 11pt;
-  text-transform: lowercase;
-  width: auto;
 }
 
 .labels {
@@ -115,24 +66,37 @@ a.link:hover {
   font-variant-caps: all-petite-caps;
 }
 
+.timeago {
+    font-weight: bold;
+}
+
+
+/*
+=====================================================================
+   Links
+=====================================================================
+*/
+
+a.link:link {
+    color: #2715D6FF;
+    text-decoration: none;
+}
+
+a.link:hover {
+    text-decoration: underline;
+}
+
+
+/*
+=====================================================================
+   Table
+=====================================================================
+*/
+
 caption {
     font-weight: bold;
     font-size: 10pt;
     text-align: left;
-    /*font-variant-caps: all-small-caps;*/
-}
-
-.header-row {
-  font-variant-caps: small-caps;
-  text-align: center;
-  font-size: 12pt;
-  cursor: pointer;
-  font-weight: bold;
-  font-family: sans-serif;
-}
-
-tr:nth-child(odd) {
-    font-weight: bold;
 }
 
 #table {
@@ -154,18 +118,55 @@ th, td {
     font-size: 10pt;
 }
 
-#table thead tr:nth-child(2) th input {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
+.header-row {
+  font-variant-caps: small-caps;
+  text-align: center;
+  font-size: 12pt;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: sans-serif;
 }
 
+/* Format every other row for easier scanning */
+#table tbody tr:nth-child(odd) {
+    font-weight: bold;
+    background-color: rgba(128, 128, 128, 0.123);
+    font-size: larger;
 
-#footer {
-    grid-row-start: 2;
-    grid-row-end: 3;
+}
 
+#table tbody tr:hover {
+    background-color: rgba(59, 59, 59, 0.253);
+}
+
+#table thead th {
+    /*
+    Override dataTables default where text columns were left-aligned
+    and numeric columns were right-aligned.
+    */
+    text-align: left;
+}
+
+/* Filter row cells */
+#table thead tr:nth-child(2) th {
+    padding: 3pt 3pt;
+    text-transform: lowercase;
+}
+
+#table thead tr:nth-child(2) th input::placeholder {
+    font-style: italic;
+    color: #aaa;
+    text-transform: lowercase;
+}
+
+/* Filter row inputs */
+#table thead tr:nth-child(2) th input {
+    display: block;
+    width: 100%;
+    padding-left: 1pt !important;
+    padding-right: 1pt;
+    min-width: 0;
+    box-sizing: border-box;
     font-size: 10pt;
-    line-height: 50%;
-    text-align: right;
+    text-align: left;
 }
