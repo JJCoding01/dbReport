@@ -55,11 +55,16 @@ def example_simple():
     Use default report generator, no parsing, and no additional parameters.
     """
     # 1. Start of code for generating report.
-    # Generate a report object by giving it the database path
-    report = Report(paths={"database": DB_FILENAME})
+    # Generate a report object by giving it the database and output paths.
+    report = Report(paths={"report_dir": REPORTS_DIR, "database": DB_FILENAME})
 
     # 2. Write the reports
-    report.write(REPORTS_DIR)
+    report.generate()  # first run, copies static folder
+
+    # After `report.generate()` runs, it is sufficient to use `report.write()`
+    # to update the reports any time the database changes. This will skip the
+    # setup of the static dir.
+    # report.write()
 
     # 2.1 or you can access the rendered html as text using
     # rendered_reports = report.render()
@@ -71,14 +76,16 @@ def example_parse():
     """
 
     # 1. Start of code for generating report.
-    # Generate a report object by giving it the database path
-    report = MyCustomReport(paths={"database": DB_FILENAME})
+    # Generate a report object by giving it the database and output paths.
+    report = MyCustomReport(paths={"database": DB_FILENAME, "report_dir": REPORTS_DIR})
 
     # 2. Write the reports. Be sure the parse parameter is set to True
-    report.write(REPORTS_DIR, parse=True)
+    report.generate(parse=True)  # generate the first time
 
-    # 2.1 or you can access the rendered html as text using
-    # rendered_reports = report.render(parse=True)
+    # After `report.generate()` runs, it is sufficient to use `report.write()`
+    # to update the reports any time the database changes. This will skip the
+    # setup of the static dir.
+    # report.write(parse=True)
 
 
 def example_categories():
@@ -86,26 +93,35 @@ def example_categories():
     Example with categories and custom titles
     """
     # 1. Start of code for generating report.
-    # Generate a report object by giving it the database path.
-    # The categories are Employees and Customers, and Misc (included
+    # Generate a report object by giving it the database and output paths.
+    # The categories are `Employees` and `Customers`, and `Misc` (included
     # automatically). The contents of the Employees category are links to the
-    # reports for views listEmployees and topSalesmen. The Misc category is a
-    # catch all that includes links to all reports not listed in other
+    # reports for views `listEmployees` and `topSalesmen`. The `Misc` category
+    # is a catch all that includes links to all reports not listed in other
     # categories.
     report = Report(
-        paths={"database": DB_FILENAME},
+        paths={
+            "database": DB_FILENAME,
+            "report_dir": REPORTS_DIR,
+        },
         categories={
             "Employees": ["listEmployees", "topSalesmen"],
             "Customers": ["topCustomer"],
         },
         titles={"listEmployees": "list of Employees"},
+        descriptions={
+            "topCustomer": "Some text to describe or introduce the "
+            "table. May be as extensive as you need it to be."
+        },
     )
 
     # 2. Write the reports. Be sure the parse parameter is set to True
-    report.write(REPORTS_DIR)
+    report.generate(parse=False)
 
-    # 2.1 or you can access the rendered html as text using
-    # rendered_reports = report.render()
+    # After `report.generate()` runs, it is sufficient to use `report.write()`
+    # to update the reports any time the database changes. This will skip the
+    # setup of the static dir.
+    # report.write(parse=True)
 
 
 if __name__ == "__main__":
