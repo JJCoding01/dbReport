@@ -1,10 +1,9 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = [ "setuptools>=61", "wheel" ]
+requires = [ "setuptools>=77.0.3" ]
 
 [project]
 name = "dbreport"
-version = "0.3.3a2"
 description = "Generate html reports of views in a sqlite3 database"
 readme = "README.md"
 keywords = [ "html", "report", "sqlite", "sqlite3" ]
@@ -22,10 +21,12 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
 ]
+dynamic = [ "version" ]
 dependencies = [ "beautifulsoup4", "jinja2" ]
 optional-dependencies.dev = [
   "beautifulsoup4",
   "black",
+  "build",
   "flake8",
   "isort",
   "pre-commit",
@@ -38,14 +39,13 @@ optional-dependencies.dev = [
   "validate-pyproject[all]",
 ]
 urls.Homepage = "https://dbreport.readthedocs.io/en/latest/index.html"
-scripts.report = "dbreport:cli"
 
 [tool.setuptools]
+dynamic.version = { attr = "dbreport.__version__" }
 package-data.dbreport = [
-  "templates/static/*.j2",
-  "templates/static/*.json",
-  "templates/SQL/*",
-  "templates/css/*.css",
+  "templates/*.j2",
+  "templates/*.json",
+  "templates/static/css/*.css",
 ]
 package-data."*" = [ "License.txt" ]
 packages.find.where = [ "." ]
