@@ -7,4 +7,4 @@ from . import util
 from .layout import Paths
 from .report import Report
 
-__version__ = "0.3.3a2"
+__version__ = "0.4.0"
