@@ -7,6 +7,7 @@ layout configuration, call :meth:`Report.render` to get HTML strings, or
 """
 
 import copy
+import fnmatch
 import glob
 import json
 import os
@@ -22,6 +23,11 @@ from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 
 from .layout import Layout, Paths
+
+
+def _is_glob(pattern):
+    return any(c in pattern for c in ("*", "?", "["))
+
 
 _JS_ASSETS = {
     "jquery-3.7.1.min.js": "https://code.jquery.com/jquery-3.7.1.min.js",  # noqa: E501
@@ -76,10 +82,10 @@ class Report(Layout):
             captions=self.layout["captions"],
             descriptions=self.layout["descriptions"],
         )
-        # Add Misc bucket for any views not covered by the user-specified categories
-        self.categories = self.__add_misc_category(
-            self.layout["categories"], self.views
-        )
+        # Add Misc bucket for any views not covered by the user-specified
+        # categories. Use self.categories (already glob-expanded) so patterns
+        # aren't treated as literals.
+        self.categories = self.__add_misc_category(self.categories, self.views)
         self.env = Environment(
             trim_blocks=True,
             lstrip_blocks=True,
@@ -132,7 +138,7 @@ class Report(Layout):
         # find all views that are ignored but do not exist
         ignore_dne = []
         for value in values:
-            if value not in self._get_views():
+            if not _is_glob(value) and value not in self._get_views():
                 ignore_dne.append(value)
 
         # warn for any views that are listed to be ignored, but do not actually
@@ -167,23 +173,32 @@ class Report(Layout):
         Layout.categories.fset(self, categories_)
 
         # find all views listed in a category that does not exist and build a
-        # cleaned copy that omits them so they don't produce broken nav links
+        # cleaned copy that omits them so they don't produce broken nav links.
+        # Entries containing glob chars are expanded to all matching view names.
         existing_views = set(self.views)
         view_dne = set()
         cleaned = {}
         for key, entries in categories_.items():
-            valid = [e for e in entries if e in existing_views]
+            expanded = []
             for entry in entries:
-                if entry not in existing_views:
+                if _is_glob(entry):
+                    expanded.extend(
+                        v for v in existing_views if fnmatch.fnmatch(v, entry)
+                    )
+                elif entry in existing_views:
+                    expanded.append(entry)
+                else:
                     view_dne.add(f"{key}>{entry}")
-            if valid:
-                cleaned[key] = valid
+            if expanded:
+                cleaned[key] = expanded
 
         if view_dne:
-            views = ", ".join(f"{v!r}" for v in view_dne)
-            msg = f"The following categories were listed but do not exist: {views}"
-            warnings.warn(msg, UserWarning)
-            self._categories = cleaned
+            views_str = ", ".join(f"{v!r}" for v in view_dne)
+            warnings.warn(
+                f"The following categories were listed but do not exist: {views_str}",
+                UserWarning,
+            )
+        self._categories = cleaned
 
     @Layout.titles.setter
     def titles(self, value):
@@ -294,7 +309,11 @@ class Report(Layout):
         list
             View names to be rendered.
         """
-        return [v for v in self._get_views() if v not in self.ignore_views]
+        return [
+            v
+            for v in self._get_views()
+            if not any(fnmatch.fnmatch(v, pat) for pat in self.ignore_views)
+        ]
 
     @staticmethod
     def __deep_merge(base, override):

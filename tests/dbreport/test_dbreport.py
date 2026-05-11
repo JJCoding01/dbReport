@@ -1,4 +1,5 @@
 import os
+import warnings
 
 import pytest
 
@@ -125,6 +126,30 @@ def test_ignored_views_are_removed(report):
     report.ignore_views = ["listEmployees", "popularArtists"]
     for view in report.ignore_views:
         assert view not in report.views, "ignored view is still included"
+
+
+def test_ignore_views_glob_removes_matching(report):
+    report.ignore_views = ["popular*"]
+    assert "popularArtists" not in report.views
+
+
+def test_ignore_views_glob_no_warning(report):
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        report.ignore_views = ["xyz_no_match_*"]
+
+
+def test_categories_glob_expands_views(report):
+    report.categories = {"Group": ["popular*"]}
+    assert "popularArtists" in report.categories["Group"]
+    assert "popular*" not in report.categories["Group"]
+
+
+def test_categories_glob_no_warning(report):
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        report.categories = {"Group": ["xyz_no_match_*"]}
+    assert "Group" not in report.categories
 
 
 def test_titles_invalid_not_dict(report):

@@ -8,134 +8,187 @@ Readme
 ## Description
 This module will generate HTML reports of each view defined in the specified sqlite3 database.
 
-View specific properties, such as a description and friendly name can be predefined and in a `layout.json` file.
-
-Each report is a single file, with links to all other reports through the navigation bar.
+View specific properties, such as a description and friendly name, can be defined in a
+`layout.json` file or passed directly as keyword arguments. Each report is a single HTML file
+with interactive sorting, filtering, and column visibility, linked to all other reports through
+a shared navigation bar.
 
 For the complete documentation, see [Read the Docs](https://dbreport.readthedocs.io/en/latest/index.html)
 
 ## Installation
 
-Since this module has several sub-modules, to clone, perform the following steps
-to clone it with all the sub-modules populated. 
+```bash
+pip install dbreport
+```
+
+For a development (editable) install from source:
 
 ```bash
->> git clone https://github.com/josephjcontreras/dbreport.git
->> cd dbReport
->> git submodule init
->> git submodule update
+git clone https://github.com/JJCoding01/dbReport.git
+cd dbReport
+pip install -e .
 ```
 
-For further details about submodules, refer to the [git documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
+## Quick Start
 
-Once cloned, `dbReport` can be installed by adding a link to the cloned repository using
-by activating the virtual environment, navigating to the root project folder and running 
-`pip install -e .` .
+```python
+from dbreport import Report
+
+report = Report(paths={"database": "my.db", "report_dir": "reports/"})
+report.generate()   # downloads JS/CSS assets and writes HTML on first run
+```
+
+On subsequent runs, use `report.write()` to skip re-downloading static assets:
+
+```python
+report.write()
+```
+
+Configuration can be passed as keyword arguments, loaded from a JSON layout file, or
+both — see [Configuration Precedence](#configuration-precedence) below.
+
+## Generating vs Writing Reports
+
+Three methods cover different stages of the workflow:
+
+| Method | What it does | When to use |
+|---|---|---|
+| `generate()` | Downloads JS/CSS assets + writes HTML | First run, or after upgrading |
+| `write()` | Writes HTML only (assets must already exist) | Routine updates |
+| `render()` | Returns `{view_name: html_str}` without writing files | Custom output pipelines |
+
+`generate()` downloads [DataTables](https://datatables.net/) and jQuery from CDN into
+`report_dir/static/` the first time it runs. Pass `force=True` to force re-download of
+existing assets. Subsequent calls to `write()` skip the network entirely:
+
+```python
+# First run — sets up the static folder and writes reports
+report.generate()
+
+# Later runs — writes updated HTML only, no network calls
+report.write()
+```
+
+## Configuration Precedence
+
+Configuration is merged from three layers, highest priority first:
+
+1. **Keyword arguments** passed to `Report(...)` — always win
+2. **Layout JSON file** passed as `layout_path` — overrides defaults
+3. **Built-in defaults** (`dbreport/templates/layout.json`) — lowest priority
+
+This means you can keep a shared `layout.json` for stable settings (database path,
+categories) and override specific keys per run without editing the file:
+
+```python
+# layout.json sets the database and categories;
+# the kwarg overrides only report_dir for this run
+report = Report("layout.json", paths={"report_dir": "reports/today/"})
+```
+
+Only `paths.database` is required — all other keys fall back to built-in defaults.
 
 ## Layout file
-All common parameters must be defined in a layout file. Parameters that are defined include the
-following.
 
- - `categories` define the nav-bar in the reports
- - `ignore_views` list of view names to exclude from reports
- - `titles` define a friendly name for each view. If not defined the view name will be used
- - `paths` required paths to database, css files, where reports are saved, etc
- - `captions` predetermined caption for each table
- - `descriptions` pre-set description of the view that will be included with the report
+All common parameters can be defined in a layout JSON file passed as the first argument to
+`Report`. Parameters include the following.
 
-#### `categories`
-Defining categories is not required, but is helpful to group similar reports together in the
-navigation bar in each report. If a view is not given a specific category, it is assigned to a
-`Misc` category on the navigation bar. This ensures there is an easy way to access any report, from
-any other report. Each view can be a member of multiple categories, or none at all. By not defining
-a category, it is implied that it is part of the `Misc` category (unless the
-view name is in `ignore_views`).
+- `categories` — define dropdown groups in the navigation bar
+- `ignore_views` — list of view names (or glob patterns) to exclude from reports
+- `titles` — friendly display names for each view
+- `paths` — required and optional file paths
+- `captions` — per-table captions
+- `descriptions` — per-view descriptions shown above the table
 
-To define a category, enter a list of view names with a key of the category name.
-See layout snippet below
-```json
-{
-  "categories": {"First Category": ["view1Name", "view2Name", "view3Name"],
-               "Second Category": ["view1Name"]}
-}
-```
-This will add two dropdown menus in the navigation bar of each report.
+### `categories`
 
- - `First Category` will be the first dropdown, and will contain links to reports for `view1Name`, `view2Name`, and `view3Name`
- - `Second Category` will be the second dropdown, and will contain one link to `view1Name`
-
-Note that the even through the view names are specified in the category list, the view title
-(defined below) will show up in the dropdown menu in the navigation bar.
-
-
-#### `titles`
-Defining titles allows giving meaningful names to reports without changing the view name. This is a
-map from view name to report title. The filename of the report will always be the view name, but
-the report title, and the report name that shows up in the navigation bar, will be the title.
-
-for example
+Defining categories groups related reports together in the navigation bar. Any view not
+assigned to a category is placed in an automatic `Misc` category so every report is always
+reachable. A view can appear in multiple categories.
 
 ```json
 {
-"titles": {
-            "view1Name": "First View Title",
-            "view2Name": "Second View Title",
-            "view3Name": "Third View Title"
-    }
+  "categories": {
+    "First Category": ["view1Name", "view2Name", "view3Name"],
+    "Second Category": ["view1Name"]
+  }
 }
 ```
 
-#### `paths`
-The `paths` key in the layout file defines all paths required for running the project. These 
-paths may be absolute paths or paths relative to the layout file.
+View names in each list support glob patterns (`*`, `?`, `[...]`), so you can group views
+by naming convention without listing every name individually:
 
-The defined paths include:
-
- - `database` Path to database file
- - `template` path to the base `HTML/jinja2` template that all reports will be created from
- - `css_styles` path to directory containing CSS files (all files in this directory will be included in reports)
- - `javascript` a list of Javascript plugins to be connected to the reports
- 
- By default, the following plugins are included
-  + [timeago](https://timeago.yarp.com/) for showing a relative time for when the report was created
-  + [tablesorter](https://github.com/christianbach/tablesorter) for quickly sorting the table by any column
-  + [multifilter](https://github.com/tommyp/multifilter) for filtering the table based inputs for each column
- - `sql` the directory where sql files are stored
- - `report_dir` directory where generated reports are to be stored
-
-  See below for the default paths set as the defaults.
 ```json
 {
-"paths": {
-  "database": "",
-  "template": "templates/base.html.j2",
-  "css_styles": "templates/css",
-  "javascript": [
-    "templates/javascript/jquery-timeago/jquery.timeago.js",
-    "templates/javascript/multifilter/multifilter.js",
-    "templates/javascript/tablesorter/jquery.tablesorter.js"
-  ],
-  "sql": "templates/sql",
-  "report_dir": "reports",
-  "search_paths": ""
-    }
+  "categories": {
+    "Sales":     ["sales_*"],
+    "Inventory": ["inv_*", "stock_*"]
+  }
 }
 ```
 
-#### `descriptions`
-Descriptions are a dictionary defining an extended description of the view that will be included on the report.
+Patterns follow Python's `fnmatch` rules. A pattern that matches no views is silently
+ignored; a literal name that doesn't exist in the database produces a warning.
 
+Note: even when view names are specified in the category list, the friendly `title`
+(defined below) is what appears in the navigation bar dropdown.
 
-This script comes with a default `layout.json` file. Any parameters that are not defined in the user specified layout file, will use the parameters specified in the default layout file.
+### `ignore_views`
+
+A list of view names to exclude from all reports and navigation menus. Glob patterns are
+supported:
+
+```json
+{
+  "ignore_views": ["_internal_*", "tmp_*"]
+}
+```
+
+Literal names that don't match any database view produce a warning. Glob patterns that
+match nothing are silently ignored.
+
+### `titles`
+
+A mapping from view name to display title. The HTML filename is always the view name, but
+the title shown in the report heading and navigation bar uses this value.
+
+```json
+{
+  "titles": {
+    "view1Name": "First View Title",
+    "view2Name": "Second View Title"
+  }
+}
+```
+
+### `paths`
+
+| Key | Required | Default | Description |
+|---|---|---|---|
+| `database` | **Yes** | — | Path to the SQLite `.db` file |
+| `report_dir` | No | `reports/` | Directory where HTML reports are written |
+| `static` | No | `report_dir/static/` | Directory where JS/CSS assets are stored |
+| `template` | No | built-in | Path to a custom Jinja2 template |
+
+Relative paths in a layout file are resolved relative to the layout file's location.
+
+### `descriptions`
+
+A mapping from view name to a longer description shown above the table in the report.
+
+```json
+{
+  "descriptions": {
+    "view1Name": "Detailed description of what this view contains."
+  }
+}
+```
 
 ## License
 MIT license.
 
 ## Credits
- - jQuery plugin `timeago` by Ryan McGeary [www.timeago.yarp.com](https://timeago.yarp.com/) licensed under the MIT license
- - jQuery plugin `tablesorter` by Christian Bach [github.com/christianbach/tablesorter](https://github.com/christianbach/tablesorter) licensed under the MIT license
- - jQuery plugin `multifilter` by Tommy Palmer [github.com/tommyp/multifilter](https://github.com/tommyp/multifilter) licensed under the MIT license
- - Test database by [sqlitetutorial.net](https://www.sqlitetutorial.net/sqlite-sample-database/)
-
-## Notes
-This is a project that I needed for a personal project, and is currently under active development. I hope you get some use out of it. Suggestions for improvements are welcome.
+- [DataTables](https://datatables.net/) by SpryMedia Ltd — MIT license
+- [jQuery](https://jquery.com/) — MIT license
+- [jquery-timeago](https://github.com/rmm5t/jquery-timeago) by Ryan McGeary — MIT license
+- Test database by [sqlitetutorial.net](https://www.sqlitetutorial.net/sqlite-sample-database/)
